@@ -1,0 +1,3 @@
+# 私人行程頁面，請勿索引
+User-agent: *
+Disallow: /

@@ -1,0 +1,1683 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>九州旅遊助手</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="theme-color" content="#cf4229">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="九州行程">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAFNUlEQVR42u3T53JbVRiF4X0Vllwky1WSe+81l0dCNb2EakooCWBK6AlgSghc0uICPLNHP/Ycn/nW+808/8+sfd70342+AFeJEWAdwL83+gJcEQDMAzjtC3CVHp/2BbhKj097Alylf057AlwRAAgAsA3g0WlPgKv06KQnwBUBwDuAv096AlwRAAgAsA3gr5OuAFcEAO8A/jzuCnBFACAAwDaAP467AlwRAAgAsA3g8rgrwFW6POoKcJUuj2YFuEq/H80KcEUAIADANoDfjmYFuCIAeAfw6+GsAFcEAAIAbAN4eDgrwFV6eDgjwBUBwDuAB4czAlylBwczAlwRALwD+OVgRoArAoB3AD8fzAhwRQAgAMA2gJ/2pwW4IgAQQFU4bpCrNIAf96dVFY4b5Kr8JwmAIwAC4GwD+GF/WlXhuEGuyn+SADjvAL7fm1ZVOG6Qq/KfJADOPYApVYXjBgugun8yfbc3papw3CBX5T9JABwBEABnG8D9vSlFUerq8l0u+1yndH93SlEUe+CafJfLPteJAAjAO4Bvd6cURamry3e57HOdCIAACIAACMA2gG92JxVFqavLd7nsc51S1J+Yq+fVLoCvdyZVJ1zsq9v/RgAcARAAZxvAVzuTqhMu9tXtfyMAjgAIgLMN4GJnUnXCxb66/W/pYntSdcIFD6Bm/1u62J5QnXDRA6jX/5a+3J5QFKUu0ibsk0cABOAdwBfbE4qi1EXahH3yCIAACIAHJgDbAD7fmlAUpS7SJuyTRwAEQAA8MAHYBnBva0JRlLpIm7BPXrq31VEU5R64ExL7XEUABOAdwN2tjqIodZE2YZ+8dHezoyiKPXCgTdgnL3222VEUpS7SJuyTRwAEQAA8MAHYBvDpZkdRlLpIm7BPHgEQAAHwwARgG8AnG+OKotRF2oR98giAAAiAByYA2wA+3hhXFKUu0ibsk0cABEAAPDAB2AZwZ2NcUZS6SJuwT166sz6uKIo9cKBN2CcvfbQ+rihKXaRN2CePAAjAPYC2oij3wO2Q2Oeq9OF6W1GUukibsE8eARAAAfDABGAbwAdrbUVR6iJtwj55BEAABMADE4BtAO+vtRVFqYu0CfvkEQABeAdwvtZWFKUu0ibsk5fO11qKotwDt0Jin6vS+WpLURR74ECbsE9eem+1pShKXaRN2CePAAiAAHhgArAN4N3VlqIodZE2YZ88AiAAAuCBCcA2gHdWWoqi1EXahH3yCIAAvAN4e2VMUZS6SJuwTx4BEAAB8MAEYBvAWytjiqLURdqEffIIgADMA1geUxTFHjjQJuyTl95cHlMUpS7SJuyTRwAEQAA8MAHYBnB7eUxRlLpIm7BPXrq9PKooyj3waEjscxUBEIB3AG8sjSqKUhdpE/bJIwAC8A7g9aVRRVHqIm3CPnkEQAAEwAMTgG0Ary2NKopSF2kT9skjAAIgAB6YAGwDeHVxRFGUukibsE8eARAAAfDABGAbwCuLI4qi1EXahH3yCIAAvAN4eXFEUZS6SJuwTx4BEIB5AAsjiqLYAwfahH3y0ksLI4qi1EXahH3yCIAA3AMYFuAqvbgwLMAVAYAAANsAXpgfFuCKAOAdwPPzwwJcEQAIALAN4Gx+WICrdDbfFOAqnc01BbhKz801BbgiABAAYBvAs3NNAa4IAAQA2AbwTL8pwBUBwDuAp/sNAa4IAAQA2AbwVL8hwBUBwDyAXkOAq/RkryHAFQGAAADbAG71GgJcpVu9IQGu0s3ekABX6WZ3SIArAoB3AE90hwS4IgBY+x+h9kNJjEm8TwAAAABJRU5ErkJggg==">
+<style>
+/* ============================================================
+   九州旅遊助手 — 旅の栞（旅行手帖）風格
+   中性色偏冷灰綠，刻意避開暖奶油色；8 個地區各有專屬色相。
+   ============================================================ */
+
+/* ---------- 主題 tokens ---------- */
+:root{
+  --paper:#edf0ee; --card:#ffffff; --card2:#e4e9e6; --sunk:#e9edeb;
+  --ink:#14222a; --ink2:#4a5b62; --ink3:#7b8a8f;
+  --line:#d4dcd8; --line2:#b9c4bf;
+  --brand:#cf4229; --brand-soft:#fae2dc;
+  --ok:#2f7d5b; --ok-soft:#e0efe7;
+  --warn:#8a5a12; --warn-soft:#fbeed6; --warn-line:#e7cf9e;
+  --dgr:#a5271f; --dgr-soft:#fbe2df; --dgr-line:#eeb2ac;
+  --sh-1:0 1px 2px rgba(20,34,42,.07);
+  --sh-2:0 2px 4px rgba(20,34,42,.05),0 8px 20px rgba(20,34,42,.07);
+  --display:"Archivo Black",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Hiragino Sans","Noto Sans TC","Microsoft JhengHei",sans-serif;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#0c1418; --card:#15212a; --card2:#1e2c35; --sunk:#111c23;
+  --ink:#e7eff0; --ink2:#a2b4ba; --ink3:#74878e;
+  --line:#25343d; --line2:#354852;
+  --brand:#f4795e; --brand-soft:#3a1e17;
+  --ok:#68c39a; --ok-soft:#16302a;
+  --warn:#e2b667; --warn-soft:#2f2716; --warn-line:#4a3e22;
+  --dgr:#f2867c; --dgr-soft:#341d1a; --dgr-line:#54302c;
+  --sh-1:0 1px 2px rgba(0,0,0,.45);
+  --sh-2:0 2px 4px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  --paper:#0c1418; --card:#15212a; --card2:#1e2c35; --sunk:#111c23;
+  --ink:#e7eff0; --ink2:#a2b4ba; --ink3:#74878e;
+  --line:#25343d; --line2:#354852;
+  --brand:#f4795e; --brand-soft:#3a1e17;
+  --ok:#68c39a; --ok-soft:#16302a;
+  --warn:#e2b667; --warn-soft:#2f2716; --warn-line:#4a3e22;
+  --dgr:#f2867c; --dgr-soft:#341d1a; --dgr-line:#54302c;
+  --sh-1:0 1px 2px rgba(0,0,0,.45);
+  --sh-2:0 2px 4px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.35);
+}
+
+/* ---------- 地區色相 ---------- */
+[data-reg="fukuoka"]{--rb:#e0483a}
+[data-reg="nagasaki"]{--rb:#2b62ab}
+[data-reg="kumamoto"]{--rb:#2f7d5b}
+[data-reg="aso"]{--rb:#d1700f}
+[data-reg="kurokawa"]{--rb:#7b5ea7}
+[data-reg="yufuin"]{--rb:#0e8c8c}
+[data-reg="beppu"]{--rb:#cf3f7a}
+[data-reg="dazaifu"]{--rb:#a8752c}
+[data-reg="journey"]{--rb:#cf4229}
+
+[data-reg]{
+  --reg:var(--rb);
+  --reg-shade:color-mix(in srgb, var(--rb) 60%, #0b141a);
+  --reg-tint:color-mix(in srgb, var(--rb) 15%, var(--card));
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) [data-reg]{
+  --reg:color-mix(in srgb, var(--rb) 74%, #ffffff);
+  --reg-shade:color-mix(in srgb, var(--rb) 74%, #000000);
+  --reg-tint:color-mix(in srgb, var(--rb) 24%, var(--card));
+}}
+:root[data-theme="dark"] [data-reg]{
+  --reg:color-mix(in srgb, var(--rb) 74%, #ffffff);
+  --reg-shade:color-mix(in srgb, var(--rb) 74%, #000000);
+  --reg-tint:color-mix(in srgb, var(--rb) 24%, var(--card));
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--paper)}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font:15px/1.68 var(--body);
+  -webkit-font-smoothing:antialiased;overflow-wrap:anywhere;
+}
+h1,h2,h3{margin:0;font-weight:800;line-height:1.32;text-wrap:balance}
+p{margin:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+svg{display:block}
+:focus-visible{outline:2.5px solid var(--brand);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.num{font-family:var(--display);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.eyebrow{font-family:var(--display);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase}
+
+/* ---------- topbar ---------- */
+#topbar{
+  position:sticky;top:0;z-index:30;
+  background:color-mix(in srgb, var(--paper) 90%, transparent);
+  backdrop-filter:saturate(180%) blur(12px);-webkit-backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top);
+}
+.tb-inner{display:flex;align-items:center;gap:12px;padding:10px 16px;max-width:620px;margin:0 auto}
+.tb-text{min-width:0;flex:1}
+#tb-title{font-size:17px;font-weight:800}
+#tb-sub{font-size:11.5px;color:var(--ink3);margin-top:1px}
+.icon-btn{
+  flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--ink2);cursor:pointer;display:grid;place-items:center;padding:0
+}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn:active{background:var(--card2)}
+
+/* ---------- layout ---------- */
+#view{max-width:620px;margin:0 auto;padding:16px 16px calc(80px + env(safe-area-inset-bottom))}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+.sec-title{
+  display:flex;align-items:center;gap:10px;
+  font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--ink3);
+  margin:24px 0 10px
+}
+.sec-title::after{content:"";flex:1;height:1px;background:var(--line)}
+.sec-title:first-child{margin-top:2px}
+
+/* ---------- tabbar ---------- */
+#tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  display:grid;grid-template-columns:repeat(5,1fr);
+  background:color-mix(in srgb, var(--paper) 94%, transparent);
+  backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);
+}
+#tabbar a{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:8px 2px 9px;font-size:10.5px;font-weight:700;color:var(--ink3);min-height:54px
+}
+#tabbar .ti{display:block;width:22px;height:22px}
+#tabbar svg{width:22px;height:22px}
+#tabbar a.on{color:var(--brand)}
+
+/* ---------- 插畫 ---------- */
+.scene{width:100%;height:100%;display:block}
+.art{position:relative;line-height:0;background:var(--reg-tint)}
+.art .scene{height:100%}
+
+.stamp{
+  flex:none;width:46px;height:46px;border-radius:13px;overflow:hidden;
+  display:block;border:1px solid var(--line);background:var(--reg-tint)
+}
+.stamp svg{width:100%;height:100%}
+
+/* ---------- hero ---------- */
+.hero{border-radius:20px;overflow:hidden;box-shadow:var(--sh-2);background:var(--card)}
+.hero-art{height:126px;background:var(--reg-tint)}
+.hero-body{background:var(--reg-shade);color:#fff;padding:15px 18px 17px}
+.hero-body .eyebrow{opacity:.72}
+.hero .big{font-family:var(--display);font-size:46px;line-height:1;margin:5px 0 3px;font-variant-numeric:tabular-nums}
+.hero .big small{font-size:15px;margin-left:6px;opacity:.8;font-family:var(--body);font-weight:800}
+.hero h2{font-size:19px;margin-top:3px}
+.hero .meta{font-size:12.5px;opacity:.82;margin-top:6px;line-height:1.55}
+
+/* ---------- 進度 ---------- */
+.prog-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.prog-row b{font-size:14.5px}
+.prog-row span{font-family:var(--display);font-size:12px;color:var(--ink3)}
+.prog{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden;margin-top:8px;border:1px solid var(--line)}
+.prog i{display:block;height:100%;background:var(--ok);transition:width .3s}
+
+/* ---------- 卡片 ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-1)}
+.card-p{padding:14px 16px}
+
+/* ---------- 日卡（印章頁） ---------- */
+.daycard{
+  display:block;border-radius:18px;overflow:hidden;
+  background:var(--card);border:1px solid var(--line);box-shadow:var(--sh-1)
+}
+.daycard.now{border-color:var(--reg);box-shadow:0 0 0 3px var(--reg-tint),var(--sh-2)}
+.dc-art{height:88px;position:relative;background:var(--reg-tint)}
+.dc-badge{
+  position:absolute;left:12px;top:12px;width:42px;height:42px;border-radius:50%;
+  background:var(--card);color:var(--reg);display:grid;place-items:center;
+  font-family:var(--display);font-size:18px;box-shadow:0 0 0 2.5px var(--reg)
+}
+.dc-flag{
+  position:absolute;right:0;bottom:0;background:var(--reg);color:#fff;
+  font-size:11px;font-weight:700;padding:4px 11px;border-radius:11px 0 0 0;letter-spacing:.02em
+}
+.dc-body{padding:12px 15px 13px}
+.dc-date{font-family:var(--display);font-size:11.5px;color:var(--ink3);letter-spacing:.07em}
+.dc-title{font-size:16px;font-weight:800;margin-top:3px}
+.dc-region{font-size:12.5px;color:var(--reg);font-weight:700;margin-top:3px}
+.dc-foot{
+  display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink2);
+  margin-top:11px;padding-top:10px;border-top:1px dashed var(--line)
+}
+.dc-foot svg{width:15px;height:15px;flex:none;color:var(--ink3)}
+
+/* ---------- 時間軸 ---------- */
+.part{margin-top:18px}
+.part-h{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--reg)}
+.part-h svg{width:17px;height:17px;flex:none}
+.part-h b{font-size:13.5px;font-weight:800}
+.part-h .pill{
+  margin-left:auto;font-family:var(--display);font-size:10.5px;padding:2px 9px;border-radius:99px;
+  background:var(--reg-tint);color:var(--reg)
+}
+.tl{position:relative;padding-left:21px}
+.tl::before{content:"";position:absolute;left:5px;top:10px;bottom:10px;width:2px;background:var(--reg);opacity:.3;border-radius:2px}
+.ev{position:relative;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh-1)}
+.ev+.ev{margin-top:10px}
+.ev::before{content:"";position:absolute;left:-20px;top:17px;width:10px;height:10px;border-radius:50%;background:var(--reg);box-shadow:0 0 0 3px var(--paper)}
+.ev-time{font-family:var(--display);font-size:11.5px;color:var(--reg);letter-spacing:.04em}
+.ev-title{font-size:15.5px;font-weight:800;margin-top:2px}
+.ev-desc{font-size:13px;color:var(--ink2);margin-top:6px;line-height:1.65}
+.ev-tag{
+  display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;
+  padding:3px 9px;border-radius:7px;background:var(--reg-tint);color:var(--reg);margin-top:7px
+}
+.ev-tag svg{width:13px;height:13px}
+
+/* ---------- 按鈕 ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;margin-top:10px;margin-right:7px;
+  font-size:12.5px;font-weight:700;color:var(--reg);
+  border:1.5px solid color-mix(in srgb, var(--reg) 38%, transparent);
+  background:var(--reg-tint);padding:7px 12px;border-radius:10px
+}
+.btn svg{width:15px;height:15px;flex:none}
+.btn:active{background:color-mix(in srgb, var(--reg) 26%, var(--card))}
+
+/* ---------- 提示 ---------- */
+.alert{border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.65;border:1px solid;display:flex;gap:10px}
+.alert svg{width:18px;height:18px;flex:none;margin-top:2px}
+.alert b{display:block;font-size:12px;font-weight:800;letter-spacing:.05em;margin-bottom:3px}
+.alert.warn{background:var(--warn-soft);border-color:var(--warn-line);color:var(--warn)}
+.alert.danger{background:var(--dgr-soft);border-color:var(--dgr-line);color:var(--dgr)}
+.alert.info{background:var(--ok-soft);border-color:color-mix(in srgb, var(--ok) 32%, transparent);color:var(--ok)}
+
+.drive{
+  display:flex;gap:10px;align-items:flex-start;font-size:13px;
+  background:var(--sunk);border:1px dashed var(--line2);border-radius:14px;padding:11px 14px;color:var(--ink2)
+}
+.drive svg{width:17px;height:17px;flex:none;color:var(--reg);margin-top:2px}
+
+/* ---------- 勾選清單 ---------- */
+.grp{border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--sh-1)}
+.grp-h{display:flex;align-items:center;gap:10px;padding:12px 15px;background:var(--card2);border-bottom:1px solid var(--line)}
+.grp-h .gi{font-size:19px;line-height:1}
+.grp-h b{flex:1;font-size:14.5px;font-weight:800}
+.grp-h .cnt{font-family:var(--display);font-size:11.5px;color:var(--ink3)}
+.grp-note{font-size:12.5px;padding:10px 15px;background:var(--warn-soft);color:var(--warn);border-bottom:1px solid var(--line);line-height:1.6}
+.chk{display:flex;gap:12px;align-items:flex-start;padding:12px 15px;cursor:pointer;border-top:1px solid var(--line)}
+.chk:first-of-type{border-top:0}
+.chk input{
+  appearance:none;-webkit-appearance:none;flex:none;margin:2px 0 0;
+  width:22px;height:22px;border-radius:8px;border:2px solid var(--line2);background:var(--sunk);cursor:pointer
+}
+.chk input:checked{background:var(--ok);border-color:var(--ok)}
+.chk input:checked::after{content:"✓";display:block;color:#fff;font-size:14px;font-weight:900;text-align:center;line-height:18px}
+.chk-b{min-width:0;flex:1;display:block}
+.chk-t{display:block;font-size:14.5px;font-weight:700}
+.chk-d{display:block;font-size:12.5px;color:var(--ink3);margin-top:2px;line-height:1.55}
+.chk input:checked~.chk-b .chk-t{text-decoration:line-through;color:var(--ink3);font-weight:500}
+.chk .star{color:var(--brand)}
+.chk-by{font-weight:800;color:var(--brand)}
+
+/* ---------- 手風琴 ---------- */
+details.acc{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-1);overflow:hidden}
+details.acc+details.acc{margin-top:10px}
+details.acc>summary{list-style:none;cursor:pointer;padding:11px 15px;display:flex;align-items:center;gap:12px}
+details.acc>summary::-webkit-details-marker{display:none}
+.acc-t{flex:1;min-width:0}
+.acc-t b{display:block;font-size:15px;font-weight:800}
+.acc-t span{display:block;font-size:11.5px;color:var(--ink3);margin-top:1px}
+details.acc>summary .caret{flex:none;color:var(--ink3);font-size:14px;transition:transform .2s}
+details.acc[open]>summary .caret{transform:rotate(180deg)}
+.acc-body{padding:0 15px 15px;border-top:1px solid var(--line);padding-top:13px}
+.acc-ic{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.acc-ic svg{width:20px;height:20px}
+
+/* ---------- 清單 ---------- */
+.ilist{margin:0;padding:0;list-style:none}
+.ilist li{padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;line-height:1.65}
+.ilist li:first-child{border-top:0;padding-top:1px}
+.ilist .n{font-weight:800;font-size:14px}
+.ilist .d{color:var(--ink2);font-size:12.5px;margin-top:2px}
+.sub-h{
+  font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--reg,var(--brand));
+  margin:16px 0 6px;display:flex;align-items:center;gap:8px
+}
+.sub-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.sub-h:first-child{margin-top:0}
+
+/* ---------- 定義列表 ---------- */
+dl{margin:0}
+.kv{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px}
+.kv:first-child{border-top:0}
+.kv dt{flex:none;width:70px;color:var(--ink3);font-size:12.5px;font-weight:700}
+.kv dd{margin:0;flex:1;min-width:0}
+
+/* ---------- 航班 ---------- */
+.fl{display:flex;align-items:center;gap:13px;padding:13px 0;border-top:1px solid var(--line)}
+.fl:first-child{border-top:0;padding-top:2px}
+.fl-code{flex:none;width:62px}
+.fl-code b{font-family:var(--display);font-size:14px;display:block}
+.fl-code span{font-size:10.5px;color:var(--ink3);display:block;margin-top:1px}
+.fl-rt{display:flex;align-items:center;gap:9px}
+.fl-rt .t{font-family:var(--display);font-size:16px}
+.fl-rt .a{font-size:10.5px;color:var(--ink3);margin-top:1px}
+.fl-rt .arrow{flex:1;height:1.5px;background:var(--line2);position:relative;min-width:20px;border-radius:2px}
+.fl-rt .arrow svg{position:absolute;right:-4px;top:-8px;width:15px;height:15px;color:var(--ink3)}
+.fl-when{font-size:11px;color:var(--ink3);margin-top:4px;display:flex;align-items:center;gap:7px;font-family:var(--display)}
+.whopill{font-family:var(--body);font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:6px;background:var(--brand-soft);color:var(--brand);white-space:nowrap}
+
+/* ---------- 飯店 ---------- */
+.hotel{border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--sh-1)}
+.hotel-art{height:80px;background:var(--reg-tint)}
+.hotel-b{padding:13px 15px 14px}
+.hotel-b .nights{font-family:var(--display);font-size:11px;color:var(--ink3);letter-spacing:.07em}
+.hotel-b h3{font-size:16.5px;margin-top:3px}
+.hotel-b .en{font-size:11.5px;color:var(--ink3);margin-top:1px;letter-spacing:.02em}
+
+/* ---------- 日文短句 ---------- */
+.ph{padding:11px 0;border-top:1px solid var(--line)}
+.ph:first-child{border-top:0;padding-top:1px}
+.ph .jp{font-size:16px;font-weight:700}
+.ph .tw{font-size:13px;color:var(--ink2);margin-top:2px}
+.ph .rm{font-size:11.5px;color:var(--ink3);font-style:italic;margin-top:1px}
+
+/* ---------- 換算 ---------- */
+.conv{display:flex;align-items:center;gap:10px;margin-top:11px}
+.conv input{
+  flex:1;min-width:0;font:inherit;font-family:var(--display);font-size:17px;padding:10px 13px;
+  border-radius:11px;border:1.5px solid var(--line2);background:var(--sunk);color:var(--ink)
+}
+.conv .eq{color:var(--ink3);flex:none;font-weight:800}
+.conv .out{flex:1;font-family:var(--display);font-size:17px;text-align:right;color:var(--ok)}
+.rate-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink3);margin-top:10px}
+.rate-row input{
+  width:76px;font:inherit;font-family:var(--display);font-size:13px;padding:6px 9px;border-radius:9px;
+  border:1px solid var(--line);background:var(--sunk);color:var(--ink);text-align:right
+}
+
+/* ---------- 費用 ---------- */
+.total-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:13.5px}
+.total-row:first-child{border-top:0}
+.total-row .money{font-family:var(--display);font-size:14px;white-space:nowrap}
+.total-row.grand{border-top:2px solid var(--line2);margin-top:2px;font-size:15px;font-weight:800}
+.total-row.grand .money{font-size:17px;color:var(--brand)}
+
+/* ---------- 其他 ---------- */
+.money{font-family:var(--display)}
+.muted{color:var(--ink3);font-size:12px;line-height:1.65}
+.warnpill{display:block;font-size:11.5px;font-weight:700;padding:7px 10px;border-radius:9px;background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn-line);margin-top:9px;line-height:1.55}
+.tel{color:var(--brand);font-weight:800}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--brand);margin-bottom:13px}
+.day-nav{display:flex;gap:10px;margin-top:22px}
+.day-nav a{
+  flex:1;padding:12px;text-align:center;border-radius:12px;background:var(--card);
+  border:1px solid var(--line);font-size:13px;font-weight:800;box-shadow:var(--sh-1)
+}
+.day-nav a.dis{opacity:.32;pointer-events:none}
+.day-nav a.wide{flex:1;background:var(--reg);color:#fff;border-color:var(--reg)}
+
+</style>
+
+<header id="topbar">
+  <div class="tb-inner">
+    <div class="tb-text">
+      <h1 id="tb-title">九州旅遊助手</h1>
+      <p id="tb-sub">2026/09/27 – 10/05</p>
+    </div>
+    <button id="theme-btn" class="icon-btn" type="button" aria-label="切換深淺色">◐</button>
+  </div>
+</header>
+
+<main id="view" tabindex="-1"></main>
+
+<nav id="tabbar" aria-label="主選單">
+  <a href="#/today" data-tab="today"><span class="ti"></span><span>今天</span></a>
+  <a href="#/plan"  data-tab="plan"><span class="ti"></span><span>行程</span></a>
+  <a href="#/pack"  data-tab="pack"><span class="ti"></span><span>打包</span></a>
+  <a href="#/guide" data-tab="guide"><span class="ti"></span><span>指南</span></a>
+  <a href="#/info"  data-tab="info"><span class="ti"></span><span>資訊</span></a>
+</nav>
+
+<script>
+/* 手繪 SVG 插畫。全部用 CSS 變數上色（--reg / --reg-shade / --reg-tint），
+   所以同一組圖形會自動套用該地區的色相，也會跟著深淺色主題走。
+   完全內嵌，零外部請求，離線可用，無版權問題。 */
+window.ART = {};
+
+ART.scenes = {
+
+  /* 福岡・博多 ── 都市天際線與抵達的飛機 */
+  fukuoka:
+    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
+    '<circle cx="330" cy="32" r="24" fill="var(--reg)" opacity=".32"/>' +
+    '<path d="M14 16 C58 22 74 34 70 52" fill="none" stroke="var(--reg)" stroke-width="2.5" stroke-dasharray="4 7" opacity=".5" stroke-linecap="round"/>' +
+    '<g transform="translate(56,24) rotate(-16) scale(.86)">' +
+      '<ellipse cx="62" cy="18" rx="62" ry="7" fill="var(--reg)"/>' +
+      '<path d="M64 18 L32 -14 L48 -14 L92 14 Z" fill="var(--reg)"/>' +
+      '<path d="M64 18 L32 50 L48 50 L92 22 Z" fill="var(--reg-shade)"/>' +
+      '<path d="M12 18 L0 0 L10 0 L28 16 Z" fill="var(--reg)"/>' +
+      '<path d="M12 18 L0 36 L10 36 L28 20 Z" fill="var(--reg-shade)"/>' +
+    '</g>' +
+    '<g fill="var(--reg-shade)">' +
+      '<rect x="10" y="84" width="38" height="48"/><rect x="54" y="66" width="26" height="66"/>' +
+      '<rect x="86" y="94" width="32" height="38"/><rect x="126" y="58" width="22" height="74"/>' +
+      '<rect x="156" y="78" width="42" height="54"/><rect x="206" y="90" width="28" height="42"/>' +
+      '<rect x="242" y="70" width="24" height="62"/><rect x="274" y="96" width="44" height="36"/>' +
+      '<rect x="326" y="80" width="38" height="52"/><rect x="372" y="98" width="28" height="34"/>' +
+    '</g>' +
+    '<g fill="var(--reg-tint)" opacity=".75">' +
+      '<rect x="60" y="74" width="6" height="8"/><rect x="70" y="74" width="6" height="8"/>' +
+      '<rect x="60" y="88" width="6" height="8"/><rect x="70" y="88" width="6" height="8"/>' +
+      '<rect x="132" y="66" width="6" height="8"/><rect x="132" y="80" width="6" height="8"/>' +
+      '<rect x="132" y="94" width="6" height="8"/>' +
+      '<rect x="166" y="88" width="7" height="9"/><rect x="180" y="88" width="7" height="9"/>' +
+      '<rect x="166" y="104" width="7" height="9"/><rect x="180" y="104" width="7" height="9"/>' +
+      '<rect x="248" y="80" width="6" height="8"/><rect x="248" y="94" width="6" height="8"/>' +
+      '<rect x="334" y="90" width="7" height="9"/><rect x="348" y="90" width="7" height="9"/>' +
+    '</g>' +
+    '<rect y="126" width="400" height="6" fill="var(--reg)"/>',
+
+  /* 長崎・佐世保 ── 九十九島與遊覽船 */
+  nagasaki:
+    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
+    '<circle cx="76" cy="30" r="19" fill="var(--reg)" opacity=".38"/>' +
+    '<g fill="var(--reg)" opacity=".45">' +
+      '<path d="M-10 82 C 16 56 56 56 84 82 Z"/>' +
+      '<path d="M186 84 C 214 60 254 60 286 84 Z"/>' +
+    '</g>' +
+    '<g fill="var(--reg-shade)">' +
+      '<path d="M64 86 C 104 50 156 50 198 86 Z"/>' +
+      '<path d="M272 86 C 302 62 348 62 388 86 Z"/>' +
+    '</g>' +
+    '<rect y="86" width="400" height="46" fill="var(--reg)"/>' +
+    '<g fill="none" stroke="var(--reg-tint)" stroke-width="3" stroke-linecap="round" opacity=".7">' +
+      '<path d="M24 104 q10-6 20 0 t20 0"/><path d="M300 100 q10-6 20 0 t20 0"/>' +
+      '<path d="M60 122 q10-6 20 0 t20 0"/><path d="M244 120 q10-6 20 0 t20 0"/>' +
+    '</g>' +
+    '<g>' +
+      '<path d="M154 92 h10 v-16 h5 v16 h9 l-2 6 h-22 z" fill="var(--reg-tint)"/>' +
+      '<path d="M138 96 h84 l-14 18 h-56 z" fill="var(--reg-tint)"/>' +
+      '<rect x="152" y="86" width="26" height="8" fill="var(--reg-shade)"/>' +
+    '</g>',
+
+  /* 熊本 ── 熊本城天守閣 */
+  kumamoto:
+    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
+    '<circle cx="322" cy="34" r="22" fill="var(--reg)" opacity=".3"/>' +
+    '<g fill="var(--reg)">' +
+      '<rect x="192" y="8" width="6" height="8"/>' +
+      '<path d="M158 30 h84 l-12-14 h-60 z"/>' +
+      '<rect x="170" y="30" width="60" height="13"/>' +
+      '<path d="M144 58 h112 l-16-15 h-80 z"/>' +
+      '<rect x="158" y="58" width="84" height="15"/>' +
+      '<path d="M124 90 h152 l-20-17 h-112 z"/>' +
+      '<rect x="140" y="90" width="120" height="14"/>' +
+    '</g>' +
+    '<g fill="var(--reg-tint)" opacity=".8">' +
+      '<rect x="180" y="33" width="7" height="8"/><rect x="196" y="33" width="7" height="8"/>' +
+      '<rect x="213" y="33" width="7" height="8"/>' +
+      '<rect x="168" y="61" width="8" height="10"/><rect x="186" y="61" width="8" height="10"/>' +
+      '<rect x="204" y="61" width="8" height="10"/><rect x="222" y="61" width="8" height="10"/>' +
+      '<rect x="152" y="93" width="9" height="10"/><rect x="174" y="93" width="9" height="10"/>' +
+      '<rect x="196" y="93" width="9" height="10"/><rect x="218" y="93" width="9" height="10"/>' +
+      '<rect x="240" y="93" width="9" height="10"/>' +
+    '</g>' +
+    '<path d="M78 132 L128 104 h144 l50 28 z" fill="var(--reg-shade)"/>' +
+    '<g fill="none" stroke="var(--reg-tint)" stroke-width="2" opacity=".45">' +
+      '<path d="M104 118 h192"/><path d="M148 104 v28"/><path d="M200 104 v28"/><path d="M252 104 v28"/>' +
+    '</g>',
+
+  /* 阿蘇・高千穗 ── 火山、噴煙與草千里 */
+  aso:
+    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
+    '<g fill="var(--reg)" opacity=".28">' +
+      '<circle cx="196" cy="20" r="17"/><circle cx="224" cy="12" r="12"/><circle cx="170" cy="14" r="11"/>' +
+      '<circle cx="212" cy="30" r="10"/>' +
+    '</g>' +
+    '<path d="M-20 116 L96 52 L200 116 Z" fill="var(--reg-shade)" opacity=".55"/>' +
+    '<path d="M214 116 L318 48 L420 116 Z" fill="var(--reg-shade)" opacity=".55"/>' +
+    '<path d="M52 116 L200 40 L348 116 Z" fill="var(--reg)"/>' +
+    '<path d="M166 62 L234 62 L200 40 Z" fill="var(--reg-shade)"/>' +
+    '<rect y="110" width="400" height="22" fill="var(--reg-shade)"/>' +
+    '<g fill="none" stroke="var(--reg-tint)" stroke-width="2.5" stroke-linecap="round" opacity=".55">' +
+      '<path d="M22 126 v-8"/><path d="M40 128 v-10"/><path d="M58 125 v-7"/>' +
+      '<path d="M300 127 v-9"/><path d="M318 124 v-7"/><path d="M336 128 v-10"/><path d="M354 125 v-8"/>' +
+    '</g>',
+
+  /* 黑川溫泉 ── 露天風呂與湯氣 */
+  kurokawa:
+    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
+    '<g fill="var(--reg-shade)" opacity=".5">' +
+      '<path d="M22 96 L48 40 L74 96 Z"/><path d="M62 96 L84 52 L106 96 Z"/>' +
+      '<path d="M300 96 L326 44 L352 96 Z"/><path d="M344 96 L368 56 L392 96 Z"/>' +
+    '</g>' +
+    '<g fill="none" stroke="var(--reg)" stroke-width="4" stroke-linecap="round" opacity=".55">' +
+      '<path d="M158 66 c9-11 -9-20 0-31"/><path d="M200 58 c9-11 -9-20 0-31"/>' +
+      '<path d="M242 66 c9-11 -9-20 0-31"/>' +
+    '</g>' +
+    '<rect x="112" y="80" width="176" height="42" rx="15" fill="var(--reg)"/>' +
+    '<rect x="126" y="88" width="148" height="15" rx="7" fill="var(--reg-tint)"/>' +
+    '<g fill="var(--reg-shade)"><circle cx="164" cy="95" r="6"/><circle cx="200" cy="95" r="6"/><circle cx="236" cy="95" r="6"/></g>' +
+    '<g>' +
+      '<rect x="52" y="30" width="4" height="14" fill="var(--reg-shade)"/>' +
+      '<rect x="40" y="44" width="28" height="34" rx="6" fill="var(--reg)"/>' +
+      '<rect x="46" y="52" width="16" height="18" rx="3" fill="var(--reg-tint)"/>' +
+    '</g>' +
+    '<rect y="122" width="400" height="10" fill="var(--reg-shade)"/>',
+
+  /* 由布院 ── 由布岳雙峰與金鱗湖 */
+  yufuin:
+    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
+    '<circle cx="60" cy="28" r="18" fill="var(--reg)" opacity=".35"/>' +
+    '<path d="M-10 94 L84 40 L146 78 L206 30 L300 94 Z" fill="var(--reg-shade)" opacity=".55"/>' +
+    '<path d="M40 94 L142 26 L200 68 L258 22 L400 94 Z" fill="var(--reg)"/>' +
+    '<path d="M142 26 L116 44 L168 44 Z" fill="var(--reg-tint)"/>' +
+    '<path d="M258 22 L232 42 L284 42 Z" fill="var(--reg-tint)"/>' +
+    '<g fill="var(--reg-tint)" opacity=".75">' +
+      '<rect x="30" y="76" width="90" height="7" rx="3.5"/><rect x="250" y="70" width="110" height="7" rx="3.5"/>' +
+      '<rect x="150" y="86" width="120" height="7" rx="3.5"/>' +
+    '</g>' +
+    '<ellipse cx="200" cy="114" rx="150" ry="18" fill="var(--reg)" opacity=".55"/>' +
+    '<g fill="none" stroke="var(--reg-tint)" stroke-width="3" stroke-linecap="round" opacity=".8">' +
+      '<path d="M132 110 h44"/><path d="M164 120 h56"/><path d="M240 112 h40"/>' +
+    '</g>',
+
+  /* 別府 ── 地獄溫泉的湯池與蒸氣 */
+  beppu:
+    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
+    '<g fill="none" stroke="var(--reg)" stroke-width="4" stroke-linecap="round" opacity=".5">' +
+      '<path d="M84 60 c9-11 -9-20 0-31"/><path d="M126 52 c9-11 -9-20 0-31"/>' +
+      '<path d="M262 56 c9-11 -9-20 0-31"/><path d="M304 64 c9-11 -9-20 0-31"/>' +
+    '</g>' +
+    '<g fill="var(--reg-shade)" opacity=".55">' +
+      '<path d="M156 74 h88 l-6-10h-14v-12h-6v12h-36v-12h-6v12h-14z"/>' +
+      '<rect x="168" y="74" width="8" height="26"/><rect x="224" y="74" width="8" height="26"/>' +
+    '</g>' +
+    '<ellipse cx="104" cy="98" rx="66" ry="22" fill="var(--reg)"/>' +
+    '<ellipse cx="104" cy="95" rx="52" ry="15" fill="var(--reg-tint)" opacity=".85"/>' +
+    '<ellipse cx="292" cy="104" rx="72" ry="24" fill="var(--reg)"/>' +
+    '<ellipse cx="292" cy="101" rx="56" ry="16" fill="var(--reg-tint)" opacity=".85"/>' +
+    '<ellipse cx="200" cy="120" rx="58" ry="16" fill="var(--reg-shade)"/>' +
+    '<rect y="126" width="400" height="6" fill="var(--reg)"/>',
+
+  /* 太宰府 ── 鳥居參道與梅花 */
+  dazaifu:
+    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
+    '<g fill="var(--reg-shade)" opacity=".45">' +
+      '<path d="M96 108 h56 l-5-9h-8v-9h-5v9h-20v-9h-5v9h-8z"/>' +
+      '<rect x="105" y="108" width="6" height="24"/><rect x="137" y="108" width="6" height="24"/>' +
+      '<path d="M248 108 h56 l-5-9h-8v-9h-5v9h-20v-9h-5v9h-8z"/>' +
+      '<rect x="257" y="108" width="6" height="24"/><rect x="289" y="108" width="6" height="24"/>' +
+    '</g>' +
+    '<g fill="var(--reg)">' +
+      '<path d="M144 62 h112 l-9-14h-16v-14h-9v14h-44v-14h-9v14h-16z"/>' +
+      '<rect x="160" y="62" width="12" height="70"/><rect x="228" y="62" width="12" height="70"/>' +
+      '<rect x="152" y="126" width="28" height="6"/><rect x="220" y="126" width="28" height="6"/>' +
+    '</g>' +
+    '<g fill="var(--reg)" opacity=".8">' +
+      '<g transform="translate(56,40)"><circle r="6"/><circle cx="11" cy="-6" r="6"/><circle cx="22" cy="0" r="6"/><circle cx="18" cy="12" r="6"/><circle cx="4" cy="12" r="6"/></g>' +
+      '<g transform="translate(310,26) scale(.8)"><circle r="6"/><circle cx="11" cy="-6" r="6"/><circle cx="22" cy="0" r="6"/><circle cx="18" cy="12" r="6"/><circle cx="4" cy="12" r="6"/></g>' +
+      '<g transform="translate(340,74) scale(.62)"><circle r="6"/><circle cx="11" cy="-6" r="6"/><circle cx="22" cy="0" r="6"/><circle cx="18" cy="12" r="6"/><circle cx="4" cy="12" r="6"/></g>' +
+      '<g transform="translate(30,92) scale(.7)"><circle r="6"/><circle cx="11" cy="-6" r="6"/><circle cx="22" cy="0" r="6"/><circle cx="18" cy="12" r="6"/><circle cx="4" cy="12" r="6"/></g>' +
+    '</g>',
+
+  /* 行前倒數用 ── 山、鳥居、飛機的綜合景 */
+  journey:
+    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
+    '<circle cx="336" cy="30" r="21" fill="var(--reg)" opacity=".32"/>' +
+    '<path d="M12 20 C64 26 84 40 78 60" fill="none" stroke="var(--reg)" stroke-width="2.5" stroke-dasharray="4 7" opacity=".5" stroke-linecap="round"/>' +
+    '<g transform="translate(52,30) rotate(-16) scale(.72)">' +
+      '<ellipse cx="62" cy="18" rx="62" ry="7" fill="var(--reg)"/>' +
+      '<path d="M64 18 L32 -14 L48 -14 L92 14 Z" fill="var(--reg)"/>' +
+      '<path d="M64 18 L32 50 L48 50 L92 22 Z" fill="var(--reg-shade)"/>' +
+      '<path d="M12 18 L0 0 L10 0 L28 16 Z" fill="var(--reg)"/>' +
+      '<path d="M12 18 L0 36 L10 36 L28 20 Z" fill="var(--reg-shade)"/>' +
+    '</g>' +
+    '<path d="M150 118 L246 56 L342 118 Z" fill="var(--reg-shade)" opacity=".55"/>' +
+    '<path d="M226 118 L316 62 L406 118 Z" fill="var(--reg)" opacity=".7"/>' +
+    '<g fill="var(--reg)">' +
+      '<path d="M28 92 h88 l-7-11h-13v-11h-7v11h-34v-11h-7v11h-13z"/>' +
+      '<rect x="40" y="92" width="9" height="40"/><rect x="95" y="92" width="9" height="40"/>' +
+    '</g>' +
+    '<rect y="126" width="400" height="6" fill="var(--reg)"/>'
+};
+
+/* 線性圖示。用 currentColor，尺寸由 CSS 控制。 */
+function ic(d, extra) {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
+    + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + (extra || '') + '</svg>';
+}
+
+ART.icons = {
+  today: ic('<path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'),
+  plan:  ic('<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14.5h3M13.5 14.5h3M7.5 18h3"/>'),
+  pack:  ic('<rect x="3.5" y="7.5" width="17" height="13" rx="3"/><path d="M8.5 7.5V6a3.5 3.5 0 0 1 7 0v1.5"/><path d="M3.5 13h17"/>'),
+  guide: ic('<path d="M3.5 11h17a8.5 8.5 0 0 1-17 0z"/><path d="M6 19.5h12"/><path d="M13 8.5c0-2 3-2 3-4"/><path d="M9 8.5c0-1.6 2.2-1.8 2.2-3.5"/>'),
+  info:  ic('<rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 3.5h6v3H9z"/><path d="M9 11h6M9 15h4"/>'),
+
+  sun:   ic('<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>'),
+  cloud: ic('<circle cx="8.5" cy="8" r="3"/><path d="M8.5 2.6v1.4M4.2 8H2.8M5.2 4.7 4.2 3.7M11.8 4.7l1-1"/><path d="M7 19h10.5a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.6-1.2A3.6 3.6 0 0 0 7 19z"/>'),
+  moon:  ic('<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/>'),
+
+  car:   ic('<path d="M4 16.5V19a1 1 0 0 1-1 1H2.5"/><path d="M20 16.5V19a1 1 0 0 0 1 1h.5"/><path d="M2.8 16.5h18.4v-4l-2-.6-2-4.4H8.8l-2 4.4-2 .6z"/><circle cx="7.5" cy="16.5" r="1.6"/><circle cx="16.5" cy="16.5" r="1.6"/>'),
+  bed:   ic('<path d="M3 19v-9M3 14h18v5M21 14v-3.5a2.5 2.5 0 0 0-2.5-2.5H10v6"/><circle cx="6.6" cy="11" r="2"/>'),
+  nav:   ic('<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4 13.8 14 8.4 15.6l1.8-5.6z"/>'),
+  photo: ic('<rect x="2.8" y="6" width="18.4" height="14" rx="2.5"/><path d="M8.5 6l1.5-2.5h4L15.5 6"/><circle cx="12" cy="13" r="3.4"/>'),
+  plane: ic('<path d="M2.5 13.2 21 5l-3.2 8.8L11 15.6l-2.4 4.6-1.4-4.2z"/>'),
+  onsen: ic('<path d="M4 20h16"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/><path d="M8.5 9.5c1.4-1.6-1.4-3 0-4.6"/><path d="M12 9c1.4-1.6-1.4-3 0-4.6"/><path d="M15.5 9.5c1.4-1.6-1.4-3 0-4.6"/>'),
+  yen:   ic('<path d="M7 5l5 6.5L17 5M12 11.5V19M8 13.5h8M8 16.5h8"/>'),
+  alert: ic('<path d="M12 3.5 21 19H3z"/><path d="M12 9.5v4M12 16.4v.2"/>'),
+  check: ic('<path d="M4.5 12.5 9.5 17.5 19.5 6.5"/>')
+};
+
+/* 8 個地區的代表圖示（指南分頁用小圖章） */
+ART.stamp = function (reg) {
+  return '<span class="stamp" data-reg="' + reg + '"><svg viewBox="0 0 400 132" preserveAspectRatio="xMidYMid slice">'
+    + (ART.scenes[reg] || ART.scenes.journey) + '</svg></span>';
+};
+
+/* 行程資料 — 內容一律以 2026九州行程0927~1005.xls 為準。
+   map 欄位放日文地名，供 Google Maps 搜尋用（不寫死經緯度，避免座標錯誤）。 */
+window.TRIP = {
+  title: '2026 九州自駕 9 日',
+  start: '2026-09-27',
+  end: '2026-10-05',
+  party: '共 6 人 ─ 澤右 2 人（長榮 BR106／BR101）＋ 小阿姨團 4 人（虎航 IT240／IT721）',
+
+  /* 每一天對應到 guide.js 的哪個地區（用於「今天吃什麼」） */
+  dayRegion: { 1:'fukuoka', 2:'nagasaki', 3:'nagasaki', 4:'kumamoto', 5:'aso', 6:'kurokawa', 7:'yufuin', 8:'beppu', 9:'fukuoka' },
+
+  flights: [
+    { code: 'BR106', air: '長榮航空', who: '澤右 2 人', date: '2026-09-27', from: '桃園 TPE', to: '福岡 FUK', dep: '08:00', arr: '11:20' },
+    { code: 'IT240', air: '台灣虎航', who: '小阿姨團 4 人', date: '2026-09-28', from: '桃園 TPE', to: '福岡 FUK', dep: '06:15', arr: '09:35' },
+    { code: 'IT721', air: '台灣虎航', who: '小阿姨團 4 人', date: '2026-10-05', from: '福岡 FUK', to: '桃園 TPE', dep: '17:10', arr: '18:40' },
+    { code: 'BR101', air: '長榮航空', who: '澤右 2 人', date: '2026-10-05', from: '福岡 FUK', to: '桃園 TPE', dep: '19:20', arr: '20:45' }
+  ],
+
+  car: {
+    pickup: { date: '2026-09-28', time: '10:00', place: '福岡機場（預計 10 點取車）', map: '福岡空港 レンタカー' },
+    dropoff: { date: '2026-10-04', time: '19:00 前', place: '博多站東口 租車門市', map: '博多駅 東口' },
+    notes: [
+      '還車前先加滿油：導航「ENEOS 博多站東」或「Apollo Station」，保留收據。',
+      '加油說法：「レギュラー、満タン（regular，加滿）」。',
+      '台灣駕照在日本租車需備：駕照日文譯本 ＋ 台灣駕照正本 ＋ 護照（不是國際駕照）。'
+    ]
+  },
+
+  hotels: [
+    { key: 'd1', nights: '9/27（1 晚）', name: '博多東急REI飯店', en: 'Hakata Tokyu REI Hotel',
+      addr: '〒812-0011 福岡県福岡市博多区博多駅前1-2-23', tel: '092-451-0109',
+      map: '博多東急REIホテル', price: 21788, rooms: '澤右 2 人（小阿姨團 9/28 才抵達）', verified: true,
+      art: 'fukuoka' },
+    { key: 'd2', nights: '9/28–9/29（2 晚）', name: 'FAV LUX 長崎', en: 'FAV LUX NAGASAKI',
+      addr: '〒850-0921 長崎県長崎市松が枝町3-10', tel: '050-1794-5808',
+      map: 'FAV LUX 長崎', site: 'https://fav-hotels.com/hotels/lux/nagasaki/',
+      price: 29486, rooms: '1 間 4 人房（小阿姨團）＋ 1 間雙人房（澤右），不含早餐',
+      access: '大浦天主堂電停徒步 2 分，近哥拉巴園',
+      extra: 'TWD 7,228（4 人）',
+      verified: true, art: 'nagasaki' },
+    { key: 'd4', nights: '9/30–10/1（2 晚）', name: '露櫻酒店熊本站前店', en: 'Hotel Route Inn Kumamoto Ekimae',
+      addr: '〒860-0047 熊本県熊本市西区春日1-14-19', tel: '096-325-6511',
+      map: 'ホテルルートイン熊本駅前', site: 'https://www.route-inn.co.jp/hotel_list/kumamoto/index_hotel_id_77/',
+      price: 27784, rooms: '3 間雙人房，含早餐', verified: true, art: 'kumamoto' },
+    { key: 'd6', nights: '10/2（1 晚）', name: '黑川溫泉 優彩別館', en: '黒川温泉 優彩別館',
+      addr: '〒869-2402 熊本県阿蘇郡南小国町満願寺6561-1', tel: '0967-44-0111',
+      map: '黒川温泉 優彩別館', site: 'https://lp.yusai-bekkan.com/', price: 131490,
+      rooms: '一泊二食｜1 部屋目 20,925 円 × 4 名（小阿姨團）、2 部屋目 23,895 円 × 2 名（澤右）', verified: true,
+      art: 'kurokawa' },
+    { key: 'd7', nights: '10/3（1 晚）', name: '天空湯房 清海莊', en: '天空湯房 清海荘',
+      addr: '〒874-0920 大分県別府市北浜3丁目14-3', tel: '0977-22-0275',
+      map: '天空湯房 清海荘', price: 138600,
+      rooms: '一泊二食｜1 部屋目 22,550 円 × 4 名（小阿姨團）、2 部屋目 24,200 円 × 2 名（澤右）', verified: true,
+      art: 'beppu' },
+    { key: 'd8', nights: '10/4（1 晚）', name: '博多CROOM西鐵飯店', en: 'Nishitetsu Hotel Croom Hakata',
+      addr: '〒812-0011 福岡県福岡市博多区博多駅前1-17-6', tel: '092-413-5454',
+      map: '西鉄ホテルクルーム博多', price: 65190, rooms: '3 間雙人房，不含早餐', verified: true,
+      art: 'fukuoka' }
+  ],
+
+  budget: {
+    jpyTotal: 414338,
+    extra: [
+      { label: '長崎住宿（台幣支付部分・4 人）', amount: 'TWD 7,228', day: 2 },
+      { label: 'Klook 高千穗峽・阿蘇火山導覽一日遊', amount: 'NTD 3,862 / 2 人', day: 5 }
+    ],
+    note: 'JPY 414,338 為表格「價格(JPY)」列 6 筆住宿加總。長崎另有一筆 TWD 7,228（4 人）住宿費用，原始表格沒有寫明對應哪一間房。以上未含機票、租車、油資、餐費與購物。'
+  },
+
+  days: [
+    {
+      n: 1, date: '2026-09-27', dow: '週日', region: '福岡・博多',
+      title: '抵達福岡，博多天神初探',
+      hotel: 'd1',
+      blocks: [
+        { part: 'am', items: [
+          { time: '08:00–11:20', title: '桃園機場 → 福岡機場', tag: '長榮 BR106・澤右 2 人', map: '福岡空港 国際線ターミナル' }
+        ]},
+        { part: 'pm', items: [
+          { time: '', title: '福岡午餐', map: '博多駅' },
+          { time: '', title: '天神地下街', map: '天神地下街' },
+          { time: '', title: '博多運河城', desc: 'Canal City Hakata', map: 'キャナルシティ博多' },
+          { time: '', title: 'LaLaport 福岡', desc: '有實物大鋼彈立像', map: 'ららぽーと福岡' }
+        ]},
+        { part: 'night', items: [
+          { time: '', title: '鷲尾愛宕神社夜景', map: '鷲尾愛宕神社' }
+        ]}
+      ]
+    },
+
+    {
+      n: 2, date: '2026-09-28', dow: '週一', region: '福岡 → 佐世保 → 長崎',
+      title: '小阿姨團抵達、取車南下佐世保',
+      hotel: 'd2',
+      drive: '福岡機場 → 長崎　約 150 km／2 小時',
+      alerts: [{ level: 'info', text: '今天開始自駕。取車要出示：駕照日文譯本 ＋ 台灣駕照正本 ＋ 護照 ＋ 信用卡。' }],
+      blocks: [
+        { part: 'am', items: [
+          { time: '06:15–09:35', title: '桃園機場 → 福岡機場', tag: '虎航 IT240・小阿姨團 4 人', map: '福岡空港 国際線ターミナル' },
+          { time: '10:00', title: '福岡機場取車', desc: '取車後開往長崎方向（2hr／150km）', map: '福岡空港 レンタカー' }
+        ]},
+        { part: 'pm', items: [
+          { time: '', title: '九十九島遊覽船', desc: '搭乘遊覽船，近距離觀賞九十九島的美麗風景。', map: '九十九島パールシーリゾート' },
+          { time: '', title: '展海峰', map: '展海峰' },
+          { time: '', title: '石岳展望台', desc: '欣賞九十九島的絕景，是電影取景地。', map: '石岳展望台' },
+          { time: '', title: '佐世保四之町商店街', desc: '享受當地的購物樂趣，體驗佐世保的購物文化。', map: '佐世保四ヶ町商店街' }
+        ]},
+        { part: 'night', items: [
+          { time: '', title: '佐世保漢堡', desc: '尋求當地的美式漢堡，享受佐世保的美食文化。', map: '佐世保バーガー' }
+        ]}
+      ]
+    },
+
+    {
+      n: 3, date: '2026-09-29', dow: '週二', region: '長崎',
+      title: '長崎市區散策',
+      hotel: 'd2',
+      blocks: [
+        { part: 'am', items: [
+          { time: '', title: '眼鏡橋', map: '眼鏡橋 長崎' },
+          { time: '', title: '平和公園', map: '長崎平和公園' }
+        ]},
+        { part: 'pm', items: [
+          { time: '', title: '新地中華街', map: '長崎新地中華街' },
+          { time: '', title: '荷蘭坂', map: 'オランダ坂' }
+        ]},
+        { part: 'night', items: [
+          { time: '', title: '稻佐山世界級夜景', map: '稲佐山展望台' }
+        ]}
+      ]
+    },
+
+    {
+      n: 4, date: '2026-09-30', dow: '週三', region: '長崎 → 熊本',
+      title: '熊本城與熊本熊',
+      hotel: 'd4',
+      drive: '長崎 → 熊本　約 210 km／2.5 小時（9 點前出發）',
+      blocks: [
+        { part: 'am', items: [
+          { time: '9:00 前', title: '出發前往熊本', desc: '2.5hr／210km', map: '熊本駅' },
+          { time: '', title: '熊本城（天守閣）', desc: '「日本三名城」之一。', map: '熊本城' },
+          { time: '午餐', title: '櫻花馬場 城彩苑', desc: '品嚐熊本特色美食，如馬肉料理或鄉土料理。', map: '桜の馬場 城彩苑' }
+        ]},
+        { part: 'pm', items: [
+          { time: '', title: '熊本熊廣場', desc: '熊本熊部長辦公室，看熊本熊表演。', map: 'くまモンスクエア' },
+          { time: '', title: '下通商店街', desc: '逛街購物。', map: '下通アーケード' }
+        ]},
+        { part: 'night', items: [
+          { time: '', title: '花岡山', desc: '當地人推薦的約會勝地，可俯瞰熊本市容與熊本城燈光。', map: '花岡山' },
+          { time: '～22:00', title: '熊本市役所 14 樓觀景大廳', desc: '開放至晚上 10 點，可近距離觀看夜間亮燈的熊本城。', map: '熊本市役所' },
+          { time: '', title: '熊本屋台村', desc: '匯集 17 家代表性的熊本餐飲店。', map: '熊本屋台村' },
+          { time: '', title: 'SAKURA MACHI 5–6F 戶外花園', desc: '欣賞熊本城夜景並結合購物。', map: 'サクラマチクマモト' },
+          { time: '季節限定', title: '秋之熊本城祭・竹燈光藝術', desc: '「輝夜姬的發光庭院」等，為夜晚增添浪漫氣氛。舉辦與否以官方公告為準。' }
+        ]}
+      ]
+    },
+
+    {
+      n: 5, date: '2026-10-01', dow: '週四', region: '高千穗・阿蘇',
+      title: 'Klook 高千穗峽・阿蘇火山一日遊',
+      hotel: 'd4',
+      alerts: [{ level: 'warn', text: '團體行程，08:00 熊本站西口雕塑旁集合，請提早 10 分鐘到（07:50）。今天不開自己的車。' }],
+      blocks: [
+        { part: 'am', items: [
+          { time: '08:00', title: '熊本站西口雕塑旁集合出發', desc: '提早 10 分鐘到。', map: '熊本駅 西口' },
+          { time: '10:00', title: '高千穗峽（自由活動 1 小時 30 分）', desc: '由阿蘇火山熔岩冷卻後形成的斷崖峽谷，真名井瀑布自斷崖奔流而下。可沿步道欣賞巖壁奇觀，也可搭乘小船。如遇遊船停運，僅退遊船費用。', map: '高千穂峡' },
+          { time: '11:40', title: '高千穗小火車 或 上色見熊野座神社（自由活動 40 分）', desc: '每月第三個星期四、以及 12/1–2/28 期間改為參觀上色見熊野座神社，其他時間多為小火車體驗。兩個景點不會同一天都去，依實際出發日期提供。', map: '高千穂あまてらす鉄道' }
+        ]},
+        { part: 'pm', items: [
+          { time: '13:30', title: '草千里之濱（自由活動 1 小時）', desc: '面積約達一公里的高原草原，綠草如茵，映襯遠方連綿火山群。', map: '草千里ヶ浜' },
+          { time: '14:40', title: '阿蘇山（自由活動 30 分）', desc: '世界最大級破火山口之一，中嶽火山口最為著名。可透過專用接駁車抵達火口觀景臺。火口開放與否視火山活動狀況。', map: '阿蘇山上ターミナル' }
+        ]},
+        { part: 'night', items: [
+          { time: '18:00', title: '回程', map: '熊本駅' }
+        ]}
+      ]
+    },
+
+    {
+      n: 6, date: '2026-10-02', dow: '週五', region: '熊本 → 阿蘇 → 黑川溫泉',
+      title: '阿蘇神社與黑川溫泉',
+      hotel: 'd6',
+      drive: '熊本 → 阿蘇神社 49 km／70 分　→　黑川溫泉 25 km／30 分',
+      blocks: [
+        { part: 'am', items: [
+          { time: '09:00', title: '熊本出發 → 阿蘇神社', desc: '49km／70min', map: '阿蘇神社' },
+          { time: '11:00', title: '阿蘇神社出發 → 黑川溫泉', desc: '25km／30min', map: '黒川温泉' }
+        ]},
+        { part: 'pm', items: [
+          { time: '', title: '黑川溫泉老街散策', map: '黒川温泉 風の舎' }
+        ]},
+        { part: 'night', items: [
+          { time: '', title: '優彩別館 一泊二食', desc: '晚餐在旅館內，請留意用餐時段。', map: '黒川温泉 優彩別館' }
+        ]}
+      ]
+    },
+
+    {
+      n: 7, date: '2026-10-03', dow: '週六', region: '九重 → 由布院 → 別府',
+      title: '大吊橋、湯之坪街道與金鱗湖',
+      hotel: 'd7',
+      drive: '黑川溫泉 →（九州橫斷道路／縣道 11 號）→ 九重 → 由布院 → 別府',
+      alerts: [{ level: 'warn', text: '由布院大部分商店 17:00 左右關門，採購請在 17:00 前完成。' }],
+      blocks: [
+        { part: 'am', items: [
+          { time: '09:00–10:00', title: '黑川溫泉出發', desc: '自駕走「九州橫斷道路」（縣道 11 號），沿途欣賞九重連山的風景。', map: 'やまなみハイウェイ' },
+          { time: '10:00–11:30', title: '九重夢大吊橋', desc: '停留約 1–1.5 小時，日本最高的人行步道吊橋，欣賞震動之瀑的美景。', map: '九重"夢"大吊橋' },
+          { time: '11:30–12:00', title: '開車前往由布院', map: '由布院駅' }
+        ]},
+        { part: 'pm', items: [
+          { time: '12:00–14:00', title: '由布院午餐＋湯之坪街道散策', desc: '導航至「史努比茶屋 由布院」附近的停車場。必吃：金賞可樂餅、B-Speak 蛋糕捲、各式蜂蜜製品。', map: 'スヌーピー茶屋 由布院' },
+          { time: '14:00–16:00', title: '金鱗湖', desc: '湖畔咖啡廳（如 Cafe La Ruche）是享受下午茶的絕佳地點。', map: '金鱗湖' },
+          { time: '16:00–17:00', title: '商店街最後巡禮', desc: '17:00 左右關門，建議此時完成採購。', map: '湯の坪街道' },
+          { time: '17:00～', title: '返程／前往別府住宿點', map: '天空湯房 清海荘' }
+        ]},
+        { part: 'night', items: [
+          { time: '～21:30', title: '別府塔 Beppu Tower', desc: '營業至 21:30，可 360 度俯瞰別府灣與市區夜景，1 樓有酒吧。', map: '別府タワー' },
+          { time: '', title: '湯霧展望台（湯けむり展望台）', desc: '獲選「21 世紀日本風景百選」的鐵輪溫泉蒸氣夜景。', map: '湯けむり展望台' }
+        ]}
+      ]
+    },
+
+    {
+      n: 8, date: '2026-10-04', dow: '週日', region: '別府 → 太宰府 → 博多',
+      title: '地獄巡禮、非洲野生動物園、太宰府',
+      hotel: 'd8',
+      drive: '別府 → 動物園 → 太宰府 → 博多站東口還車',
+      alerts: [{ level: 'warn', text: '今天是還車日：19:00 前要辦完手續，18:20 先加滿油並留收據。梅枝餅店家 17:00 後陸續打烊，停好車先買再去參拜。' }],
+      blocks: [
+        { part: 'am', items: [
+          { time: '09:00–11:15', title: '別府地獄溫泉巡禮（鐵輪區精華 5 個）', desc: '海地獄：Tiffany 藍的夢幻溫泉，必訪。／鬼石坊主地獄：沸騰的灰色泥漿。／灶地獄：多種顏色的溫泉，適合體驗足湯。／鬼山地獄：以養殖鱷魚聞名。／白池地獄：純白溫泉，日式庭園造景。', map: '海地獄' },
+          { time: '11:15–11:55', title: '別府地獄出發 → 九州自然動物園', map: '九州自然動物公園アフリカンサファリ' }
+        ]},
+        { part: 'pm', items: [
+          { time: '11:55–12:45', title: '動物園步行區：午餐（50 分）', desc: '一抵達立刻把車停在主停車場，步行進入園區直奔「Salvia（サルビア）家庭餐廳」。', map: '九州自然動物公園アフリカンサファリ' },
+          { time: '12:45–13:40', title: '與小動物互動 Fureai Zone（55 分）', desc: '餵食迷你馬、抱天竺鼠、看袋鼠，並在賣店快速挑選限定的動物紀念品。' },
+          { time: '13:40–14:30', title: '自駕闖野生動物區 Safari Zone（50 分）', desc: '13:40 準時走回停車場開自己的租車，排隊進入 Safari Zone 閘口。租用 GPS 語音導覽（一台車 1,100 日圓），沿路近距離看獅子、老虎、大象。' },
+          { time: '14:30–16:15', title: '動物園出發 → 太宰府天滿宮', map: '太宰府天満宮' },
+          { time: '16:15–17:45', title: '太宰府天滿宮參拜與商店街（1.5 小時）', desc: '停車祕訣：不要去正門口排隊，導航直接設定外圍的「太宰府駐車センター（大型停車場）」，隨到隨停、走路 5 分鐘就到參道。順序：先買熱騰騰的梅枝餅（17:00 後陸續打烊），再走過太鼓橋前往御本殿參拜、購買學業御守。', map: '太宰府駐車センター' }
+        ]},
+        { part: 'night', items: [
+          { time: '17:45–18:20', title: '太宰府出發 → 博多站東口', desc: '走都市高速道路，預留假日傍晚進入市區的車流量，車程約 35 分鐘。', map: '博多駅 東口' },
+          { time: '18:20–18:50', title: '加油 ＋ 還車手續', desc: '在還車門市附近找加油站（如「ENEOS 博多站東」或「Apollo Station」）加滿油、保留收據，於 19:00 前辦理還車。', map: 'ENEOS 博多駅東' }
+        ]}
+      ]
+    },
+
+    {
+      n: 9, date: '2026-10-05', dow: '週一', region: '福岡・返程',
+      title: '天神補貨、大濠公園、回家',
+      hotel: null,
+      alerts: [{ level: 'danger', text: '兩團班機差 2 小時，最後一天要分開行動。小阿姨團（4 人）IT721 17:10 起飛，國際線建議 15:10 前抵達機場報到 ─ 表格寫的「16:30 出發前往機場」對這團來說太晚。澤右（2 人）BR101 19:20 起飛才符合原表格時間。' }],
+      blocks: [
+        { part: 'am', items: [
+          { time: '09:30–11:30', title: '天神商圈最後補貨', desc: '從天神站出發，逛天神地下街、岩田屋、大丸百貨或天神 Loft。伴手禮、藥妝可在這裡一次買齊，減輕行李負擔。', map: '天神地下街' },
+          { time: '11:30–13:00', title: '享用福岡美食', desc: '在天神附近享用博多拉麵、牛腸鍋或日式定食作為午餐。', map: '天神 博多ラーメン' }
+        ]},
+        { part: 'pm', items: [
+          { time: '13:00–15:30', title: '悠閒漫步大濠公園', desc: '搭地鐵至大濠公園，在湖邊散步、喝杯咖啡。', map: '大濠公園' },
+          { time: '15:30–16:30', title: '返回天神取行李', desc: '回住宿飯店取行李，整理戰利品。' },
+          { time: '16:30–17:00', title: '出發前往機場', desc: '從天神站搭地下鐵空港線至「福岡機場站」，約 5–10 分鐘。', map: '福岡空港駅' },
+          { time: '17:00–19:20', title: '福岡機場最後衝刺', desc: '國際線辦理登機。機場免稅店選擇豐富（記得檢查行李重量）。', map: '福岡空港 国際線ターミナル' }
+        ]},
+        { part: 'night', items: [
+          { time: '17:10–18:40', title: '福岡機場 → 桃園機場', tag: '虎航 IT721・小阿姨團 4 人' },
+          { time: '19:20–20:45', title: '福岡機場 → 桃園機場', tag: '長榮 BR101・澤右 2 人' }
+        ]}
+      ]
+    }
+  ]
+};
+
+/* 離線指南。景點／美食屬一般旅遊建議，非既定行程；營業時間與價格請以現場公告為準。 */
+window.GUIDE = {
+  regions: [
+    {
+      id: 'fukuoka', name: '福岡・博多・天神', days: '第 1、9 天',
+      eat: [
+        { n: '博多拉麵（豚骨）', d: '細麵、可「替玉」加麵。一蘭、一風堂、Shin Shin 都在天神／博多站附近。' },
+        { n: '牛腸鍋（もつ鍋）', d: '福岡代表鍋物，醬油或味噌湯底，最後下ちゃんぽん麵。' },
+        { n: '明太子', d: '伴手禮首選，福屋、島本、やまや都有機場店。' },
+        { n: '屋台（中洲・天神）', d: '傍晚才開的路邊攤，天氣好時很有氣氛。多為現金交易。' },
+        { n: '水炊き', d: '雞白湯鍋，和牛腸鍋並列博多雙鍋。' }
+      ],
+      see: [
+        { n: '天神地下街', d: '南北約 590 公尺、12 個街區，下雨天最佳去處。' },
+        { n: '博多運河城', d: '大型複合商場，中庭有噴水秀。' },
+        { n: 'LaLaport 福岡', d: '有實物大 ν 鋼彈立像，晚上有燈光演出。' },
+        { n: '大濠公園', d: '市中心大湖公園，適合散步收尾。' },
+        { n: '鷲尾愛宕神社', d: '可俯瞰福岡市區與博多灣的夜景點。' }
+      ],
+      tips: [
+        '天神與博多站之間地下鐵只要 2 站，走路約 20 分鐘。',
+        '藥妝／伴手禮在天神一次買齊，最後一天才不用拖行李跑。'
+      ]
+    },
+    {
+      id: 'nagasaki', name: '長崎・佐世保', days: '第 2、3 天',
+      eat: [
+        { n: '佐世保漢堡', d: '現點現做的美式漢堡，佐世保市區多家老店。' },
+        { n: '長崎強棒麵（ちゃんぽん）・皿烏龍麵', d: '中華街的招牌，四海樓是發源店。' },
+        { n: '長崎蛋糕（カステラ）', d: '福砂屋、文明堂為代表。' },
+        { n: '土耳其飯（トルコライス）', d: '豬排＋義大利麵＋炒飯一盤到位的長崎洋食。' }
+      ],
+      see: [
+        { n: '九十九島遊覽船', d: '珍珠海洋遊覽世界（パールシーリゾート）出發。' },
+        { n: '展海峰・石岳展望台', d: '俯瞰九十九島群島的兩個經典展望點。' },
+        { n: '眼鏡橋', d: '日本最古的石造拱橋之一，水面倒影成眼鏡狀。' },
+        { n: '平和公園・原爆資料館', d: '長崎必訪的歷史現場。' },
+        { n: '稻佐山展望台', d: '「世界新三大夜景」之一，可開車上山或搭纜車。' },
+        { n: '荷蘭坂・哥拉巴園', d: '舊居留地的西洋建築群與石板坡道。' }
+      ],
+      tips: [
+        '長崎市區路面電車便宜好用，但市區道路窄、單行道多，停車位不好找 ─ 車可以放飯店走路逛。',
+        '稻佐山夜景建議日落前 30 分鐘上山，可同時看到夕陽與夜景。'
+      ]
+    },
+    {
+      id: 'kumamoto', name: '熊本', days: '第 4、5 天',
+      eat: [
+        { n: '馬肉料理（馬刺し）', d: '熊本最具代表性的鄉土料理，城彩苑與下通都有店。' },
+        { n: '熊本拉麵', d: '豚骨湯底加蒜油（マー油），比博多拉麵濃厚。' },
+        { n: '太平燕（タイピーエン）', d: '冬粉版強棒麵，熊本在地小吃。' },
+        { n: 'いきなり団子', d: '地瓜紅豆蒸點心，城彩苑有現蒸的。' }
+      ],
+      see: [
+        { n: '熊本城天守閣', d: '日本三名城之一，震後修復完成的天守可入內。' },
+        { n: '櫻花馬場 城彩苑', d: '城下的仿古商店街，適合午餐與試吃。' },
+        { n: '熊本熊廣場', d: '部長辦公室，有表演時段（時段以官網公告為準）。' },
+        { n: '下通・上通商店街', d: '熊本最熱鬧的拱廊商店街。' },
+        { n: '花岡山 / 市役所 14F', d: '兩個免費看熊本城夜景的地方，市役所開放至 22:00。' }
+      ],
+      tips: ['熊本市電與市區停車場多，但熊本城周邊假日易滿，建議停城彩苑或 SAKURA MACHI。']
+    },
+    {
+      id: 'aso', name: '阿蘇・高千穗', days: '第 5、6 天',
+      eat: [
+        { n: '赤牛丼', d: '阿蘇名物，使用熊本赤牛（褐毛和牛）。' },
+        { n: '高千穗牛', d: '高千穗地區的和牛，道之驛高千穗附近有店。' },
+        { n: '流水素麵（夏季）', d: '高千穗峽旁的名物，季節限定。' }
+      ],
+      see: [
+        { n: '高千穗峽・真名井瀑布', d: '峽谷步道免費，划船需另外排隊付費。' },
+        { n: '上色見熊野座神社', d: '長長石階與苔蘚燈籠，氣氛極美。' },
+        { n: '草千里之濱', d: '火山口下的高原草原，可騎馬。' },
+        { n: '阿蘇山中嶽火口', d: '火口是否開放依火山活動與風向即時管制。' },
+        { n: '阿蘇神社', d: '肥後國一之宮，樓門為日本三大樓門之一。' }
+      ],
+      tips: [
+        '阿蘇山火口常因火山氣體濃度臨時封閉，出發前先查阿蘇山火口規制情報。',
+        '高千穗峽遊船常常額滿或因水量停駛（Klook 行程註明停駛只退遊船費）。',
+        '山區早晚溫差大，10 月初白天舒適、傍晚偏涼，帶件外套。'
+      ]
+    },
+    {
+      id: 'kurokawa', name: '黑川溫泉', days: '第 6 天',
+      eat: [
+        { n: '一泊二食', d: '晚餐與早餐都在旅館，通常有指定時段，check-in 時先確認。' },
+        { n: '街上小食', d: '溫泉蛋、可樂餅、地酒與布丁，多在傍晚前收攤。' }
+      ],
+      see: [
+        { n: '入湯手形', d: '黑川溫泉的招牌玩法：一張手形可泡 3 間旅館的露天風呂，在「風之舍」或各旅館購買。' },
+        { n: '老街散策', d: '沿田之原川的木造街景，傍晚點燈後最有味道。' },
+        { n: '地藏堂・丸鈴橋', d: '街區中心的經典拍照點。' }
+      ],
+      tips: [
+        '黑川溫泉店家收得早，多數 17:00–18:00 打烊，想逛街要早點到。',
+        '山路多彎，天黑後視線差，建議天黑前抵達旅館。'
+      ]
+    },
+    {
+      id: 'yufuin', name: '由布院', days: '第 7 天',
+      eat: [
+        { n: '金賞可樂餅', d: '湯之坪街道人氣排隊小食。' },
+        { n: 'B-Speak 蛋糕捲', d: '由布院名物，常常提早售完，看到就先買。' },
+        { n: '蜂蜜製品', d: '街上多家蜂蜜專門店可試吃。' },
+        { n: 'Cafe La Ruche', d: '金鱗湖畔咖啡廳（marc chagall 美術館旁）。' }
+      ],
+      see: [
+        { n: '湯之坪街道', d: '由布院主街，兩側全是小店。' },
+        { n: '金鱗湖', d: '清晨會起霧，是最有名的畫面。' },
+        { n: '九重夢大吊橋', d: '來由布院路上，日本最高的人行步道吊橋。' }
+      ],
+      tips: ['由布院商店多在 17:00 左右關門，這是行程表特別註明的重點。']
+    },
+    {
+      id: 'beppu', name: '別府', days: '第 7、8 天',
+      eat: [
+        { n: '地獄蒸料理', d: '用溫泉蒸氣蒸海鮮與蔬菜，鐵輪區的特色。' },
+        { n: '溫泉蛋・地獄蒸布丁', d: '海地獄等園區內就有賣。' },
+        { n: '冷麵', d: '別府在地的韓式冷麵改良版。' }
+      ],
+      see: [
+        { n: '別府地獄巡禮', d: '海地獄、鬼石坊主、灶地獄、鬼山地獄、白池地獄（鐵輪區 5 個，彼此步行可達）。' },
+        { n: '別府塔', d: '營業至 21:30，360 度夜景。' },
+        { n: '湯霧展望台', d: '看鐵輪整片溫泉蒸氣的夜景。' }
+      ],
+      tips: [
+        '地獄巡禮有共通觀覽券，若要看 5 個以上比單買划算。',
+        '鐵輪區與海地獄有各自停車場，多為免費。'
+      ]
+    },
+    {
+      id: 'dazaifu', name: '太宰府', days: '第 8 天',
+      eat: [
+        { n: '梅枝餅（梅ヶ枝餅）', d: '參道名物，現烤最好吃。17:00 後店家陸續打烊。' },
+        { n: '參道星巴克', d: '隈研吾設計的木格柵店面，值得看一眼。' }
+      ],
+      see: [
+        { n: '太宰府天滿宮', d: '學問之神菅原道真，學業御守是招牌。' },
+        { n: '太鼓橋・心字池', d: '參拜路上必經。' }
+      ],
+      tips: ['停車導航「太宰府駐車センター」，別去正門排隊，走 5 分鐘就到參道。']
+    }
+  ],
+
+  practical: [
+    {
+      id: 'drive', icon: '🚗', title: '日本自駕重點',
+      items: [
+        '**證件三件組**：駕照日文譯本 ＋ 台灣駕照正本 ＋ 護照。日文譯本可在監理站或各地監理所當場申辦，日本不認台灣的國際駕照。',
+        '**靠左行駛**，方向燈與雨刷位置和台灣相反，前幾個路口容易打錯。',
+        '路口「止まれ」＝停車再開，日本警察抓很兇，一定要完全停住。',
+        'ETC 卡通常要跟租車公司另外租借；沒有 ETC 就走「一般」車道抽票。',
+        '加油：自助加油站說「レギュラー、満タン」（regular，加滿）。還車前務必加滿並留收據。',
+        '停車場多為先領票、離場前到繳費機（精算機）付款，再開出閘門。',
+        '山區（阿蘇、九重、黑川）多彎道與濃霧，建議天黑前抵達目的地。',
+        '日本高速公路速限一般 80–100 km/h，一般道路 40–60 km/h。'
+      ]
+    },
+    {
+      id: 'onsen', icon: '♨️', title: '溫泉禮儀與一泊二食',
+      items: [
+        '入池前先在淋浴區把身體洗乾淨，毛巾不可放進池水裡。',
+        '長髮請綁起來，不要讓頭髮泡到水。',
+        '部分旅館對刺青有限制，若有刺青建議先詢問或選擇貸切風呂（包場）。',
+        '一泊二食的晚餐與早餐都有指定時段，check-in 時務必先確認時間。',
+        '房內會準備浴衣與館內拖鞋，可以穿著在館內走動，不用自己帶睡衣。',
+        '這趟有兩晚一泊二食（10/2 優彩別館、10/3 清海莊），那兩天晚餐不用另外找。'
+      ]
+    },
+    {
+      id: 'money', icon: '💴', title: '錢、免稅與付款',
+      items: [
+        '日本刷卡普及度已高，但屋台、小店、部分停車場仍只收現金，建議隨身留一些日幣。',
+        '免稅：同一天同一店家消費滿 5,000 日圓（未稅）可辦免稅，需出示護照。',
+        '免稅商品原則上出境前不可拆封使用（消耗品類）。',
+        '便利商店 ATM（7-11、Lawson）可用台灣金融卡跨國提領日幣。',
+        '交通 IC 卡（SUGOCA／ICOCA／Suica 通用）可搭地鐵也可在便利商店付款。'
+      ]
+    },
+    {
+      id: 'weather', icon: '🌤', title: '9 月底～10 月初的九州天氣',
+      items: [
+        '平地（福岡、長崎、熊本、別府）白天約 25–29°C，早晚 19–22°C，體感舒適。',
+        '山區（阿蘇、高千穗、黑川溫泉、九重）明顯較涼，夜間可能只有 13–18°C。',
+        '9 月底仍在颱風季尾聲，出發前一週要開始留意颱風動向與航班公告。',
+        '穿搭建議洋蔥式：短袖／薄長袖 ＋ 薄外套或防風外套，山區那兩天再加一件。',
+        '行程走路量大（商店街、地獄巡禮、太宰府參道），好走的鞋比什麼都重要。',
+        '以上為氣候常態值，實際天氣請出發前再查即時預報。'
+      ]
+    },
+    {
+      id: 'emergency', icon: '🆘', title: '緊急與實用資訊',
+      items: [
+        '**警察 110**　／　**消防・救護車 119**',
+        '**駐福岡台北經濟文化辦事處**：福岡市中央区桜坂3-12-42｜代表號 092-734-2810｜急難救助行動電話 090-1922-9740（限緊急事件）',
+        '外交部旅外國人急難救助專線（台灣撥打）：0800-085-095',
+        '信用卡遺失請立刻打發卡行海外掛失電話，出發前先存進手機。',
+        '電壓 100V、插座 A 型（兩平腳），台灣電器可直接使用，不需變壓器。',
+        '日本垃圾桶少，隨身帶個小塑膠袋裝垃圾。'
+      ]
+    }
+  ],
+
+  phrases: [
+    { g: '基本', list: [
+      { jp: 'すみません', tw: '不好意思／請問', rm: 'sumimasen' },
+      { jp: 'ありがとうございます', tw: '謝謝', rm: 'arigatou gozaimasu' },
+      { jp: '大丈夫です', tw: '不用了／沒關係', rm: 'daijoubu desu' },
+      { jp: '英語のメニューはありますか？', tw: '有英文菜單嗎？', rm: 'eigo no menu wa arimasu ka' }
+    ]},
+    { g: '點餐', list: [
+      { jp: 'これをください', tw: '我要這個（指菜單）', rm: 'kore o kudasai' },
+      { jp: '一名です／二名です', tw: '一位／兩位', rm: 'ichimei desu / nimei desu' },
+      { jp: 'お会計お願いします', tw: '麻煩結帳', rm: 'okaikei onegaishimasu' },
+      { jp: '替玉お願いします', tw: '（拉麵）加麵', rm: 'kaedama onegaishimasu' },
+      { jp: 'アレルギーがあります', tw: '我有過敏', rm: 'arerugii ga arimasu' }
+    ]},
+    { g: '開車・加油', list: [
+      { jp: 'レギュラー、満タンで', tw: '一般汽油，加滿', rm: 'regyuraa, mantan de' },
+      { jp: '駐車場はどこですか？', tw: '停車場在哪裡？', rm: 'chuushajou wa doko desu ka' },
+      { jp: 'ETCカードを借りたいです', tw: '我想租 ETC 卡', rm: 'ETC kaado o karitai desu' }
+    ]},
+    { g: '購物・藥妝', list: [
+      { jp: '免税できますか？', tw: '可以免稅嗎？', rm: 'menzei dekimasu ka' },
+      { jp: 'カードは使えますか？', tw: '可以刷卡嗎？', rm: 'kaado wa tsukaemasu ka' },
+      { jp: '袋をください', tw: '請給我袋子', rm: 'fukuro o kudasai' },
+      { jp: '試着してもいいですか？', tw: '可以試穿嗎？', rm: 'shichaku shite mo ii desu ka' }
+    ]},
+    { g: '住宿', list: [
+      { jp: 'チェックインお願いします', tw: '我要 check in', rm: 'chekkuin onegaishimasu' },
+      { jp: '荷物を預かってもらえますか？', tw: '可以幫我寄放行李嗎？', rm: 'nimotsu o azukatte moraemasu ka' },
+      { jp: '夕食は何時からですか？', tw: '晚餐幾點開始？', rm: 'yuushoku wa nanji kara desu ka' }
+    ]}
+  ]
+};
+
+/* 打包清單。id 用來存 localStorage 勾選狀態，改文字不會弄丟進度，改 id 才會。 */
+window.PACKING = [
+  {
+    id: 'docs', icon: '🛂', name: '證件與金流', critical: true,
+    note: '這一組漏掉任何一項，行程會直接卡住。',
+    items: [
+      { id: 'passport', t: '護照', d: '效期需 6 個月以上' },
+      { id: 'jdl', t: '駕照日文譯本', d: '★ 監理站辦理。日本租車認這個，不認國際駕照', critical: true },
+      { id: 'dl', t: '台灣駕照正本', d: '要和日文譯本一起出示', critical: true },
+      { id: 'vjw', t: 'Visit Japan Web QR Code', d: '入境審查與海關用，出發前先登錄好、截圖存手機' },
+      { id: 'tickets', t: '四張機票訂位紀錄', d: 'BR106 / IT240 / IT721 / BR101' },
+      { id: 'hotelconf', t: '住宿訂房確認信', d: '6 筆訂房，建議印一份紙本' },
+      { id: 'carconf', t: '租車預約確認信', d: '9/28 10:00 福岡機場取車' },
+      { id: 'klook', t: 'Klook 高千穗一日遊憑證', d: '10/1 08:00 熊本站西口集合' },
+      { id: 'jpy', t: '日幣現金', d: '屋台、小店、部分停車場只收現金' },
+      { id: 'card', t: '信用卡', d: '租車押金一定要刷卡，記下海外掛失電話' },
+      { id: 'insurance', t: '旅平險保單', d: '' }
+    ]
+  },
+  {
+    id: 'tech', icon: '🔌', name: '電子與 3C',
+    items: [
+      { id: 'charger', t: '手機充電器與線', d: '日本插座 A 型 100V，台灣插頭可直接用' },
+      { id: 'powerbank', t: '行動電源', d: '★ 只能放隨身行李，不可託運', critical: true },
+      { id: 'esim', t: 'eSIM／網路卡', d: '出發前先裝好、確認可以開通' },
+      { id: 'carmount', t: '車用手機支架 ＋ 車充', d: '自駕 7 天，導航很吃電' },
+      { id: 'camera', t: '相機與記憶卡', d: '' },
+      { id: 'multiplug', t: '多孔延長線', d: '飯店插座常常不夠用' }
+    ]
+  },
+  {
+    id: 'cloth', icon: '👕', name: '衣物（9 月底～10 月初）',
+    note: '平地白天 25–29°C、早晚 19–22°C；阿蘇／黑川山區夜間可能只有 13–18°C。洋蔥式穿搭。',
+    items: [
+      { id: 'tops', t: '短袖／薄長袖 上衣', d: '9 天份，飯店多有洗衣機可減量' },
+      { id: 'jacket', t: '薄外套或防風外套', d: '山區與夜景點必備' },
+      { id: 'warm', t: '一件保暖中層', d: '10/1 阿蘇、10/2 黑川那兩天會用到' },
+      { id: 'shoes', t: '好走的鞋', d: '地獄巡禮、太宰府參道、商店街走路量很大', critical: true },
+      { id: 'socks', t: '襪子與內衣褲', d: '' },
+      { id: 'rain', t: '摺疊傘或輕便雨衣', d: '9 月底仍可能有雨' },
+      { id: 'hat', t: '帽子與太陽眼鏡', d: '草千里、展望台都很曬' }
+    ]
+  },
+  {
+    id: 'onsen', icon: '♨️', name: '溫泉與一泊二食',
+    note: '10/2 優彩別館、10/3 清海莊都是一泊二食，浴衣與大浴巾旅館會準備，不用自己帶。',
+    items: [
+      { id: 'smalltowel', t: '小方巾', d: '進大浴場擦身體用（旅館通常也有）' },
+      { id: 'hairtie', t: '髮圈', d: '長髮入浴要綁起來' },
+      { id: 'pouch', t: '防水束口袋', d: '裝盥洗用品去大浴場' },
+      { id: 'skincare', t: '保養品分裝', d: '' }
+    ]
+  },
+  {
+    id: 'med', icon: '💊', name: '藥品與個人用品',
+    items: [
+      { id: 'carsick', t: '暈車藥', d: '★ 阿蘇、九重、黑川全是連續彎道山路', critical: true },
+      { id: 'stomach', t: '腸胃藥', d: '' },
+      { id: 'cold', t: '感冒藥／退燒止痛藥', d: '' },
+      { id: 'ownmed', t: '個人常備處方藥', d: '建議帶處方箋影本' },
+      { id: 'bandaid', t: 'OK 繃與痠痛貼布', d: '走很多路' },
+      { id: 'lens', t: '隱形眼鏡與藥水', d: '' },
+      { id: 'sunscreen', t: '防曬乳', d: '' }
+    ]
+  },
+  {
+    id: 'misc', icon: '🎒', name: '其他',
+    items: [
+      { id: 'ecobag', t: '摺疊購物袋 2–3 個', d: '日本塑膠袋要另外付費' },
+      { id: 'scale', t: '行李秤', d: '虎航行李限重嚴格，回程買太多會超重' },
+      { id: 'ziplock', t: '夾鏈袋幾個', d: '裝濕衣服、分裝零食' },
+      { id: 'trashbag', t: '小垃圾袋', d: '日本路上垃圾桶很少' },
+      { id: 'snack', t: '零食／泡麵', d: '一泊二食以外的宵夜' },
+      { id: 'spare', t: '空行李袋或摺疊行李箱', d: '裝伴手禮' }
+    ]
+  }
+];
+
+/* 行前待辦（有時限，不是打包物品） */
+window.TODOS = [
+  { id: 'jdl-apply', t: '辦駕照日文譯本', d: '監理站臨櫃當場可拿，帶駕照＋身分證。沒有它租不到車。', by: '出發前 2 週' },
+  { id: 'vjw-reg', t: '登錄 Visit Japan Web', d: '填完入境審查與海關申報，把 QR Code 截圖存手機。', by: '出發前 1 週' },
+  { id: 'exchange', t: '換日幣現金', d: '屋台、小店、停車場常只收現金。', by: '出發前 1 週' },
+  { id: 'esim-buy', t: '買 eSIM 或網路卡', d: '自駕全程靠手機導航，網路不能斷。', by: '出發前 1 週' },
+  { id: 'checkin', t: '線上劃位／選位', d: '長榮與虎航開放時間不同，記得分開處理。', by: '出發前 2–3 天' },
+  { id: 'typhoon', t: '追蹤颱風與航班動態', d: '9 月底仍在颱風季尾聲。', by: '出發前 1 週起每天' },
+  { id: 'offline-map', t: '下載 Google Maps 離線地圖', d: '把九州區域整片下載，山區沒訊號時救命。', by: '出發前 1 天' },
+  { id: 'copy-docs', t: '重要證件拍照備份', d: '護照、駕照、譯本、訂房信，存雲端也存手機相簿。', by: '出發前 1 天' }
+];
+
+/* 九州旅遊助手 — vanilla JS，無外部依賴（Google Fonts 失效時自動退回系統字型） */
+(function () {
+  'use strict';
+
+  var TRIP = window.TRIP, GUIDE = window.GUIDE, PACKING = window.PACKING, TODOS = window.TODOS, ART = window.ART;
+
+  /* ---------- storage (never throw) ---------- */
+  var KEY = 'kyushu2026:v1';
+  var state = { theme: null, checks: {}, rate: 0.215 };
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') {
+      state.theme = p.theme || null;
+      state.checks = p.checks || {};
+      if (typeof p.rate === 'number' && p.rate > 0) state.rate = p.rate;
+    } }
+  } catch (e) { /* 無痕模式／封鎖儲存時照常運作 */ }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  /* ---------- utils ---------- */
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function md(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); }
+  function mapUrl(q) { return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); }
+  function yen(n) { return 'JPY ' + Number(n).toLocaleString('en-US'); }
+  function dateObj(s) { var a = s.split('-'); return new Date(+a[0], +a[1] - 1, +a[2]); }
+  function today() {
+    if (window.__mockDate) return dateObj(window.__mockDate);
+    var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  }
+  function dayDiff(a, b) { return Math.round((b - a) / 86400000); }
+  function fmtMD(s) { var a = s.split('-'); return (+a[1]) + '/' + (+a[2]); }
+  function I(name) { return ART.icons[name] || ''; }
+  function scene(reg) {
+    return '<svg class="scene" viewBox="0 0 400 132" preserveAspectRatio="xMidYMax slice" aria-hidden="true">'
+      + (ART.scenes[reg] || ART.scenes.journey) + '</svg>';
+  }
+  function regOf(n) { return TRIP.dayRegion[n] || 'journey'; }
+
+  var PART = { am: ['上午', 'sun'], pm: ['下午', 'cloud'], night: ['晚上', 'moon'] };
+
+  /* ---------- theme ---------- */
+  function applyTheme() {
+    if (state.theme) document.documentElement.setAttribute('data-theme', state.theme);
+    else document.documentElement.removeAttribute('data-theme');
+  }
+  applyTheme();
+  document.getElementById('theme-btn').addEventListener('click', function () {
+    var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches;
+    if (!state.theme) state.theme = sysDark ? 'light' : 'dark';
+    else state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(); save();
+  });
+
+  /* ---------- fragments ---------- */
+  function hotelOf(key) {
+    if (!key) return null;
+    for (var i = 0; i < TRIP.hotels.length; i++) if (TRIP.hotels[i].key === key) return TRIP.hotels[i];
+    return null;
+  }
+  function alertsHtml(list) {
+    if (!list || !list.length) return '';
+    var LB = { warn: '注意', danger: '重要', info: '提醒' };
+    return list.map(function (a) {
+      return '<div class="alert ' + a.level + '">' + I('alert')
+        + '<div><b>' + esc(LB[a.level] || '提醒') + '</b>' + md(a.text) + '</div></div>';
+    }).join('');
+  }
+  function navBtn(q, label) {
+    return '<a class="btn" target="_blank" rel="noopener" href="' + esc(mapUrl(q)) + '">'
+      + I('nav') + (label || '導航 · ' + esc(q)) + '</a>';
+  }
+  function eventHtml(it) {
+    var h = '<div class="ev">';
+    if (it.time) h += '<div class="ev-time">' + esc(it.time) + '</div>';
+    h += '<div class="ev-title">' + esc(it.title) + '</div>';
+    if (it.desc) h += '<div class="ev-desc">' + esc(it.desc) + '</div>';
+    if (it.tag) h += '<div><span class="ev-tag">' + I('plane') + esc(it.tag) + '</span></div>';
+    if (it.map) h += navBtn(it.map);
+    return h + '</div>';
+  }
+  function blocksHtml(day) {
+    return day.blocks.map(function (b) {
+      if (!b.items.length) return '';
+      var pt = PART[b.part];
+      return '<div class="part"><div class="part-h">' + I(pt[1]) + '<b>' + pt[0] + '</b>'
+        + '<span class="pill">' + b.items.length + '</span></div>'
+        + '<div class="tl">' + b.items.map(eventHtml).join('') + '</div></div>';
+    }).join('');
+  }
+  function hotelCard(h, heading) {
+    if (!h) return '';
+    var reg = h.art || 'journey';
+    var body = '<dl>';
+    body += '<div class="kv"><dt>房型</dt><dd>' + esc(h.rooms || '—') + '</dd></div>';
+    if (h.access) body += '<div class="kv"><dt>位置</dt><dd>' + esc(h.access) + '</dd></div>';
+    if (h.addr) body += '<div class="kv"><dt>地址</dt><dd>' + esc(h.addr) + '</dd></div>';
+    if (h.tel) body += '<div class="kv"><dt>電話</dt><dd><a class="tel" href="tel:' + esc(h.tel.replace(/-/g, '')) + '">' + esc(h.tel) + '</a></dd></div>';
+    body += '</dl>';
+    return (heading ? '<div class="sec-title">' + esc(heading) + '</div>' : '')
+      + '<div class="hotel" data-reg="' + esc(reg) + '">'
+      + '<div class="hotel-art">' + scene(reg) + '</div>'
+      + '<div class="hotel-b">'
+      + '<div class="nights">' + esc(h.nights) + '</div>'
+      + '<h3>' + esc(h.name) + '</h3>'
+      + (h.en ? '<div class="en">' + esc(h.en) + '</div>' : '')
+      + body
+      + (h.warn ? '<div class="warnpill">⚠︎ ' + esc(h.warn) + '</div>' : '')
+      + navBtn(h.map, '地圖・照片')
+      + (h.site ? '<a class="btn" target="_blank" rel="noopener" href="' + esc(h.site) + '">' + I('photo') + '官方網站</a>' : '')
+      + '</div></div>';
+  }
+
+  function allPackIds() {
+    var ids = [];
+    PACKING.forEach(function (g) { g.items.forEach(function (i) { ids.push('p:' + g.id + ':' + i.id); }); });
+    return ids;
+  }
+  function doneCount(ids) { var n = 0; ids.forEach(function (i) { if (state.checks[i]) n++; }); return n; }
+
+  function regionForDay(n) {
+    var id = regOf(n);
+    for (var i = 0; i < GUIDE.regions.length; i++) if (GUIDE.regions[i].id === id) return GUIDE.regions[i];
+    return null;
+  }
+  function regionEatHtml(n) {
+    var r = regionForDay(n);
+    if (!r) return '';
+    return '<div class="sec-title">' + esc(r.name) + ' 吃什麼</div>'
+      + '<div class="card card-p" data-reg="' + esc(r.id) + '"><ul class="ilist">'
+      + r.eat.map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
+      + '</ul><div class="muted" style="margin-top:10px">一般建議，不是已排定的行程。</div></div>';
+  }
+
+  function dayCard(d, allowNow) {
+    var t = today(), s = dateObj(TRIP.start);
+    var isNow = allowNow !== false && dayDiff(s, t) === d.n - 1 && t >= s && t <= dateObj(TRIP.end);
+    var hotel = hotelOf(d.hotel), reg = regOf(d.n);
+    return '<a class="daycard' + (isNow ? ' now' : '') + '" data-reg="' + esc(reg) + '" href="#/day/' + d.n + '">'
+      + '<div class="dc-art">' + scene(reg)
+      + '<div class="dc-badge">' + d.n + '</div>'
+      + (isNow ? '<div class="dc-flag">今天</div>' : '') + '</div>'
+      + '<div class="dc-body">'
+      + '<div class="dc-date">' + fmtMD(d.date) + '　' + esc(d.dow) + '</div>'
+      + '<div class="dc-title">' + esc(d.title) + '</div>'
+      + '<div class="dc-region">' + esc(d.region) + '</div>'
+      + '<div class="dc-foot">' + (hotel ? I('bed') + '<span>' + esc(hotel.name) + '</span>'
+                                         : I('plane') + '<span>當晚搭機返台，無住宿</span>') + '</div>'
+      + '</div></a>';
+  }
+
+  /* ---------- views ---------- */
+  function viewToday() {
+    var t = today(), s = dateObj(TRIP.start), e = dateObj(TRIP.end), h = '';
+
+    if (t < s) {
+      var left = dayDiff(t, s);
+      var pIds = allPackIds(), pDone = doneCount(pIds);
+      var tIds = TODOS.map(function (x) { return 't:' + x.id; }), tDone = doneCount(tIds);
+
+      h += '<div class="hero" data-reg="journey"><div class="hero-art">' + scene('journey') + '</div>'
+        + '<div class="hero-body"><div class="eyebrow">出發倒數</div>'
+        + '<div class="big">' + left + '<small>天</small></div>'
+        + '<h2>' + esc(TRIP.title) + '</h2>'
+        + '<div class="meta">' + esc(TRIP.party) + '</div></div></div>';
+
+      h += '<div class="sec-title">準備進度</div><div class="card card-p stack">'
+        + '<div><div class="prog-row"><b>行前待辦</b><span>' + tDone + ' / ' + tIds.length + '</span></div>'
+        + '<div class="prog"><i style="width:' + (tIds.length ? tDone / tIds.length * 100 : 0) + '%"></i></div></div>'
+        + '<div><div class="prog-row"><b>行李打包</b><span>' + pDone + ' / ' + pIds.length + '</span></div>'
+        + '<div class="prog"><i style="width:' + (pIds.length ? pDone / pIds.length * 100 : 0) + '%"></i></div></div>'
+        + '</div>';
+
+      h += '<div class="sec-title">行前待辦</div><div class="grp">'
+        + TODOS.map(function (x) {
+            var id = 't:' + x.id;
+            return '<label class="chk"><input type="checkbox" data-k="' + esc(id) + '"' + (state.checks[id] ? ' checked' : '') + '>'
+              + '<span class="chk-b"><span class="chk-t">' + esc(x.t) + '</span>'
+              + '<span class="chk-d">' + esc(x.d) + '　<span class="chk-by">' + esc(x.by) + '</span></span></span></label>';
+          }).join('')
+        + '</div>';
+
+      h += '<div class="sec-title">第一天</div>' + dayCard(TRIP.days[0], false);
+
+    } else if (t > e) {
+      h += '<div class="hero" data-reg="journey"><div class="hero-art">' + scene('journey') + '</div>'
+        + '<div class="hero-body"><div class="eyebrow">旅程已結束</div>'
+        + '<div class="big">9<small>天</small></div>'
+        + '<h2>' + esc(TRIP.title) + '</h2>'
+        + '<div class="meta">2026/09/27 – 10/05 · 歡迎回家</div></div></div>'
+        + '<div class="sec-title">全部行程</div><div class="stack">'
+        + TRIP.days.map(function (d) { return dayCard(d, false); }).join('') + '</div>';
+
+    } else {
+      var idx = dayDiff(s, t), day = TRIP.days[idx], reg = regOf(day.n), hotel = hotelOf(day.hotel);
+
+      h += '<div class="hero" data-reg="' + esc(reg) + '"><div class="hero-art">' + scene(reg) + '</div>'
+        + '<div class="hero-body"><div class="eyebrow">Day ' + day.n + ' · ' + esc(day.dow) + '</div>'
+        + '<div class="big">' + fmtMD(day.date) + '</div>'
+        + '<h2>' + esc(day.title) + '</h2>'
+        + '<div class="meta">' + esc(day.region) + '</div></div></div>';
+
+      h += '<div data-reg="' + esc(reg) + '">';
+      if (day.alerts) h += '<div class="stack" style="margin-top:12px">' + alertsHtml(day.alerts) + '</div>';
+      if (day.drive) h += '<div class="drive" style="margin-top:12px">' + I('car') + '<span>' + esc(day.drive) + '</span></div>';
+      h += blocksHtml(day) + '</div>';
+
+      h += hotel ? hotelCard(hotel, '今晚住宿')
+                 : '<div class="sec-title">住宿</div><div class="card card-p"><div class="muted">當晚搭機返台，無住宿。</div></div>';
+      h += regionEatHtml(day.n);
+      h += '<div class="day-nav" data-reg="' + esc(reg) + '"><a class="wide" href="#/day/' + day.n + '">看今天完整行程 →</a></div>';
+    }
+    return h;
+  }
+
+  function viewPlan() {
+    return '<div class="sec-title">9 天行程</div><div class="stack">'
+      + TRIP.days.map(function (d) { return dayCard(d); }).join('') + '</div>'
+      + '<div class="card card-p" style="margin-top:18px"><div class="muted">'
+      + '行程內容擷取自《2026九州行程0927~1005.xls》，未經改寫。營業時間與價格請以現場公告為準。</div></div>';
+  }
+
+  function viewDay(n) {
+    var d = null, i;
+    for (i = 0; i < TRIP.days.length; i++) if (TRIP.days[i].n === n) d = TRIP.days[i];
+    if (!d) return '<p>找不到這一天。</p>';
+    var hotel = hotelOf(d.hotel), reg = regOf(d.n);
+
+    var h = '<a class="back" href="#/plan">‹ 全部行程</a>'
+      + '<div class="hero" data-reg="' + esc(reg) + '"><div class="hero-art">' + scene(reg) + '</div>'
+      + '<div class="hero-body"><div class="eyebrow">Day ' + d.n + ' · ' + esc(d.date.replace(/-/g, '/')) + ' ' + esc(d.dow) + '</div>'
+      + '<h2 style="font-size:21px;margin-top:6px">' + esc(d.title) + '</h2>'
+      + '<div class="meta">' + esc(d.region) + '</div></div></div>';
+
+    h += '<div data-reg="' + esc(reg) + '">';
+    if (d.alerts) h += '<div class="stack" style="margin-top:12px">' + alertsHtml(d.alerts) + '</div>';
+    if (d.drive) h += '<div class="drive" style="margin-top:12px">' + I('car') + '<span>' + esc(d.drive) + '</span></div>';
+    h += blocksHtml(d) + '</div>';
+
+    h += hotel ? hotelCard(hotel, d.n === 9 ? '住宿' : '今晚住宿')
+               : '<div class="sec-title">住宿</div><div class="card card-p"><div class="muted">當晚搭機返台，無住宿。</div></div>';
+    h += regionEatHtml(d.n);
+
+    var prev = d.n > 1 ? '#/day/' + (d.n - 1) : null, next = d.n < 9 ? '#/day/' + (d.n + 1) : null;
+    h += '<div class="day-nav">'
+      + '<a class="' + (prev ? '' : 'dis') + '" href="' + (prev || '#') + '">‹ Day ' + (d.n - 1) + '</a>'
+      + '<a class="' + (next ? '' : 'dis') + '" href="' + (next || '#') + '">Day ' + (d.n + 1) + ' ›</a></div>';
+    return h;
+  }
+
+  function viewPack() {
+    var ids = allPackIds(), done = doneCount(ids);
+    var h = '<div class="card card-p">'
+      + '<div class="prog-row"><b>打包進度</b><span>' + done + ' / ' + ids.length + '</span></div>'
+      + '<div class="prog"><i style="width:' + (ids.length ? done / ids.length * 100 : 0) + '%"></i></div>'
+      + '<div class="muted" style="margin-top:10px">勾選狀態只存在這支手機的瀏覽器裡，不會同步給其他人。</div></div>';
+
+    h += '<div class="stack" style="margin-top:12px">' + PACKING.map(function (g) {
+      var gi = g.items.map(function (i) { return 'p:' + g.id + ':' + i.id; }), gd = doneCount(gi);
+      return '<div class="grp">'
+        + '<div class="grp-h"><span class="gi">' + g.icon + '</span><b>' + esc(g.name) + '</b>'
+        + '<span class="cnt">' + gd + '/' + gi.length + '</span></div>'
+        + (g.note ? '<div class="grp-note">' + esc(g.note) + '</div>' : '')
+        + g.items.map(function (i) {
+            var id = 'p:' + g.id + ':' + i.id;
+            return '<label class="chk"><input type="checkbox" data-k="' + esc(id) + '"' + (state.checks[id] ? ' checked' : '') + '>'
+              + '<span class="chk-b"><span class="chk-t">' + (i.critical ? '<span class="star">★ </span>' : '') + esc(i.t) + '</span>'
+              + (i.d ? '<span class="chk-d">' + esc(i.d) + '</span>' : '') + '</span></label>';
+          }).join('')
+        + '</div>';
+    }).join('') + '</div>';
+    return h;
+  }
+
+  var PRACT_IC = { drive: 'car', onsen: 'onsen', money: 'yen', weather: 'sun', emergency: 'alert' };
+
+  function viewGuide() {
+    var h = '<div class="sec-title">各區美食與景點</div><div class="stack">';
+    h += GUIDE.regions.map(function (r) {
+      return '<details class="acc" data-reg="' + esc(r.id) + '"><summary>'
+        + '<span class="stamp"><svg viewBox="0 0 400 132" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + ART.scenes[r.id] + '</svg></span>'
+        + '<span class="acc-t"><b>' + esc(r.name) + '</b><span>' + esc(r.days) + '</span></span>'
+        + '<span class="caret">⌄</span></summary><div class="acc-body">'
+        + '<div class="sub-h">吃什麼</div><ul class="ilist">'
+        + r.eat.map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
+        + '</ul><div class="sub-h">看什麼</div><ul class="ilist">'
+        + r.see.map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
+        + '</ul>'
+        + (r.tips && r.tips.length ? '<div class="sub-h">小提醒</div><ul class="ilist">'
+            + r.tips.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '')
+        + '</div></details>';
+    }).join('') + '</div>';
+
+    h += '<div class="sec-title">實用資訊</div><div class="stack">';
+    h += GUIDE.practical.map(function (pr) {
+      return '<details class="acc"><summary>'
+        + '<span class="acc-ic">' + I(PRACT_IC[pr.id] || 'info') + '</span>'
+        + '<span class="acc-t"><b>' + esc(pr.title) + '</b></span>'
+        + '<span class="caret">⌄</span></summary>'
+        + '<div class="acc-body"><ul class="ilist">'
+        + pr.items.map(function (x) { return '<li>' + md(x) + '</li>'; }).join('')
+        + '</ul></div></details>';
+    }).join('') + '</div>';
+
+    h += '<div class="sec-title">常用日文</div><div class="stack">';
+    h += GUIDE.phrases.map(function (g) {
+      return '<details class="acc"><summary>'
+        + '<span class="acc-ic">' + I('guide') + '</span>'
+        + '<span class="acc-t"><b>' + esc(g.g) + '</b></span>'
+        + '<span class="caret">⌄</span></summary><div class="acc-body">'
+        + g.list.map(function (x) {
+            return '<div class="ph"><div class="jp">' + esc(x.jp) + '</div>'
+              + '<div class="tw">' + esc(x.tw) + '</div><div class="rm">' + esc(x.rm) + '</div></div>';
+          }).join('')
+        + '</div></details>';
+    }).join('') + '</div>';
+
+    h += '<div class="card card-p" style="margin-top:18px"><div class="muted">'
+      + '本頁的景點與美食為一般旅遊建議，不是已排定的行程；營業時間、價格與活動舉辦與否請以官方即時公告為準。</div></div>';
+    return h;
+  }
+
+  function viewInfo() {
+    var h = '<div class="sec-title">航班</div><div class="card card-p">';
+    h += TRIP.flights.map(function (f) {
+      return '<div class="fl"><div class="fl-code"><b>' + esc(f.code) + '</b><span>' + esc(f.air) + '</span></div>'
+        + '<div style="flex:1;min-width:0">'
+        + '<div class="fl-rt"><div><div class="t">' + esc(f.dep) + '</div><div class="a">' + esc(f.from) + '</div></div>'
+        + '<div class="arrow">' + I('plane') + '</div>'
+        + '<div style="text-align:right"><div class="t">' + esc(f.arr) + '</div><div class="a">' + esc(f.to) + '</div></div></div>'
+        + '<div class="fl-when">' + esc(f.date.replace(/-/g, '/')) + '<span class="whopill">' + esc(f.who) + '</span></div>'
+        + '</div></div>';
+    }).join('') + '</div>';
+
+    h += '<div style="margin-top:11px">' + alertsHtml([{ level: 'danger',
+      text: '**最後一天要分開行動。**兩團班機差 2 小時：小阿姨團（4 人）IT721 17:10 起飛，建議 15:10 前抵達機場報到，比行程表寫的「16:30 出發前往機場」早很多。澤右（2 人）BR101 19:20 起飛才符合原表格時間。' }]) + '</div>';
+
+    h += '<div class="sec-title">租車</div><div class="card card-p" data-reg="fukuoka"><dl>'
+      + '<div class="kv"><dt>取車</dt><dd>' + esc(TRIP.car.pickup.date.replace(/-/g, '/')) + ' ' + esc(TRIP.car.pickup.time) + '<br>' + esc(TRIP.car.pickup.place) + '</dd></div>'
+      + '<div class="kv"><dt>還車</dt><dd>' + esc(TRIP.car.dropoff.date.replace(/-/g, '/')) + ' ' + esc(TRIP.car.dropoff.time) + '<br>' + esc(TRIP.car.dropoff.place) + '</dd></div>'
+      + '</dl><ul class="ilist" style="margin-top:10px">'
+      + TRIP.car.notes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>'
+      + navBtn(TRIP.car.pickup.map, '取車地點') + navBtn(TRIP.car.dropoff.map, '還車地點') + '</div>';
+
+    h += '<div class="sec-title">住宿　6 筆訂房・8 晚</div><div class="stack">'
+      + TRIP.hotels.map(function (ht) { return hotelCard(ht, null); }).join('') + '</div>';
+
+    h += '<div class="sec-title">費用</div><div class="card card-p">';
+    h += TRIP.hotels.map(function (ht) {
+      return '<div class="total-row"><span>' + esc(ht.name) + '</span><span class="money">' + yen(ht.price) + '</span></div>';
+    }).join('');
+    h += '<div class="total-row grand"><span>住宿合計（日幣）</span><span class="money">' + yen(TRIP.budget.jpyTotal) + '</span></div>';
+    h += '<div style="margin-top:14px">' + TRIP.budget.extra.map(function (x) {
+      return '<div class="total-row"><span>' + esc(x.label) + '</span><span class="money">' + esc(x.amount) + '</span></div>';
+    }).join('') + '</div>';
+    h += '<div class="muted" style="margin-top:12px">' + esc(TRIP.budget.note) + '</div></div>';
+
+    h += '<div class="sec-title">日幣換算</div><div class="card card-p">'
+      + '<div class="conv"><input id="jpy-in" type="number" inputmode="decimal" value="10000" aria-label="日圓金額">'
+      + '<span class="eq">≈</span><div class="out" id="twd-out">—</div></div>'
+      + '<div class="rate-row"><span>匯率　1 JPY =</span><input id="rate-in" type="number" inputmode="decimal" step="0.001" value="' + state.rate + '" aria-label="匯率"><span>TWD</span></div>'
+      + '<div class="muted" style="margin-top:10px">匯率是離線手動設定值，出發前請自行更新為當日匯率。</div></div>';
+
+    h += '<div class="sec-title">同行成員</div><div class="card card-p"><div style="font-size:13.5px">' + esc(TRIP.party) + '</div></div>';
+
+    h += '<div class="card card-p" style="margin-top:18px"><div class="muted">'
+      + '資料來源：《2026九州行程0927~1005.xls》。飯店地址與電話為網路查證結果，出發前建議再和訂房確認信核對一次。</div></div>';
+    return h;
+  }
+
+  /* ---------- router ---------- */
+  var TITLES = {
+    today: ['今天', '2026/09/27 – 10/05'], plan: ['行程總覽', '九州自駕 9 天'],
+    pack: ['行李打包', '出發前逐項確認'], guide: ['旅遊指南', '離線可用'],
+    info: ['旅遊資訊', '航班・租車・住宿・費用']
+  };
+
+  function render() {
+    var hash = location.hash || '#/today';
+    var m = hash.match(/^#\/day\/(\d+)/), tab, html, i;
+    if (m) {
+      tab = 'plan'; html = viewDay(+m[1]);
+      var dd = null;
+      for (i = 0; i < TRIP.days.length; i++) if (TRIP.days[i].n === +m[1]) dd = TRIP.days[i];
+      document.getElementById('tb-title').textContent = 'Day ' + m[1];
+      document.getElementById('tb-sub').textContent = dd ? dd.date.replace(/-/g, '/') + '　' + dd.dow : '';
+    } else {
+      tab = hash.replace('#/', '') || 'today';
+      if (!TITLES[tab]) tab = 'today';
+      html = tab === 'today' ? viewToday() : tab === 'plan' ? viewPlan()
+        : tab === 'pack' ? viewPack() : tab === 'guide' ? viewGuide() : viewInfo();
+      document.getElementById('tb-title').textContent = TITLES[tab][0];
+      document.getElementById('tb-sub').textContent = TITLES[tab][1];
+    }
+
+    var v = document.getElementById('view');
+    v.innerHTML = html;
+    window.scrollTo(0, 0);
+
+    var links = document.querySelectorAll('#tabbar a');
+    for (i = 0; i < links.length; i++) links[i].classList.toggle('on', links[i].dataset.tab === tab);
+
+    if (tab === 'info') wireConverter();
+  }
+
+  function wireConverter() {
+    var a = document.getElementById('jpy-in'), r = document.getElementById('rate-in'), o = document.getElementById('twd-out');
+    if (!a) return;
+    function calc() {
+      var v = parseFloat(a.value), rate = parseFloat(r.value);
+      o.textContent = (isFinite(v) && isFinite(rate))
+        ? 'TWD ' + (v * rate).toLocaleString('en-US', { maximumFractionDigits: 0 }) : '—';
+    }
+    a.addEventListener('input', calc);
+    r.addEventListener('input', function () {
+      var rate = parseFloat(r.value);
+      if (isFinite(rate) && rate > 0) { state.rate = rate; save(); }
+      calc();
+    });
+    calc();
+  }
+
+  document.getElementById('view').addEventListener('change', function (e) {
+    var el = e.target;
+    if (!el || el.type !== 'checkbox' || !el.dataset.k) return;
+    if (el.checked) state.checks[el.dataset.k] = 1; else delete state.checks[el.dataset.k];
+    save();
+    var y = window.pageYOffset;
+    render();
+    window.scrollTo(0, y);
+  });
+
+  /* 分頁圖示：在啟動時注入，讓 index.html 保持乾淨 */
+  (function () {
+    var links = document.querySelectorAll('#tabbar a');
+    for (var i = 0; i < links.length; i++) {
+      var slot = links[i].querySelector('.ti');
+      if (slot) slot.innerHTML = I(links[i].dataset.tab);
+    }
+    document.getElementById('theme-btn').innerHTML = I('moon');
+  })();
+
+  window.addEventListener('hashchange', render);
+  if (!location.hash) location.replace('#/today');
+  render();
+  window.__render = render;
+
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+})();
+
+</script>

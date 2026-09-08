@@ -1,0 +1,358 @@
+/* ============================================================
+   九州旅遊助手 — 旅の栞（旅行手帖）風格
+   中性色偏冷灰綠，刻意避開暖奶油色；8 個地區各有專屬色相。
+   ============================================================ */
+
+/* ---------- 主題 tokens ---------- */
+:root{
+  --paper:#edf0ee; --card:#ffffff; --card2:#e4e9e6; --sunk:#e9edeb;
+  --ink:#14222a; --ink2:#4a5b62; --ink3:#7b8a8f;
+  --line:#d4dcd8; --line2:#b9c4bf;
+  --brand:#cf4229; --brand-soft:#fae2dc;
+  --ok:#2f7d5b; --ok-soft:#e0efe7;
+  --warn:#8a5a12; --warn-soft:#fbeed6; --warn-line:#e7cf9e;
+  --dgr:#a5271f; --dgr-soft:#fbe2df; --dgr-line:#eeb2ac;
+  --sh-1:0 1px 2px rgba(20,34,42,.07);
+  --sh-2:0 2px 4px rgba(20,34,42,.05),0 8px 20px rgba(20,34,42,.07);
+  --display:"Archivo Black",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Hiragino Sans","Noto Sans TC","Microsoft JhengHei",sans-serif;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#0c1418; --card:#15212a; --card2:#1e2c35; --sunk:#111c23;
+  --ink:#e7eff0; --ink2:#a2b4ba; --ink3:#74878e;
+  --line:#25343d; --line2:#354852;
+  --brand:#f4795e; --brand-soft:#3a1e17;
+  --ok:#68c39a; --ok-soft:#16302a;
+  --warn:#e2b667; --warn-soft:#2f2716; --warn-line:#4a3e22;
+  --dgr:#f2867c; --dgr-soft:#341d1a; --dgr-line:#54302c;
+  --sh-1:0 1px 2px rgba(0,0,0,.45);
+  --sh-2:0 2px 4px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  --paper:#0c1418; --card:#15212a; --card2:#1e2c35; --sunk:#111c23;
+  --ink:#e7eff0; --ink2:#a2b4ba; --ink3:#74878e;
+  --line:#25343d; --line2:#354852;
+  --brand:#f4795e; --brand-soft:#3a1e17;
+  --ok:#68c39a; --ok-soft:#16302a;
+  --warn:#e2b667; --warn-soft:#2f2716; --warn-line:#4a3e22;
+  --dgr:#f2867c; --dgr-soft:#341d1a; --dgr-line:#54302c;
+  --sh-1:0 1px 2px rgba(0,0,0,.45);
+  --sh-2:0 2px 4px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.35);
+}
+
+/* ---------- 地區色相 ---------- */
+[data-reg="fukuoka"]{--rb:#e0483a}
+[data-reg="nagasaki"]{--rb:#2b62ab}
+[data-reg="kumamoto"]{--rb:#2f7d5b}
+[data-reg="aso"]{--rb:#d1700f}
+[data-reg="kurokawa"]{--rb:#7b5ea7}
+[data-reg="yufuin"]{--rb:#0e8c8c}
+[data-reg="beppu"]{--rb:#cf3f7a}
+[data-reg="dazaifu"]{--rb:#a8752c}
+[data-reg="journey"]{--rb:#cf4229}
+
+[data-reg]{
+  --reg:var(--rb);
+  --reg-shade:color-mix(in srgb, var(--rb) 60%, #0b141a);
+  --reg-tint:color-mix(in srgb, var(--rb) 15%, var(--card));
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) [data-reg]{
+  --reg:color-mix(in srgb, var(--rb) 74%, #ffffff);
+  --reg-shade:color-mix(in srgb, var(--rb) 74%, #000000);
+  --reg-tint:color-mix(in srgb, var(--rb) 24%, var(--card));
+}}
+:root[data-theme="dark"] [data-reg]{
+  --reg:color-mix(in srgb, var(--rb) 74%, #ffffff);
+  --reg-shade:color-mix(in srgb, var(--rb) 74%, #000000);
+  --reg-tint:color-mix(in srgb, var(--rb) 24%, var(--card));
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--paper)}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font:15px/1.68 var(--body);
+  -webkit-font-smoothing:antialiased;overflow-wrap:anywhere;
+}
+h1,h2,h3{margin:0;font-weight:800;line-height:1.32;text-wrap:balance}
+p{margin:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+svg{display:block}
+:focus-visible{outline:2.5px solid var(--brand);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.num{font-family:var(--display);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.eyebrow{font-family:var(--display);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase}
+
+/* ---------- topbar ---------- */
+#topbar{
+  position:sticky;top:0;z-index:30;
+  background:color-mix(in srgb, var(--paper) 90%, transparent);
+  backdrop-filter:saturate(180%) blur(12px);-webkit-backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top);
+}
+.tb-inner{display:flex;align-items:center;gap:12px;padding:10px 16px;max-width:620px;margin:0 auto}
+.tb-text{min-width:0;flex:1}
+#tb-title{font-size:17px;font-weight:800}
+#tb-sub{font-size:11.5px;color:var(--ink3);margin-top:1px}
+.icon-btn{
+  flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--ink2);cursor:pointer;display:grid;place-items:center;padding:0
+}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn:active{background:var(--card2)}
+
+/* ---------- layout ---------- */
+#view{max-width:620px;margin:0 auto;padding:16px 16px calc(80px + env(safe-area-inset-bottom))}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+.sec-title{
+  display:flex;align-items:center;gap:10px;
+  font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--ink3);
+  margin:24px 0 10px
+}
+.sec-title::after{content:"";flex:1;height:1px;background:var(--line)}
+.sec-title:first-child{margin-top:2px}
+
+/* ---------- tabbar ---------- */
+#tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  display:grid;grid-template-columns:repeat(5,1fr);
+  background:color-mix(in srgb, var(--paper) 94%, transparent);
+  backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);
+}
+#tabbar a{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:8px 2px 9px;font-size:10.5px;font-weight:700;color:var(--ink3);min-height:54px
+}
+#tabbar .ti{display:block;width:22px;height:22px}
+#tabbar svg{width:22px;height:22px}
+#tabbar a.on{color:var(--brand)}
+
+/* ---------- 插畫 ---------- */
+.scene{width:100%;height:100%;display:block}
+.art{position:relative;line-height:0;background:var(--reg-tint)}
+.art .scene{height:100%}
+
+.stamp{
+  flex:none;width:46px;height:46px;border-radius:13px;overflow:hidden;
+  display:block;border:1px solid var(--line);background:var(--reg-tint)
+}
+.stamp svg{width:100%;height:100%}
+
+/* ---------- hero ---------- */
+.hero{border-radius:20px;overflow:hidden;box-shadow:var(--sh-2);background:var(--card)}
+.hero-art{height:126px;background:var(--reg-tint)}
+.hero-body{background:var(--reg-shade);color:#fff;padding:15px 18px 17px}
+.hero-body .eyebrow{opacity:.72}
+.hero .big{font-family:var(--display);font-size:46px;line-height:1;margin:5px 0 3px;font-variant-numeric:tabular-nums}
+.hero .big small{font-size:15px;margin-left:6px;opacity:.8;font-family:var(--body);font-weight:800}
+.hero h2{font-size:19px;margin-top:3px}
+.hero .meta{font-size:12.5px;opacity:.82;margin-top:6px;line-height:1.55}
+
+/* ---------- 進度 ---------- */
+.prog-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.prog-row b{font-size:14.5px}
+.prog-row span{font-family:var(--display);font-size:12px;color:var(--ink3)}
+.prog{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden;margin-top:8px;border:1px solid var(--line)}
+.prog i{display:block;height:100%;background:var(--ok);transition:width .3s}
+
+/* ---------- 卡片 ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-1)}
+.card-p{padding:14px 16px}
+
+/* ---------- 日卡（印章頁） ---------- */
+.daycard{
+  display:block;border-radius:18px;overflow:hidden;
+  background:var(--card);border:1px solid var(--line);box-shadow:var(--sh-1)
+}
+.daycard.now{border-color:var(--reg);box-shadow:0 0 0 3px var(--reg-tint),var(--sh-2)}
+.dc-art{height:88px;position:relative;background:var(--reg-tint)}
+.dc-badge{
+  position:absolute;left:12px;top:12px;width:42px;height:42px;border-radius:50%;
+  background:var(--card);color:var(--reg);display:grid;place-items:center;
+  font-family:var(--display);font-size:18px;box-shadow:0 0 0 2.5px var(--reg)
+}
+.dc-flag{
+  position:absolute;right:0;bottom:0;background:var(--reg);color:#fff;
+  font-size:11px;font-weight:700;padding:4px 11px;border-radius:11px 0 0 0;letter-spacing:.02em
+}
+.dc-body{padding:12px 15px 13px}
+.dc-date{font-family:var(--display);font-size:11.5px;color:var(--ink3);letter-spacing:.07em}
+.dc-title{font-size:16px;font-weight:800;margin-top:3px}
+.dc-region{font-size:12.5px;color:var(--reg);font-weight:700;margin-top:3px}
+.dc-foot{
+  display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink2);
+  margin-top:11px;padding-top:10px;border-top:1px dashed var(--line)
+}
+.dc-foot svg{width:15px;height:15px;flex:none;color:var(--ink3)}
+
+/* ---------- 時間軸 ---------- */
+.part{margin-top:18px}
+.part-h{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--reg)}
+.part-h svg{width:17px;height:17px;flex:none}
+.part-h b{font-size:13.5px;font-weight:800}
+.part-h .pill{
+  margin-left:auto;font-family:var(--display);font-size:10.5px;padding:2px 9px;border-radius:99px;
+  background:var(--reg-tint);color:var(--reg)
+}
+.tl{position:relative;padding-left:21px}
+.tl::before{content:"";position:absolute;left:5px;top:10px;bottom:10px;width:2px;background:var(--reg);opacity:.3;border-radius:2px}
+.ev{position:relative;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh-1)}
+.ev+.ev{margin-top:10px}
+.ev::before{content:"";position:absolute;left:-20px;top:17px;width:10px;height:10px;border-radius:50%;background:var(--reg);box-shadow:0 0 0 3px var(--paper)}
+.ev-time{font-family:var(--display);font-size:11.5px;color:var(--reg);letter-spacing:.04em}
+.ev-title{font-size:15.5px;font-weight:800;margin-top:2px}
+.ev-desc{font-size:13px;color:var(--ink2);margin-top:6px;line-height:1.65}
+.ev-tag{
+  display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;
+  padding:3px 9px;border-radius:7px;background:var(--reg-tint);color:var(--reg);margin-top:7px
+}
+.ev-tag svg{width:13px;height:13px}
+
+/* ---------- 按鈕 ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;margin-top:10px;margin-right:7px;
+  font-size:12.5px;font-weight:700;color:var(--reg);
+  border:1.5px solid color-mix(in srgb, var(--reg) 38%, transparent);
+  background:var(--reg-tint);padding:7px 12px;border-radius:10px
+}
+.btn svg{width:15px;height:15px;flex:none}
+.btn:active{background:color-mix(in srgb, var(--reg) 26%, var(--card))}
+
+/* ---------- 提示 ---------- */
+.alert{border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.65;border:1px solid;display:flex;gap:10px}
+.alert svg{width:18px;height:18px;flex:none;margin-top:2px}
+.alert b{display:block;font-size:12px;font-weight:800;letter-spacing:.05em;margin-bottom:3px}
+.alert.warn{background:var(--warn-soft);border-color:var(--warn-line);color:var(--warn)}
+.alert.danger{background:var(--dgr-soft);border-color:var(--dgr-line);color:var(--dgr)}
+.alert.info{background:var(--ok-soft);border-color:color-mix(in srgb, var(--ok) 32%, transparent);color:var(--ok)}
+
+.drive{
+  display:flex;gap:10px;align-items:flex-start;font-size:13px;
+  background:var(--sunk);border:1px dashed var(--line2);border-radius:14px;padding:11px 14px;color:var(--ink2)
+}
+.drive svg{width:17px;height:17px;flex:none;color:var(--reg);margin-top:2px}
+
+/* ---------- 勾選清單 ---------- */
+.grp{border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--sh-1)}
+.grp-h{display:flex;align-items:center;gap:10px;padding:12px 15px;background:var(--card2);border-bottom:1px solid var(--line)}
+.grp-h .gi{font-size:19px;line-height:1}
+.grp-h b{flex:1;font-size:14.5px;font-weight:800}
+.grp-h .cnt{font-family:var(--display);font-size:11.5px;color:var(--ink3)}
+.grp-note{font-size:12.5px;padding:10px 15px;background:var(--warn-soft);color:var(--warn);border-bottom:1px solid var(--line);line-height:1.6}
+.chk{display:flex;gap:12px;align-items:flex-start;padding:12px 15px;cursor:pointer;border-top:1px solid var(--line)}
+.chk:first-of-type{border-top:0}
+.chk input{
+  appearance:none;-webkit-appearance:none;flex:none;margin:2px 0 0;
+  width:22px;height:22px;border-radius:8px;border:2px solid var(--line2);background:var(--sunk);cursor:pointer
+}
+.chk input:checked{background:var(--ok);border-color:var(--ok)}
+.chk input:checked::after{content:"✓";display:block;color:#fff;font-size:14px;font-weight:900;text-align:center;line-height:18px}
+.chk-b{min-width:0;flex:1;display:block}
+.chk-t{display:block;font-size:14.5px;font-weight:700}
+.chk-d{display:block;font-size:12.5px;color:var(--ink3);margin-top:2px;line-height:1.55}
+.chk input:checked~.chk-b .chk-t{text-decoration:line-through;color:var(--ink3);font-weight:500}
+.chk .star{color:var(--brand)}
+.chk-by{font-weight:800;color:var(--brand)}
+
+/* ---------- 手風琴 ---------- */
+details.acc{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-1);overflow:hidden}
+details.acc+details.acc{margin-top:10px}
+details.acc>summary{list-style:none;cursor:pointer;padding:11px 15px;display:flex;align-items:center;gap:12px}
+details.acc>summary::-webkit-details-marker{display:none}
+.acc-t{flex:1;min-width:0}
+.acc-t b{display:block;font-size:15px;font-weight:800}
+.acc-t span{display:block;font-size:11.5px;color:var(--ink3);margin-top:1px}
+details.acc>summary .caret{flex:none;color:var(--ink3);font-size:14px;transition:transform .2s}
+details.acc[open]>summary .caret{transform:rotate(180deg)}
+.acc-body{padding:0 15px 15px;border-top:1px solid var(--line);padding-top:13px}
+.acc-ic{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.acc-ic svg{width:20px;height:20px}
+
+/* ---------- 清單 ---------- */
+.ilist{margin:0;padding:0;list-style:none}
+.ilist li{padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;line-height:1.65}
+.ilist li:first-child{border-top:0;padding-top:1px}
+.ilist .n{font-weight:800;font-size:14px}
+.ilist .d{color:var(--ink2);font-size:12.5px;margin-top:2px}
+.sub-h{
+  font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--reg,var(--brand));
+  margin:16px 0 6px;display:flex;align-items:center;gap:8px
+}
+.sub-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.sub-h:first-child{margin-top:0}
+
+/* ---------- 定義列表 ---------- */
+dl{margin:0}
+.kv{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px}
+.kv:first-child{border-top:0}
+.kv dt{flex:none;width:70px;color:var(--ink3);font-size:12.5px;font-weight:700}
+.kv dd{margin:0;flex:1;min-width:0}
+
+/* ---------- 航班 ---------- */
+.fl{display:flex;align-items:center;gap:13px;padding:13px 0;border-top:1px solid var(--line)}
+.fl:first-child{border-top:0;padding-top:2px}
+.fl-code{flex:none;width:62px}
+.fl-code b{font-family:var(--display);font-size:14px;display:block}
+.fl-code span{font-size:10.5px;color:var(--ink3);display:block;margin-top:1px}
+.fl-rt{display:flex;align-items:center;gap:9px}
+.fl-rt .t{font-family:var(--display);font-size:16px}
+.fl-rt .a{font-size:10.5px;color:var(--ink3);margin-top:1px}
+.fl-rt .arrow{flex:1;height:1.5px;background:var(--line2);position:relative;min-width:20px;border-radius:2px}
+.fl-rt .arrow svg{position:absolute;right:-4px;top:-8px;width:15px;height:15px;color:var(--ink3)}
+.fl-when{font-size:11px;color:var(--ink3);margin-top:4px;display:flex;align-items:center;gap:7px;font-family:var(--display)}
+.whopill{font-family:var(--body);font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:6px;background:var(--brand-soft);color:var(--brand);white-space:nowrap}
+
+/* ---------- 飯店 ---------- */
+.hotel{border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--sh-1)}
+.hotel-art{height:80px;background:var(--reg-tint)}
+.hotel-b{padding:13px 15px 14px}
+.hotel-b .nights{font-family:var(--display);font-size:11px;color:var(--ink3);letter-spacing:.07em}
+.hotel-b h3{font-size:16.5px;margin-top:3px}
+.hotel-b .en{font-size:11.5px;color:var(--ink3);margin-top:1px;letter-spacing:.02em}
+
+/* ---------- 日文短句 ---------- */
+.ph{padding:11px 0;border-top:1px solid var(--line)}
+.ph:first-child{border-top:0;padding-top:1px}
+.ph .jp{font-size:16px;font-weight:700}
+.ph .tw{font-size:13px;color:var(--ink2);margin-top:2px}
+.ph .rm{font-size:11.5px;color:var(--ink3);font-style:italic;margin-top:1px}
+
+/* ---------- 換算 ---------- */
+.conv{display:flex;align-items:center;gap:10px;margin-top:11px}
+.conv input{
+  flex:1;min-width:0;font:inherit;font-family:var(--display);font-size:17px;padding:10px 13px;
+  border-radius:11px;border:1.5px solid var(--line2);background:var(--sunk);color:var(--ink)
+}
+.conv .eq{color:var(--ink3);flex:none;font-weight:800}
+.conv .out{flex:1;font-family:var(--display);font-size:17px;text-align:right;color:var(--ok)}
+.rate-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink3);margin-top:10px}
+.rate-row input{
+  width:76px;font:inherit;font-family:var(--display);font-size:13px;padding:6px 9px;border-radius:9px;
+  border:1px solid var(--line);background:var(--sunk);color:var(--ink);text-align:right
+}
+
+/* ---------- 費用 ---------- */
+.total-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:13.5px}
+.total-row:first-child{border-top:0}
+.total-row .money{font-family:var(--display);font-size:14px;white-space:nowrap}
+.total-row.grand{border-top:2px solid var(--line2);margin-top:2px;font-size:15px;font-weight:800}
+.total-row.grand .money{font-size:17px;color:var(--brand)}
+
+/* ---------- 其他 ---------- */
+.money{font-family:var(--display)}
+.muted{color:var(--ink3);font-size:12px;line-height:1.65}
+.warnpill{display:block;font-size:11.5px;font-weight:700;padding:7px 10px;border-radius:9px;background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn-line);margin-top:9px;line-height:1.55}
+.tel{color:var(--brand);font-weight:800}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--brand);margin-bottom:13px}
+.day-nav{display:flex;gap:10px;margin-top:22px}
+.day-nav a{
+  flex:1;padding:12px;text-align:center;border-radius:12px;background:var(--card);
+  border:1px solid var(--line);font-size:13px;font-weight:800;box-shadow:var(--sh-1)
+}
+.day-nav a.dis{opacity:.32;pointer-events:none}
+.day-nav a.wide{flex:1;background:var(--reg);color:#fff;border-color:var(--reg)}
