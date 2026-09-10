@@ -1,5 +1,5 @@
 /* 離線快取。改版時把 CACHE 的版本號 +1，舊快取會自動清掉。 */
-var CACHE = 'kyushu2026-v4';
+var CACHE = 'kyushu2026-v5';
 var ASSETS = [
   './', './index.html', './app.css', './app.js', './admin.js',
   './data/config.js', './data/art.js', './data/trip.js', './data/guide.js', './data/places.js', './data/packing.js',
