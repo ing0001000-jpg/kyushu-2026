@@ -2,7 +2,47 @@
 (function () {
   'use strict';
 
+  /* ---------- 資料覆寫層 ----------
+     後台改過的資料存在 localStorage，開機時蓋回原始資料上。
+     用「就地取代」而不是換掉物件，下面各處抓到的參照才不會失效。 */
+  var DATA_KEY = 'kyushu2026:data';
+  var DATA_KEYS = ['TRIP', 'GUIDE', 'PLACES', 'PACKING', 'TODOS', 'CONFIG'];
+  function deepCopy(o) { return JSON.parse(JSON.stringify(o)); }
+  function replaceInPlace(t, s) {
+    if (Array.isArray(t) && Array.isArray(s)) {
+      t.length = 0;
+      for (var i = 0; i < s.length; i++) t.push(s[i]);
+      return t;
+    }
+    Object.keys(t).forEach(function (k) { if (!(k in s)) delete t[k]; });
+    Object.keys(s).forEach(function (k) { t[k] = s[k]; });
+    return t;
+  }
+  window.__ORIG = {};
+  DATA_KEYS.forEach(function (k) { if (window[k]) window.__ORIG[k] = deepCopy(window[k]); });
+  try {
+    var __ov = JSON.parse(localStorage.getItem(DATA_KEY) || 'null');
+    if (__ov && typeof __ov === 'object') {
+      DATA_KEYS.forEach(function (k) { if (__ov[k] && window[k]) replaceInPlace(window[k], __ov[k]); });
+    }
+  } catch (e) { /* 讀不到就用原始資料 */ }
+
+  window.__saveData = function () {
+    var out = { savedAt: new Date().toISOString() };
+    DATA_KEYS.forEach(function (k) { if (window[k]) out[k] = window[k]; });
+    try { localStorage.setItem(DATA_KEY, JSON.stringify(out)); return true; } catch (e) { return false; }
+  };
+  window.__hasDraft = function () { try { return !!localStorage.getItem(DATA_KEY); } catch (e) { return false; } };
+  window.__resetData = function () {
+    try { localStorage.removeItem(DATA_KEY); } catch (e) {}
+    DATA_KEYS.forEach(function (k) {
+      if (window[k] && window.__ORIG[k]) replaceInPlace(window[k], deepCopy(window.__ORIG[k]));
+    });
+  };
+
   var TRIP = window.TRIP, GUIDE = window.GUIDE, PACKING = window.PACKING, TODOS = window.TODOS, ART = window.ART;
+  var CONFIG = window.CONFIG || { gate: {}, repo: {} };
+  var PLACES = window.PLACES || { updated: '', regions: {}, unassigned: [] };
 
   /* ---------- storage (never throw) ---------- */
   var KEY = 'kyushu2026:v1';
@@ -125,6 +165,22 @@
     for (var i = 0; i < GUIDE.regions.length; i++) if (GUIDE.regions[i].id === id) return GUIDE.regions[i];
     return null;
   }
+  /* 從 Google 地圖收藏匯入的地點（tools/import-places.js 產生）。沒匯入就整段不顯示。 */
+  function placesOf(id) { return (PLACES.regions && PLACES.regions[id]) || []; }
+  function placeListHtml(list) {
+    return '<ul class="ilist">' + list.map(function (x) {
+      return '<li><div class="n">' + esc(x.n) + '</div>'
+        + (x.d ? '<div class="d">' + esc(x.d) + '</div>' : '')
+        + (x.map ? navBtn(x.map, '導航 · ' + esc(x.label || x.n)) : '')
+        + '</li>';
+    }).join('') + '</ul>';
+  }
+  function myPlacesHtml(id) {
+    var list = placesOf(id);
+    if (!list.length) return '';
+    return '<div class="sub-h">我的收藏　<span class="pill">' + list.length + '</span></div>' + placeListHtml(list);
+  }
+
   function regionEatHtml(n) {
     var r = regionForDay(n);
     if (!r) return '';
@@ -288,10 +344,21 @@
         + '</ul><div class="sub-h">看什麼</div><ul class="ilist">'
         + r.see.map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
         + '</ul>'
+        + myPlacesHtml(r.id)
         + (r.tips && r.tips.length ? '<div class="sub-h">小提醒</div><ul class="ilist">'
             + r.tips.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '')
         + '</div></details>';
     }).join('') + '</div>';
+
+    /* 匯入時判斷不出區域的收藏，獨立列出，避免資料靜靜消失 */
+    if (PLACES.unassigned && PLACES.unassigned.length) {
+      h += '<div class="sec-title">我的收藏・未分區</div><div class="card card-p">'
+        + placeListHtml(PLACES.unassigned)
+        + '<div class="muted" style="margin-top:10px">這些地點離九州各區錨點較遠或缺座標，沒有自動歸區。</div></div>';
+    }
+    if (PLACES.updated) {
+      h += '<div class="muted" style="margin-top:10px">收藏地點匯入日期：' + esc(PLACES.updated) + '</div>';
+    }
 
     h += '<div class="sec-title">實用資訊</div><div class="stack">';
     h += GUIDE.practical.map(function (pr) {
@@ -367,7 +434,78 @@
 
     h += '<div class="card card-p" style="margin-top:18px"><div class="muted">'
       + '資料來源：《2026九州行程0927~1005.xls》。飯店地址與電話為網路查證結果，出發前建議再和訂房確認信核對一次。</div></div>';
+
+    var who = gateSession();
+    h += '<div class="owner-row">'
+      + (who && who.name ? '<span>' + esc(who.name) + '，行程有變動請在後台改。</span>' : '<span></span>')
+      + '<a href="#/admin">後台管理</a></div>';
     return h;
+  }
+
+  /* ---------- 密碼門檻 ----------
+     說明：這是「擋一下」用的，不是資安機制。資料本身是明文，
+     會看網頁原始碼的人可以繞過。詳見 README。 */
+  var GATE_KEY = 'kyushu2026:gate';
+  function hashPw(pw, salt) {
+    var text = (salt || '') + ' ' + pw;
+    if (window.crypto && crypto.subtle && crypto.subtle.digest) {
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {
+        var a = new Uint8Array(buf), out = '';
+        for (var i = 0; i < a.length; i++) out += ('0' + a[i].toString(16)).slice(-2);
+        return out;
+      });
+    }
+    /* file:// 或舊瀏覽器沒有 crypto.subtle 時的退路 */
+    var h1 = 0x811c9dc5, h2 = 0x1000193;
+    for (var j = 0; j < text.length; j++) {
+      h1 = ((h1 ^ text.charCodeAt(j)) * 16777619) >>> 0;
+      h2 = ((h2 + text.charCodeAt(j) * (j + 7)) * 2654435761) >>> 0;
+    }
+    return Promise.resolve('fnv' + ('00000000' + h1.toString(16)).slice(-8) + ('00000000' + h2.toString(16)).slice(-8));
+  }
+  window.__hashPw = hashPw;
+
+  function gateSession() { try { return JSON.parse(localStorage.getItem(GATE_KEY) || 'null'); } catch (e) { return null; } }
+  function gateNeeded() {
+    var g = CONFIG.gate || {};
+    if (!g.enabled || !g.entry) return false;
+    var s = gateSession();
+    return !(s && s.entry === g.entry);
+  }
+  window.__gateSession = gateSession;
+
+  function showGate() {
+    var g = CONFIG.gate || {};
+    var wrap = document.createElement('div');
+    wrap.id = 'gate';
+    wrap.innerHTML =
+      '<div class="gate-card">'
+      + '<div class="gate-mark">' + I('today') + '</div>'
+      + '<h2>九州旅遊助手</h2>'
+      + '<p class="gate-sub">2026/09/27 – 10/05　六人自駕團</p>'
+      + '<label>你的名字<input id="gate-name" type="text" autocomplete="nickname" placeholder="例：澤右"></label>'
+      + '<label>密碼<input id="gate-pw" type="password" autocomplete="current-password"></label>'
+      + '<button id="gate-go" class="btn-primary" type="button">進入</button>'
+      + '<div id="gate-msg" class="gate-msg"></div>'
+      + '</div>';
+    document.body.appendChild(wrap);
+    var nameEl = wrap.querySelector('#gate-name');
+    var pwEl = wrap.querySelector('#gate-pw');
+    var msg = wrap.querySelector('#gate-msg');
+    function tryEnter() {
+      var nm = nameEl.value.trim();
+      if (!nm) { msg.textContent = '請先填你的名字'; nameEl.focus(); return; }
+      msg.textContent = '檢查中…';
+      hashPw(pwEl.value, g.salt).then(function (h) {
+        if (h !== g.entry) { msg.textContent = '密碼不對'; pwEl.select(); return; }
+        try { localStorage.setItem(GATE_KEY, JSON.stringify({ name: nm, entry: h, at: Date.now() })); } catch (e) {}
+        wrap.remove();
+        render();
+      });
+    }
+    wrap.querySelector('#gate-go').addEventListener('click', tryEnter);
+    wrap.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryEnter(); });
+    setTimeout(function () { nameEl.focus(); }, 50);
   }
 
   /* ---------- router ---------- */
@@ -380,6 +518,18 @@
   function render() {
     var hash = location.hash || '#/today';
     var m = hash.match(/^#\/day\/(\d+)/), tab, html, i;
+    if (hash.indexOf('#/admin') === 0) {
+      if (!window.KYUSHU_ADMIN) { location.replace('#/today'); return; }
+      document.getElementById('tb-title').textContent = '後台管理';
+      document.getElementById('tb-sub').textContent = '編輯行程與發布';
+      var av = document.getElementById('view');
+      av.innerHTML = window.KYUSHU_ADMIN.view();
+      window.scrollTo(0, 0);
+      var alinks = document.querySelectorAll('#tabbar a');
+      for (var ai = 0; ai < alinks.length; ai++) alinks[ai].classList.remove('on');
+      window.KYUSHU_ADMIN.wire();
+      return;
+    }
     if (m) {
       tab = 'plan'; html = viewDay(+m[1]);
       var dd = null;
@@ -442,9 +592,9 @@
     document.getElementById('theme-btn').innerHTML = I('moon');
   })();
 
-  window.addEventListener('hashchange', render);
+  window.addEventListener('hashchange', function () { if (!gateNeeded()) render(); });
   if (!location.hash) location.replace('#/today');
-  render();
+  if (gateNeeded()) showGate(); else render();
   window.__render = render;
 
   if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {

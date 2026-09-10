@@ -16,6 +16,8 @@
 | 指南 | 8 個地區的美食／景點、日本自駕、溫泉禮儀、免稅、天氣穿搭、緊急聯絡、常用日文 |
 | 資訊 | 4 段航班、租車取還、6 筆訂房（含地址電話）、費用總表、日幣換算 |
 
+另有 `#/admin` 後台（入口在「資訊」分頁最下方），可直接編輯行程並發布到 GitHub。
+
 ## 部署
 
 已部署在 GitHub Pages（公開 repo，這是免費帳號開 Pages 的唯一方式）。已加 `robots.txt` 與 `noindex` meta 擋搜尋引擎收錄，但 repo 本身在 GitHub 個人頁面上是看得到的 — 網址別貼到公開社群。
@@ -31,10 +33,12 @@ cd "/Users/shelby/AI開發專案/旅遊助手APP" && git add -A && git commit -m
 ## 怎麼跑（本機開發）
 
 ```bash
-cd "/Users/shelby/AI開發專案/旅遊助手APP" && python3 -m http.server 8391
+cd "/Users/shelby/AI開發專案/旅遊助手APP" && node tools/dev-server.js
 ```
 
-然後瀏覽器開 `http://localhost:8391`。手機要連同一個 Wi-Fi 的話，把 `localhost` 換成電腦的區網 IP。
+然後瀏覽器開 `http://localhost:4173`。這支伺服器一律送 `Cache-Control: no-store`，改完檔案重整就看得到新版；用 `python3 -m http.server` 的話瀏覽器會死抓舊的 JS 不放。
+
+手機要連同一個 Wi-Fi 的話，把 `localhost` 換成電腦的區網 IP。
 
 ## 兩種版本
 
@@ -55,13 +59,72 @@ node tools/build-single.js
 - **iPhone**：Safari 開連結 → 分享 → 加入主畫面
 - **Android**：Chrome 開連結 → 選單 → 安裝應用程式／加到主畫面
 
+## 密碼門檻
+
+第一次打開會要求填**名字**和**進入密碼**，通過後記在該台裝置，之後不再問。名字只存在自己手機上，不會回傳給任何人。
+
+密碼在後台的「設定與發布」裡自己設，`data/config.js` 只存 SHA-256 雜湊，看不到密碼原文。要設兩組：
+
+| | 給誰 | 用途 |
+|---|---|---|
+| 進入密碼 | 全團 6 人 | 打開 App 要輸入 |
+| 後台密碼 | 只有你 | 進 `#/admin` 要輸入 |
+
+**這是「擋一下」，不是資安機制。** repo 是公開的（免費帳號開 GitHub Pages 的唯一方式），行程、住宿、電話都以明文放在 `data/*.js` 裡。會看網頁原始碼的人可以完全繞過這道門看到全部內容。它擋得住的是路過隨手點開連結的人，擋不住有心人。網址仍然不要貼到公開社群。
+
+真正要防的話得把資料加密後才上傳（沒有密碼連原始碼都看不出內容），那是另一種做法，需要時再說。
+
+## 後台管理
+
+入口：「資訊」分頁滑到最下面的「後台管理」，或直接開 `#/admin`。
+
+可以改：9 天行程的每個時間軸項目（新增／刪除／上下移）、航班、租車、住宿、費用、收藏地點（改備註、換分區、刪除）、打包清單、行前待辦、指南的美食景點。
+
+**兩段式儲存**，這點很重要：
+
+1. **改了就存成草稿** — 只在你這台裝置生效，其他人看到的還是舊的。App 畫面會立刻套用，可以先自己確認。
+2. **按「發布到 GitHub」** — 才會寫回 repo，約 1 分鐘後全團拿到新版。
+
+發布會一併把 `sw.js` 的快取版本號 +1，團員手機的舊快取才會失效 — 這是手動改檔案時最容易忘記的一步。
+
+「丟棄草稿」會把這台裝置還原成線上版。注意：密碼也是存在草稿裡的，設完密碼沒發布就丟棄草稿，密碼會一起消失。**設完密碼請立刻發布。**
+
+### GitHub 權杖
+
+發布需要一組 GitHub 存取權杖，在後台「設定與發布」裡填，存在你這台瀏覽器的 localStorage。
+
+建議用 **Fine-grained personal access token**：
+
+- Repository access：只勾 `kyushu-2026` 這一個
+- Permissions → Repository permissions → **Contents: Read and write**
+- 設一個到期日
+
+那組權杖等於這個 repo 的鑰匙。手機借人、遺失或換機時，記得到 GitHub 設定頁把它撤銷。
+
+> 忘記後台密碼：清掉瀏覽器對這個網站的資料，或直接在電腦上編輯 `data/config.js` 把 `gate` 的欄位清空，再 push。
+
+## 匯入 Google 地圖收藏
+
+`data/places.js` 是從 Google 地圖的「已儲存清單」匯入的，顯示在「指南」每一區的「我的收藏」，每筆都用座標導航。
+
+```bash
+node tools/import-places.js <匯出檔.csv|.json|.geojson|.kml> [--resolve]
+```
+
+- 吃 Google 地圖清單匯出的 CSV、Takeout 的 GeoJSON、我的地圖的 KML
+- 用座標判斷屬於哪一區（離八個區域錨點最近且 40 公里內），沒座標就退回名稱關鍵字比對，都判不出來的丟進「未分區」
+- CSV 匯出常常只有短網址沒座標，加 `--resolve` 會連網展開後再判斷
+- **會整個覆蓋 `data/places.js`**，在後台改過的收藏地點會被蓋掉
+
 ## 改內容
 
-所有內容都在 `data/`，改完重整就生效（改單檔版要重跑 `node tools/build-single.js`）：
+日常改行程建議直接用後台（上一節）。要在電腦上改檔案的話，所有內容都在 `data/`，改完重整就生效（改單檔版要重跑 `node tools/build-single.js`）：
 
 - `data/trip.js` — 9 天行程、航班、租車、住宿、費用。`map` 欄位放日文地名，導航鈕用 Google Maps 搜尋 URL 帶入，所以不需要經緯度。
 - `data/guide.js` — 地區美食景點、實用資訊、日文短句
 - `data/packing.js` — 打包清單（`window.PACKING`）與行前待辦（`window.TODOS`）
+- `data/places.js` — 從 Google 地圖收藏匯入的地點，由 `tools/import-places.js` 或後台產生
+- `data/config.js` — 密碼雜湊與 GitHub repo 設定，由後台產生
 - `data/art.js` — 手繪 SVG 插畫（8 個地區場景 + 線性圖示）。場景用 `--reg` / `--reg-shade` / `--reg-tint` 三個 CSS 變數上色，所以自動跟著地區色相與深淺色主題走；地區色相定義在 `app.css` 的 `[data-reg="…"]{--rb:…}`。
 
 **注意**：打包清單的勾選狀態用 `群組id:項目id` 當 key 存在 localStorage。改文字沒關係，但改 `id` 會讓已勾選的項目變回未勾選。
@@ -72,7 +135,8 @@ node tools/build-single.js
 
 - `tools/make-icons.js` — 用 Node 內建 zlib 產生鳥居圖示 PNG，不需要 `npm install`
 - 唯一的外部資源是 Google Fonts 的 Archivo Black（只用在數字與英文標籤，Latin 子集）。離線或載入失敗時自動退回系統字型，不影響任何功能；中文一律使用系統字型，刻意不載 CJK 網頁字型（那會是好幾 MB，離線就毀了）
-- 資料存在各自手機的 localStorage，**不會**在團員之間同步
+- 打包勾選、匯率、深淺色偏好存在各自手機的 localStorage，**不會**在團員之間同步
+- 行程內容則是全團共用的（存在 repo 裡），透過後台發布同步
 - 深淺色會跟隨系統，右上角按鈕可手動切換
 
 ## 資料來源與正確性
