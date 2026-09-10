@@ -1,207 +1,542 @@
-/* 手繪 SVG 插畫。全部用 CSS 變數上色（--reg / --reg-shade / --reg-tint），
-   所以同一組圖形會自動套用該地區的色相，也會跟著深淺色主題走。
-   完全內嵌，零外部請求，離線可用，無版權問題。 */
-window.ART = {};
+/* ============================================================
+   城市旅行印象插畫（City Travel Impression）
+   風格：modern folk illustration / editorial travel poster /
+        naive art / contemporary picture-book
+   ── 大面積平面色塊、幾何化景物、手繪不完美邊緣、紙張顆粒質感
+   ── 每座城市 3–5 個被簡化重構的印象元素，不是地標拼貼
+   ── 前中後景分層、明確視覺焦點、刻意留白
+   ── 顏色全部走 CSS 變數（--sky / --far / --mid / --near / --pop / --pale）
+      由 app.css 依 data-reg 給不同城市配色，並自動跟著深淺色主題走
+   畫布 400 × 132（旅遊海報橫幅比例）。焦點請放在 x 140–260，
+   因為指南分頁的小圖章會裁切成中央的正方形。
+   ============================================================ */
+(function () {
+var ART = window.ART = {};
+
+/* ---------- 濾鏡：手繪抖動邊緣 + 紙張顆粒 ---------- */
+ART.defs =
+  /* 大色塊用：邊緣像剪紙／蠟筆塗出來的，不平滑 */
+  '<filter id="hz-hand" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">' +
+    '<feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="6" result="n"/>' +
+    '<feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/>' +
+  '</filter>' +
+  /* 細節用：抖動幅度小一點，免得小東西糊掉 */
+  '<filter id="hz-hand2" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">' +
+    '<feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="19" result="n"/>' +
+    '<feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>' +
+  '</filter>' +
+  /* 顆粒本體：做成 pattern，瀏覽器只算一次再平鋪，手機也不卡 */
+  '<filter id="hz-noise" x="0" y="0" width="100%" height="100%">' +
+    '<feTurbulence type="fractalNoise" baseFrequency="0.86" numOctaves="3" seed="11" stitchTiles="stitch"/>' +
+    '<feColorMatrix type="saturate" values="0"/>' +
+  '</filter>' +
+  '<pattern id="hz-grain" width="72" height="72" patternUnits="userSpaceOnUse">' +
+    '<rect width="72" height="72" filter="url(#hz-noise)" opacity=".5"/>' +
+  '</pattern>';
+
+/* ---------- 畫圖小工具 ---------- */
+function P(d, fill, op) {
+  return '<path d="' + d + '" fill="' + fill + '"' + (op ? ' opacity="' + op + '"' : '') + '/>';
+}
+function S(d, col, w, op, dash) {
+  return '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' + w +
+    '" stroke-linecap="round" stroke-linejoin="round"' +
+    (dash ? ' stroke-dasharray="' + dash + '"' : '') + (op ? ' opacity="' + op + '"' : '') + '/>';
+}
+function R(x, y, w, h, fill, r, op) {
+  return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + fill + '"' +
+    (r ? ' rx="' + r + '"' : '') + (op ? ' opacity="' + op + '"' : '') + '/>';
+}
+function C(cx, cy, r, fill, op) {
+  return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + fill + '"' +
+    (op ? ' opacity="' + op + '"' : '') + '/>';
+}
+function E(cx, cy, rx, ry, fill, op) {
+  return '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + fill + '"' +
+    (op ? ' opacity="' + op + '"' : '') + '/>';
+}
+function G(t, inner) { return '<g transform="' + t + '">' + inner + '</g>'; }
+
+/* 手繪抖動群組 */
+function hand(inner) { return '<g filter="url(#hz-hand)">' + inner + '</g>'; }
+function hand2(inner) { return '<g filter="url(#hz-hand2)">' + inner + '</g>'; }
+
+/* 一張畫的外框：底色紙 + 內容 + 顆粒。isolation 讓 multiply 只作用在畫面內 */
+function frame(inner) {
+  return '<g style="isolation:isolate">' +
+    R(-4, -4, 408, 140, 'var(--sky)') +
+    inner +
+    '<rect class="gr" x="-4" y="-4" width="408" height="140" fill="url(#hz-grain)"/>' +
+    '</g>';
+}
+
+/* 湯氣／煙：一條上升的 S 形 */
+function steam(x, y, h, sw, col, op) {
+  var b = h * 0.34;
+  return S('M' + x + ' ' + y +
+    ' c ' + b + ' ' + (-h * 0.28) + ' ' + (-b) + ' ' + (-h * 0.5) + ' 0 ' + (-h * 0.72) +
+    ' c ' + b * 0.7 + ' ' + (-h * 0.16) + ' ' + (-b * 0.5) + ' ' + (-h * 0.24) + ' ' + (b * 0.2) + ' ' + (-h * 0.28),
+    col, sw, op);
+}
+
+/* 杉木／針葉樹 */
+function cedar(x, base, h, w, fill, op) {
+  var o = '';
+  o += P('M' + x + ' ' + (base - h) + ' L' + (x + w * 0.5) + ' ' + (base - h * 0.42) +
+    ' L' + (x - w * 0.5) + ' ' + (base - h * 0.42) + ' Z', fill, op);
+  o += P('M' + x + ' ' + (base - h * 0.62) + ' L' + (x + w * 0.66) + ' ' + base +
+    ' L' + (x - w * 0.66) + ' ' + base + ' Z', fill, op);
+  return o;
+}
+
+/* 山坡上的小房子 */
+function house(x, y, w, h, body, roof) {
+  return P('M' + (x - 3) + ' ' + y + ' L' + (x + w / 2) + ' ' + (y - h * 0.62) + ' L' + (x + w + 3) + ' ' + y + ' Z', roof) +
+    R(x, y, w, h, body);
+}
+
+/* 梅花：五瓣 */
+function plum(x, y, s, petal, core) {
+  var o = '', i;
+  for (i = 0; i < 5; i++) {
+    o += '<ellipse cx="0" cy="-9.5" rx="6.4" ry="8.2" fill="' + petal + '" transform="rotate(' + (i * 72) + ')"/>';
+  }
+  o += C(0, 0, 3.6, core);
+  return G('translate(' + x + ',' + y + ') scale(' + s + ')', o);
+}
+
+/* 銀杏葉：扇形、中央有裂口、看得到葉脈 */
+function ginkgo(x, y, s, rot, fill) {
+  return G('translate(' + x + ',' + y + ') rotate(' + rot + ') scale(' + s + ')',
+    P('M0 0 C-9 -9 -19 -15 -25 -25 C-19 -34 -9 -37 -2 -35 L0 -23 L2 -35 C9 -37 19 -34 25 -25 C19 -15 9 -9 0 0 Z', fill) +
+    S('M0 -2 L-17 -27 M0 -2 L-9 -31 M0 -2 L9 -31 M0 -2 L17 -27', 'var(--sky)', 1.1, '.28') +
+    S('M0 0 L0 8', fill, 2.2));
+}
+
+/* 稻穗／芒草：莖是彎的、穗會垂頭，還帶顆粒 */
+function ear(x, base, h, dir, col, op) {
+  var tx = x + dir * 12, ty = base - h, o, i, t;
+  o = S('M' + x + ' ' + base + ' C ' + (x + dir * 3) + ' ' + (base - h * 0.62) +
+    ' ' + (x + dir * 7) + ' ' + (base - h * 0.9) + ' ' + tx + ' ' + ty, col, 2.6, op);
+  /* 穗：沿著往下垂的弧線排一串顆粒 */
+  for (i = 0; i < 7; i++) {
+    t = i / 6;
+    o += E(tx + dir * (3 + t * 15), ty - 1 + t * t * 21,
+      3.3 - 1 * t, 4.8 - 1.4 * t, col, op);
+  }
+  return o;
+}
+
+/* 圖示化的雲 */
+function cloud(x, y, s, fill, op) {
+  return G('translate(' + x + ',' + y + ') scale(' + s + ')',
+    C(0, 0, 13, fill, op) + C(16, -5, 10, fill, op) + C(30, 2, 11, fill, op) +
+    R(-1, -3, 32, 14, fill, 7, op));
+}
 
 ART.scenes = {
 
-  /* 福岡・博多 ── 都市天際線與抵達的飛機 */
-  fukuoka:
-    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
-    '<circle cx="330" cy="32" r="24" fill="var(--reg)" opacity=".32"/>' +
-    '<path d="M14 16 C58 22 74 34 70 52" fill="none" stroke="var(--reg)" stroke-width="2.5" stroke-dasharray="4 7" opacity=".5" stroke-linecap="round"/>' +
-    '<g transform="translate(56,24) rotate(-16) scale(.86)">' +
-      '<ellipse cx="62" cy="18" rx="62" ry="7" fill="var(--reg)"/>' +
-      '<path d="M64 18 L32 -14 L48 -14 L92 14 Z" fill="var(--reg)"/>' +
-      '<path d="M64 18 L32 50 L48 50 L92 22 Z" fill="var(--reg-shade)"/>' +
-      '<path d="M12 18 L0 0 L10 0 L28 16 Z" fill="var(--reg)"/>' +
-      '<path d="M12 18 L0 36 L10 36 L28 20 Z" fill="var(--reg-shade)"/>' +
-    '</g>' +
-    '<g fill="var(--reg-shade)">' +
-      '<rect x="10" y="84" width="38" height="48"/><rect x="54" y="66" width="26" height="66"/>' +
-      '<rect x="86" y="94" width="32" height="38"/><rect x="126" y="58" width="22" height="74"/>' +
-      '<rect x="156" y="78" width="42" height="54"/><rect x="206" y="90" width="28" height="42"/>' +
-      '<rect x="242" y="70" width="24" height="62"/><rect x="274" y="96" width="44" height="36"/>' +
-      '<rect x="326" y="80" width="38" height="52"/><rect x="372" y="98" width="28" height="34"/>' +
-    '</g>' +
-    '<g fill="var(--reg-tint)" opacity=".75">' +
-      '<rect x="60" y="74" width="6" height="8"/><rect x="70" y="74" width="6" height="8"/>' +
-      '<rect x="60" y="88" width="6" height="8"/><rect x="70" y="88" width="6" height="8"/>' +
-      '<rect x="132" y="66" width="6" height="8"/><rect x="132" y="80" width="6" height="8"/>' +
-      '<rect x="132" y="94" width="6" height="8"/>' +
-      '<rect x="166" y="88" width="7" height="9"/><rect x="180" y="88" width="7" height="9"/>' +
-      '<rect x="166" y="104" width="7" height="9"/><rect x="180" y="104" width="7" height="9"/>' +
-      '<rect x="248" y="80" width="6" height="8"/><rect x="248" y="94" width="6" height="8"/>' +
-      '<rect x="334" y="90" width="7" height="9"/><rect x="348" y="90" width="7" height="9"/>' +
-    '</g>' +
-    '<rect y="126" width="400" height="6" fill="var(--reg)"/>',
+  /* ── 福岡・博多 ─────────────────────────────────────────
+     印象採集：中洲屋台的暖光與布簾／那珂川的夜與倒影／天神的都市天際線／
+              紅提燈／豚骨拉麵的白湯與蒸氣／博多祇園山笠／福岡塔的三角形
+     取用：屋台（焦點）＋ 河與倒影 ＋ 壓低的都市剪影 ＋ 放大到不合理的紅燈籠
+     氣質：夜、暖橘、河水藍、市井的熱鬧藏在小小的人影裡              */
+  fukuoka: frame(
+    /* 後景：月亮與被暮色壓扁的城市 */
+    C(52, 44, 14, 'var(--pale)', '.9') +
+    C(88, 30, 2.6, 'var(--pale)', '.55') + C(30, 66, 2.2, 'var(--pale)', '.45') +
+    hand(
+      R(6, 66, 26, 28, 'var(--far)') + R(36, 74, 18, 20, 'var(--far)') +
+      R(58, 56, 22, 38, 'var(--far)') + R(86, 70, 28, 24, 'var(--far)') +
+      R(118, 78, 15, 16, 'var(--far)') +
+      R(284, 76, 22, 18, 'var(--far)') + R(310, 62, 20, 32, 'var(--far)') +
+      P('M362 94 L370 44 L380 94 Z', 'var(--far)') +
+      /* 河 */
+      P('M-4 92 C 90 88 150 96 220 92 C 300 88 350 95 404 91 L404 116 L-4 116 Z', 'var(--mid)') +
+      /* 前岸 */
+      P('M-4 110 C 70 106 160 114 240 110 C 320 106 360 113 404 109 L404 140 L-4 140 Z', 'var(--near)')
+    ) +
+    /* 窗光 */
+    R(64, 62, 4, 5, 'var(--pale)', 0, '.5') + R(72, 62, 4, 5, 'var(--pale)', 0, '.5') +
+    R(64, 74, 4, 5, 'var(--pale)', 0, '.4') + R(14, 72, 5, 6, 'var(--pale)', 0, '.4') +
+    R(24, 84, 5, 6, 'var(--pale)', 0, '.35') + R(94, 78, 5, 6, 'var(--pale)', 0, '.4') +
+    R(316, 70, 5, 6, 'var(--pale)', 0, '.45') + R(316, 82, 5, 6, 'var(--pale)', 0, '.35') +
+    C(370, 42, 3, 'var(--pop)', '.9') +
+    /* 水面倒影 */
+    R(150, 100, 46, 4, 'var(--pop)', 2, '.5') + R(206, 108, 36, 3, 'var(--pop)', 1.5, '.38') +
+    R(324, 102, 34, 4, 'var(--pop)', 2, '.4') + R(52, 104, 26, 3, 'var(--pale)', 1.5, '.3') +
 
-  /* 長崎・佐世保 ── 九十九島與遊覽船 */
-  nagasaki:
-    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
-    '<circle cx="76" cy="30" r="19" fill="var(--reg)" opacity=".38"/>' +
-    '<g fill="var(--reg)" opacity=".45">' +
-      '<path d="M-10 82 C 16 56 56 56 84 82 Z"/>' +
-      '<path d="M186 84 C 214 60 254 60 286 84 Z"/>' +
-    '</g>' +
-    '<g fill="var(--reg-shade)">' +
-      '<path d="M64 86 C 104 50 156 50 198 86 Z"/>' +
-      '<path d="M272 86 C 302 62 348 62 388 86 Z"/>' +
-    '</g>' +
-    '<rect y="86" width="400" height="46" fill="var(--reg)"/>' +
-    '<g fill="none" stroke="var(--reg-tint)" stroke-width="3" stroke-linecap="round" opacity=".7">' +
-      '<path d="M24 104 q10-6 20 0 t20 0"/><path d="M300 100 q10-6 20 0 t20 0"/>' +
-      '<path d="M60 122 q10-6 20 0 t20 0"/><path d="M244 120 q10-6 20 0 t20 0"/>' +
-    '</g>' +
-    '<g>' +
-      '<path d="M154 92 h10 v-16 h5 v16 h9 l-2 6 h-22 z" fill="var(--reg-tint)"/>' +
-      '<path d="M138 96 h84 l-14 18 h-56 z" fill="var(--reg-tint)"/>' +
-      '<rect x="152" y="86" width="26" height="8" fill="var(--reg-shade)"/>' +
-    '</g>',
+    /* 焦點：屋台 */
+    E(200, 92, 74, 22, 'var(--pop)', '.14') +
+    hand2(
+      R(136, 76, 5, 36, 'var(--near)') + R(259, 76, 5, 36, 'var(--near)') +
+      P('M126 76 L146 56 L254 56 L274 76 Z', 'var(--pop)') +
+      R(126, 74, 148, 5, 'var(--near)', 2) +
+      R(146, 96, 108, 16, 'var(--pale)', 0, '.85') +
+      R(146, 79, 50, 17, 'var(--pale)', 0, '.95') + R(204, 79, 50, 17, 'var(--pale)', 0, '.95') +
+      R(158, 79, 5, 17, 'var(--pop)', 0, '.75') + R(180, 79, 5, 17, 'var(--pop)', 0, '.75') +
+      R(216, 79, 5, 17, 'var(--pop)', 0, '.75') + R(238, 79, 5, 17, 'var(--pop)', 0, '.75') +
+      /* 兩個坐著的人影 */
+      C(170, 100, 5.4, 'var(--near)') + P('M162 112 C 162 104 178 104 178 112 Z', 'var(--near)') +
+      C(232, 100, 5.4, 'var(--near)') + P('M224 112 C 224 104 240 104 240 112 Z', 'var(--near)')
+    ) +
+    steam(200, 54, 20, 3.2, 'var(--pale)', '.5') +
 
-  /* 熊本 ── 熊本城天守閣 */
-  kumamoto:
-    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
-    '<circle cx="322" cy="34" r="22" fill="var(--reg)" opacity=".3"/>' +
-    '<g fill="var(--reg)">' +
-      '<rect x="192" y="8" width="6" height="8"/>' +
-      '<path d="M158 30 h84 l-12-14 h-60 z"/>' +
-      '<rect x="170" y="30" width="60" height="13"/>' +
-      '<path d="M144 58 h112 l-16-15 h-80 z"/>' +
-      '<rect x="158" y="58" width="84" height="15"/>' +
-      '<path d="M124 90 h152 l-20-17 h-112 z"/>' +
-      '<rect x="140" y="90" width="120" height="14"/>' +
-    '</g>' +
-    '<g fill="var(--reg-tint)" opacity=".8">' +
-      '<rect x="180" y="33" width="7" height="8"/><rect x="196" y="33" width="7" height="8"/>' +
-      '<rect x="213" y="33" width="7" height="8"/>' +
-      '<rect x="168" y="61" width="8" height="10"/><rect x="186" y="61" width="8" height="10"/>' +
-      '<rect x="204" y="61" width="8" height="10"/><rect x="222" y="61" width="8" height="10"/>' +
-      '<rect x="152" y="93" width="9" height="10"/><rect x="174" y="93" width="9" height="10"/>' +
-      '<rect x="196" y="93" width="9" height="10"/><rect x="218" y="93" width="9" height="10"/>' +
-      '<rect x="240" y="93" width="9" height="10"/>' +
-    '</g>' +
-    '<path d="M78 132 L128 104 h144 l50 28 z" fill="var(--reg-shade)"/>' +
-    '<g fill="none" stroke="var(--reg-tint)" stroke-width="2" opacity=".45">' +
-      '<path d="M104 118 h192"/><path d="M148 104 v28"/><path d="M200 104 v28"/><path d="M252 104 v28"/>' +
-    '</g>',
+    /* 放大的紅燈籠 */
+    S('M344 6 L344 44', 'var(--near)', 2, '.7') +
+    hand2(
+      E(344, 76, 26, 32, 'var(--pop)') +
+      R(329, 42, 30, 7, 'var(--near)', 2) + R(329, 103, 30, 7, 'var(--near)', 2) +
+      S('M320 62 L368 62', 'var(--near)', 1.4, '.22') + S('M318 76 L370 76', 'var(--near)', 1.4, '.22') +
+      S('M320 90 L368 90', 'var(--near)', 1.4, '.22') +
+      R(340, 60, 8, 14, 'var(--pale)', 1, '.4') + R(340, 80, 8, 8, 'var(--pale)', 1, '.4')
+    )
+  ),
 
-  /* 阿蘇・高千穗 ── 火山、噴煙與草千里 */
-  aso:
-    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
-    '<g fill="var(--reg)" opacity=".28">' +
-      '<circle cx="196" cy="20" r="17"/><circle cx="224" cy="12" r="12"/><circle cx="170" cy="14" r="11"/>' +
-      '<circle cx="212" cy="30" r="10"/>' +
-    '</g>' +
-    '<path d="M-20 116 L96 52 L200 116 Z" fill="var(--reg-shade)" opacity=".55"/>' +
-    '<path d="M214 116 L318 48 L420 116 Z" fill="var(--reg-shade)" opacity=".55"/>' +
-    '<path d="M52 116 L200 40 L348 116 Z" fill="var(--reg)"/>' +
-    '<path d="M166 62 L234 62 L200 40 Z" fill="var(--reg-shade)"/>' +
-    '<rect y="110" width="400" height="22" fill="var(--reg-shade)"/>' +
-    '<g fill="none" stroke="var(--reg-tint)" stroke-width="2.5" stroke-linecap="round" opacity=".55">' +
-      '<path d="M22 126 v-8"/><path d="M40 128 v-10"/><path d="M58 125 v-7"/>' +
-      '<path d="M300 127 v-9"/><path d="M318 124 v-7"/><path d="M336 128 v-10"/><path d="M354 125 v-8"/>' +
-    '</g>',
+  /* ── 長崎・佐世保 ───────────────────────────────────────
+     印象採集：坡道與階梯之城／層層疊上山的房子／黃色路面電車與架空線／
+              大浦天主堂的尖塔／九十九島夕陽下的層疊剪影／港與造船起重機／
+              中華街的燈籠／卡斯特拉的黃
+     取用：山坡房屋（中景）＋ 放大的路面電車（前景焦點）＋ 海與九十九島 ＋ 教堂尖塔
+     氣質：海霧藍、夕陽金、白牆聚落的顆粒感                        */
+  nagasaki: frame(
+    C(318, 46, 26, 'var(--pop)', '.5') +
+    hand(
+      /* 九十九島 */
+      P('M214 82 C 236 62 268 60 292 82 Z', 'var(--near)', '.5') +
+      P('M282 82 C 302 66 332 64 356 82 Z', 'var(--near)', '.38') +
+      P('M346 82 C 362 70 386 68 404 82 Z', 'var(--near)', '.28') +
+      /* 海 */
+      P('M-4 78 C 100 74 200 82 300 78 C 350 76 380 80 404 78 L404 104 L-4 104 Z', 'var(--mid)') +
+      /* 山坡 */
+      P('M-4 140 L-4 98 C 34 94 64 82 92 68 C 118 55 150 48 178 56 C 206 64 230 80 256 94 C 286 110 330 116 404 114 L404 140 Z', 'var(--far)')
+    ) +
+    S('M14 88 q9 -5 18 0 t18 0', 'var(--pale)', 2.4, '.45') +
+    S('M296 86 q9 -5 18 0 t18 0', 'var(--pale)', 2.4, '.42') +
+    S('M338 94 q9 -5 18 0 t18 0', 'var(--pale)', 2.4, '.32') +
 
-  /* 黑川溫泉 ── 露天風呂與湯氣 */
-  kurokawa:
-    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
-    '<g fill="var(--reg-shade)" opacity=".5">' +
-      '<path d="M22 96 L48 40 L74 96 Z"/><path d="M62 96 L84 52 L106 96 Z"/>' +
-      '<path d="M300 96 L326 44 L352 96 Z"/><path d="M344 96 L368 56 L392 96 Z"/>' +
-    '</g>' +
-    '<g fill="none" stroke="var(--reg)" stroke-width="4" stroke-linecap="round" opacity=".55">' +
-      '<path d="M158 66 c9-11 -9-20 0-31"/><path d="M200 58 c9-11 -9-20 0-31"/>' +
-      '<path d="M242 66 c9-11 -9-20 0-31"/>' +
-    '</g>' +
-    '<rect x="112" y="80" width="176" height="42" rx="15" fill="var(--reg)"/>' +
-    '<rect x="126" y="88" width="148" height="15" rx="7" fill="var(--reg-tint)"/>' +
-    '<g fill="var(--reg-shade)"><circle cx="164" cy="95" r="6"/><circle cx="200" cy="95" r="6"/><circle cx="236" cy="95" r="6"/></g>' +
-    '<g>' +
-      '<rect x="52" y="30" width="4" height="14" fill="var(--reg-shade)"/>' +
-      '<rect x="40" y="44" width="28" height="34" rx="6" fill="var(--reg)"/>' +
-      '<rect x="46" y="52" width="16" height="18" rx="3" fill="var(--reg-tint)"/>' +
-    '</g>' +
-    '<rect y="122" width="400" height="10" fill="var(--reg-shade)"/>',
+    hand2(
+      /* 坡上的家 */
+      house(26, 104, 17, 12, 'var(--pale)', 'var(--near)') +
+      house(50, 94, 16, 12, 'var(--pale)', 'var(--pop)') +
+      house(72, 84, 18, 13, 'var(--pale)', 'var(--near)') +
+      house(98, 74, 16, 12, 'var(--pale)', 'var(--near)') +
+      house(122, 65, 17, 12, 'var(--pale)', 'var(--pop)') +
+      house(148, 60, 16, 11, 'var(--pale)', 'var(--near)') +
+      house(238, 88, 17, 12, 'var(--pale)', 'var(--near)') +
+      house(266, 98, 16, 12, 'var(--pale)', 'var(--pop)') +
+      house(300, 106, 18, 12, 'var(--pale)', 'var(--near)') +
+      /* 大浦天主堂：白牆 × 尖塔 */
+      P('M186 60 L200 34 L214 60 Z', 'var(--near)') +
+      R(190, 60, 20, 22, 'var(--pale)') +
+      C(200, 68, 4, 'var(--pop)') +
+      S('M200 26 L200 34 M196 30 L204 30', 'var(--near)', 2) +
+      R(212, 70, 16, 12, 'var(--pale)') + P('M209 70 L220 62 L231 70 Z', 'var(--near)')
+    ) +
 
-  /* 由布院 ── 由布岳雙峰與金鱗湖 */
-  yufuin:
-    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
-    '<circle cx="60" cy="28" r="18" fill="var(--reg)" opacity=".35"/>' +
-    '<path d="M-10 94 L84 40 L146 78 L206 30 L300 94 Z" fill="var(--reg-shade)" opacity=".55"/>' +
-    '<path d="M40 94 L142 26 L200 68 L258 22 L400 94 Z" fill="var(--reg)"/>' +
-    '<path d="M142 26 L116 44 L168 44 Z" fill="var(--reg-tint)"/>' +
-    '<path d="M258 22 L232 42 L284 42 Z" fill="var(--reg-tint)"/>' +
-    '<g fill="var(--reg-tint)" opacity=".75">' +
-      '<rect x="30" y="76" width="90" height="7" rx="3.5"/><rect x="250" y="70" width="110" height="7" rx="3.5"/>' +
-      '<rect x="150" y="86" width="120" height="7" rx="3.5"/>' +
-    '</g>' +
-    '<ellipse cx="200" cy="114" rx="150" ry="18" fill="var(--reg)" opacity=".55"/>' +
-    '<g fill="none" stroke="var(--reg-tint)" stroke-width="3" stroke-linecap="round" opacity=".8">' +
-      '<path d="M132 110 h44"/><path d="M164 120 h56"/><path d="M240 112 h40"/>' +
-    '</g>',
+    /* 焦點：放大的路面電車 */
+    S('M56 73 L344 70', 'var(--near)', 1.3, '.22') +
+    S('M212 74 L212 92', 'var(--near)', 2, '.6') +
+    hand2(
+      R(96, 94, 190, 28, 'var(--pop)', 7) +
+      R(102, 88, 178, 7, 'var(--pale)', 3.5) +
+      R(110, 99, 34, 14, 'var(--sky)', 3) + R(152, 99, 34, 14, 'var(--sky)', 3) +
+      R(194, 99, 34, 14, 'var(--sky)', 3) + R(236, 99, 34, 14, 'var(--sky)', 3) +
+      R(96, 116, 190, 6, 'var(--near)', 2) +
+      R(160, 82, 40, 8, 'var(--near)', 3)
+    ) +
+    C(134, 124, 7, 'var(--near)') + C(250, 124, 7, 'var(--near)') +
+    C(134, 124, 2.6, 'var(--far)') + C(250, 124, 2.6, 'var(--far)')
+  ),
 
-  /* 別府 ── 地獄溫泉的湯池與蒸氣 */
-  beppu:
-    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
-    '<g fill="none" stroke="var(--reg)" stroke-width="4" stroke-linecap="round" opacity=".5">' +
-      '<path d="M84 60 c9-11 -9-20 0-31"/><path d="M126 52 c9-11 -9-20 0-31"/>' +
-      '<path d="M262 56 c9-11 -9-20 0-31"/><path d="M304 64 c9-11 -9-20 0-31"/>' +
-    '</g>' +
-    '<g fill="var(--reg-shade)" opacity=".55">' +
-      '<path d="M156 74 h88 l-6-10h-14v-12h-6v12h-36v-12h-6v12h-14z"/>' +
-      '<rect x="168" y="74" width="8" height="26"/><rect x="224" y="74" width="8" height="26"/>' +
-    '</g>' +
-    '<ellipse cx="104" cy="98" rx="66" ry="22" fill="var(--reg)"/>' +
-    '<ellipse cx="104" cy="95" rx="52" ry="15" fill="var(--reg-tint)" opacity=".85"/>' +
-    '<ellipse cx="292" cy="104" rx="72" ry="24" fill="var(--reg)"/>' +
-    '<ellipse cx="292" cy="101" rx="56" ry="16" fill="var(--reg-tint)" opacity=".85"/>' +
-    '<ellipse cx="200" cy="120" rx="58" ry="16" fill="var(--reg-shade)"/>' +
-    '<rect y="126" width="400" height="6" fill="var(--reg)"/>',
+  /* ── 熊本 ──────────────────────────────────────────────
+     印象採集：黑漆天守與白漆喰／武者返し那道往上翹的石垣曲線／銀杏城的黃／
+              金色的鯱／城下町的水與湧水／馬刺し／阿蘇伏流水的清澈
+     取用：誇張到像滑梯的石垣曲線（骨架）＋ 幾何化天守（焦點）＋ 放大的銀杏葉 ＋ 遠山
+     氣質：墨黑、漆喰白、銀杏金，秋天剛開始的乾爽                  */
+  kumamoto: frame(
+    C(322, 44, 21, 'var(--pop)', '.3') +
+    hand(
+      P('M-4 104 C 46 84 96 80 140 90 C 180 99 214 96 252 88 C 302 77 352 82 404 98 L404 140 L-4 140 Z', 'var(--far)') +
+      /* 石垣：兩側凹曲線 */
+      P('M20 140 C 84 128 146 110 166 82 L234 82 C 254 110 316 128 380 140 Z', 'var(--mid)')
+    ) +
+    R(164, 80, 72, 4, 'var(--near)', 2, '.55') +
+    S('M44 134 C 130 124 270 124 356 134', 'var(--near)', 1.6, '.17') +
+    S('M74 120 C 146 112 254 112 326 120', 'var(--near)', 1.6, '.15') +
+    S('M104 106 C 158 100 242 100 296 106', 'var(--near)', 1.6, '.13') +
+    S('M134 92 C 168 88 232 88 266 92', 'var(--near)', 1.6, '.11') +
+    S('M96 127 v6 M148 122 v6 M200 121 v6 M252 122 v6 M304 127 v6', 'var(--near)', 1.4, '.13') +
+    S('M122 113 v6 M174 108 v6 M226 108 v6 M278 113 v6', 'var(--near)', 1.4, '.11') +
 
-  /* 太宰府 ── 鳥居參道與梅花 */
-  dazaifu:
-    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
-    '<g fill="var(--reg-shade)" opacity=".45">' +
-      '<path d="M96 108 h56 l-5-9h-8v-9h-5v9h-20v-9h-5v9h-8z"/>' +
-      '<rect x="105" y="108" width="6" height="24"/><rect x="137" y="108" width="6" height="24"/>' +
-      '<path d="M248 108 h56 l-5-9h-8v-9h-5v9h-20v-9h-5v9h-8z"/>' +
-      '<rect x="257" y="108" width="6" height="24"/><rect x="289" y="108" width="6" height="24"/>' +
-    '</g>' +
-    '<g fill="var(--reg)">' +
-      '<path d="M144 62 h112 l-9-14h-16v-14h-9v14h-44v-14h-9v14h-16z"/>' +
-      '<rect x="160" y="62" width="12" height="70"/><rect x="228" y="62" width="12" height="70"/>' +
-      '<rect x="152" y="126" width="28" height="6"/><rect x="220" y="126" width="28" height="6"/>' +
-    '</g>' +
-    '<g fill="var(--reg)" opacity=".8">' +
-      '<g transform="translate(56,40)"><circle r="6"/><circle cx="11" cy="-6" r="6"/><circle cx="22" cy="0" r="6"/><circle cx="18" cy="12" r="6"/><circle cx="4" cy="12" r="6"/></g>' +
-      '<g transform="translate(310,26) scale(.8)"><circle r="6"/><circle cx="11" cy="-6" r="6"/><circle cx="22" cy="0" r="6"/><circle cx="18" cy="12" r="6"/><circle cx="4" cy="12" r="6"/></g>' +
-      '<g transform="translate(340,74) scale(.62)"><circle r="6"/><circle cx="11" cy="-6" r="6"/><circle cx="22" cy="0" r="6"/><circle cx="18" cy="12" r="6"/><circle cx="4" cy="12" r="6"/></g>' +
-      '<g transform="translate(30,92) scale(.7)"><circle r="6"/><circle cx="11" cy="-6" r="6"/><circle cx="22" cy="0" r="6"/><circle cx="18" cy="12" r="6"/><circle cx="4" cy="12" r="6"/></g>' +
-    '</g>',
+    /* 焦點：天守 */
+    hand2(
+      P('M150 84 L163 74 L237 74 L250 84 Z', 'var(--near)') +
+      R(163, 64, 74, 10, 'var(--pale)') +
+      P('M158 64 L169 56 L231 56 L242 64 Z', 'var(--near)') +
+      R(171, 48, 58, 8, 'var(--pale)') +
+      P('M167 48 L177 42 L223 42 L233 48 Z', 'var(--near)') +
+      R(181, 36, 38, 6, 'var(--pale)')
+    ) +
+    R(172, 66, 5, 6, 'var(--near)', 1, '.75') + R(184, 66, 5, 6, 'var(--near)', 1, '.75') +
+    R(196, 66, 5, 6, 'var(--near)', 1, '.75') + R(208, 66, 5, 6, 'var(--near)', 1, '.75') +
+    R(220, 66, 5, 6, 'var(--near)', 1, '.75') +
+    R(180, 50, 5, 5, 'var(--near)', 1, '.7') + R(197, 50, 5, 5, 'var(--near)', 1, '.7') +
+    R(214, 50, 5, 5, 'var(--near)', 1, '.7') +
+    P('M180 36 L184 30 L188 36 Z', 'var(--pop)') + P('M212 36 L216 30 L220 36 Z', 'var(--pop)') +
 
-  /* 行前倒數用 ── 山、鳥居、飛機的綜合景 */
-  journey:
-    '<rect width="400" height="132" fill="var(--reg-tint)"/>' +
-    '<circle cx="336" cy="30" r="21" fill="var(--reg)" opacity=".32"/>' +
-    '<path d="M12 20 C64 26 84 40 78 60" fill="none" stroke="var(--reg)" stroke-width="2.5" stroke-dasharray="4 7" opacity=".5" stroke-linecap="round"/>' +
-    '<g transform="translate(52,30) rotate(-16) scale(.72)">' +
-      '<ellipse cx="62" cy="18" rx="62" ry="7" fill="var(--reg)"/>' +
-      '<path d="M64 18 L32 -14 L48 -14 L92 14 Z" fill="var(--reg)"/>' +
-      '<path d="M64 18 L32 50 L48 50 L92 22 Z" fill="var(--reg-shade)"/>' +
-      '<path d="M12 18 L0 0 L10 0 L28 16 Z" fill="var(--reg)"/>' +
-      '<path d="M12 18 L0 36 L10 36 L28 20 Z" fill="var(--reg-shade)"/>' +
-    '</g>' +
-    '<path d="M150 118 L246 56 L342 118 Z" fill="var(--reg-shade)" opacity=".55"/>' +
-    '<path d="M226 118 L316 62 L406 118 Z" fill="var(--reg)" opacity=".7"/>' +
-    '<g fill="var(--reg)">' +
-      '<path d="M28 92 h88 l-7-11h-13v-11h-7v11h-34v-11h-7v11h-13z"/>' +
-      '<rect x="40" y="92" width="9" height="40"/><rect x="95" y="92" width="9" height="40"/>' +
-    '</g>' +
-    '<rect y="126" width="400" height="6" fill="var(--reg)"/>'
+    /* 放大的銀杏葉飄下來 */
+    hand2(
+      ginkgo(48, 124, 1.35, -14, 'var(--pop)') +
+      ginkgo(336, 104, 0.95, 26, 'var(--pop)') +
+      ginkgo(298, 130, 0.62, -44, 'var(--pop)') +
+      ginkgo(96, 74, 0.5, 16, 'var(--pop)')
+    )
+  ),
+
+  /* ── 阿蘇・高千穗 ───────────────────────────────────────
+     印象採集：中岳火口不斷冒的白煙／世界最大級的破火山口稜線／
+              草千里的圓弧草坡／赤牛與馬／米塚那個像布丁又缺一角的小山／
+              高千穗峽的柱狀岩與小船／秋天的芒草
+     取用：誇張的破火山口稜線（後景）＋ 米塚（焦點）＋ 白煙 ＋ 赤牛 ＋ 放大的芒草
+     氣質：高原的藍、草綠、火山口的灰白、赤牛的橘                   */
+  aso: frame(
+    cloud(58, 40, 0.9, 'var(--pale)', '.85') +
+    cloud(320, 32, 0.7, 'var(--pale)', '.7') +
+    /* 中岳的煙 */
+    C(312, 58, 9, 'var(--pale)', '.7') + C(326, 46, 12, 'var(--pale)', '.6') +
+    C(342, 34, 8, 'var(--pale)', '.45') +
+    hand(
+      P('M-4 86 L38 66 L86 80 L130 60 L176 78 L220 58 L266 76 L312 62 L358 80 L404 68 L404 140 L-4 140 Z', 'var(--far)') +
+      /* 米塚 */
+      P('M134 108 C 146 88 168 60 181 50 L190 62 L199 50 C 212 60 234 88 246 108 Z', 'var(--mid)') +
+      /* 草千里 */
+      P('M-4 108 C 80 100 148 112 230 106 C 300 101 352 110 404 104 L404 140 L-4 140 Z', 'var(--near)')
+    ) +
+    P('M181 50 L190 62 L199 50 L196 46 L190 54 L184 46 Z', 'var(--far)', '.75') +
+    S('M158 94 C 178 88 204 88 224 94', 'var(--near)', 2, '.14') +
+
+    /* 赤牛 */
+    hand2(
+      R(280, 98, 46, 22, 'var(--pop)', 9) +
+      R(262, 100, 22, 15, 'var(--pop)', 6) +
+      R(270, 116, 6, 13, 'var(--pop)', 2) + R(284, 116, 6, 13, 'var(--pop)', 2) +
+      R(308, 116, 6, 13, 'var(--pop)', 2) + R(320, 116, 6, 13, 'var(--pop)', 2) +
+      S('M326 100 C 336 100 334 112 330 116', 'var(--pop)', 3) +
+      S('M264 99 L260 94 M276 98 L278 92', 'var(--pale)', 2.4) +
+      C(268, 106, 2, 'var(--near)')
+    ) +
+    /* 放大的芒草 */
+    hand2(
+      ear(30, 140, 52, 1, 'var(--pale)', '.9') +
+      ear(62, 140, 40, 1, 'var(--pale)', '.72') +
+      ear(92, 140, 30, 1, 'var(--pale)', '.55')
+    )
+  ),
+
+  /* ── 黑川溫泉 ──────────────────────────────────────────
+     印象採集：整條溪谷藏在杉木林裡／入湯手形那塊圓木牌／露天風呂與湯氣／
+              川端的石橋／冬天溪邊的毬あかり圓燈／浴衣木屐的聲音／苔與濕氣
+     取用：暮色杉林（後景）＋ 露天風呂（焦點）＋ 大量湯氣 ＋ 漂在暗處的圓燈
+     氣質：紫灰的暮色、杉木的深綠、湯與燈的琥珀暖光                */
+  kurokawa: frame(
+    C(330, 40, 13, 'var(--pale)', '.8') +
+    C(300, 28, 2.4, 'var(--pale)', '.5') + C(356, 60, 2, 'var(--pale)', '.4') +
+    hand(
+      cedar(24, 96, 52, 26, 'var(--far)') + cedar(60, 96, 38, 21, 'var(--far)') +
+      cedar(96, 96, 58, 27, 'var(--far)') + cedar(138, 96, 42, 22, 'var(--far)') +
+      cedar(186, 96, 34, 19, 'var(--far)') + cedar(238, 96, 46, 24, 'var(--far)') +
+      cedar(288, 96, 36, 20, 'var(--far)') + cedar(330, 96, 54, 26, 'var(--far)') +
+      cedar(376, 96, 40, 22, 'var(--far)') +
+      cedar(8, 108, 40, 24, 'var(--mid)') + cedar(48, 108, 30, 19, 'var(--mid)') +
+      cedar(114, 108, 34, 21, 'var(--mid)') + cedar(304, 108, 32, 20, 'var(--mid)') +
+      cedar(352, 108, 44, 25, 'var(--mid)') +
+      P('M-4 106 C 80 100 150 112 230 106 C 300 101 352 110 404 104 L404 140 L-4 140 Z', 'var(--near)')
+    ) +
+    /* 焦點：露天風呂 */
+    hand2(
+      E(200, 112, 88, 25, 'var(--mid)') +
+      E(200, 112, 73, 18, 'var(--pop)') +
+      E(184, 107, 30, 6, 'var(--pale)', '.32') +
+      E(126, 108, 11, 6, 'var(--far)', '.8') + E(150, 100, 8, 5, 'var(--far)', '.7') +
+      E(252, 101, 9, 5, 'var(--far)', '.7') + E(276, 108, 12, 6, 'var(--far)', '.8')
+    ) +
+    steam(168, 98, 44, 6, 'var(--pale)', '.6') +
+    steam(202, 94, 56, 7, 'var(--pale)', '.66') +
+    steam(236, 98, 40, 5.5, 'var(--pale)', '.5') +
+    /* 溪邊的圓燈 */
+    hand2(
+      C(52, 108, 12, 'var(--pop)', '.92') + C(52, 108, 6, 'var(--pale)', '.7') +
+      C(88, 120, 9, 'var(--pop)', '.8') + C(88, 120, 4.4, 'var(--pale)', '.6') +
+      C(340, 116, 10, 'var(--pop)', '.85') + C(340, 116, 5, 'var(--pale)', '.6')
+    )
+  ),
+
+  /* ── 由布院 ───────────────────────────────────────────
+     印象採集：由布岳兩座尖峰／金鱗湖清晨浮起的霧／湯之坪街道／
+              噠噠走過的辻馬車／由布院之森的綠色列車／秋天金黃的稻穗與芒草／
+              盆地被山圍住的安靜
+     取用：由布岳雙峰（骨架）＋ 橫著切開山腰的晨霧 ＋ 金鱗湖 ＋ 小得像玩具的辻馬車
+          ＋ 放大到比山還高的稻穗
+     氣質：清晨的薄荷藍灰、稻穗金、山的深青                        */
+  yufuin: frame(
+    C(92, 44, 19, 'var(--pop)', '.34') +
+    hand(
+      P('M-4 94 L56 68 L118 86 L180 58 L240 82 L300 62 L360 86 L404 74 L404 100 L-4 100 Z', 'var(--far)') +
+      P('M60 96 L150 42 L177 60 L204 38 L296 96 Z', 'var(--mid)') +
+      P('M-4 116 C 90 110 160 120 250 114 C 320 109 360 117 404 112 L404 140 L-4 140 Z', 'var(--near)')
+    ) +
+    P('M150 42 L136 58 L166 58 Z', 'var(--pale)', '.75') +
+    P('M204 38 L190 54 L220 54 Z', 'var(--pale)', '.75') +
+    /* 晨霧：橫著把山切成兩半 */
+    R(24, 74, 128, 9, 'var(--pale)', 4.5, '.8') +
+    R(168, 82, 148, 9, 'var(--pale)', 4.5, '.72') +
+    R(74, 92, 168, 8, 'var(--pale)', 4, '.62') +
+    R(258, 70, 74, 7, 'var(--pale)', 3.5, '.5') +
+    /* 金鱗湖 */
+    hand2(
+      E(198, 112, 128, 17, 'var(--far)') +
+      S('M74 108 C 120 96 276 96 322 108', 'var(--mid)', 1.6, '.28') +
+      P('M150 112 L162 100 L174 112 Z', 'var(--mid)', '.3') +
+      P('M198 112 L210 98 L222 112 Z', 'var(--mid)', '.3') +
+      R(108, 116, 54, 3.4, 'var(--pale)', 2, '.65') + R(196, 121, 66, 3.4, 'var(--pale)', 2, '.5') +
+      R(240, 110, 42, 3, 'var(--pale)', 2, '.45')
+    ) +
+    /* 小小的辻馬車 */
+    hand2(
+      R(66, 96, 36, 19, 'var(--pale)') +
+      R(62, 90, 44, 7, 'var(--pop)', 3) +
+      R(72, 100, 11, 10, 'var(--far)', 2) + R(87, 100, 11, 10, 'var(--far)', 2) +
+      R(38, 98, 24, 11, 'var(--near)', 4) +
+      P('M40 100 L30 88 L36 88 L44 98 Z', 'var(--near)') +
+      R(40, 109, 3.6, 9, 'var(--near)', 1.8) + R(48, 109, 3.6, 9, 'var(--near)', 1.8) +
+      R(56, 109, 3.6, 9, 'var(--near)', 1.8) +
+      S('M62 100 L68 96', 'var(--near)', 2.4) +
+      C(74, 116, 5.5, 'var(--near)') + C(96, 116, 5.5, 'var(--near)')
+    ) +
+    /* 放大的稻穗 */
+    hand2(
+      ear(334, 140, 68, 1, 'var(--pop)', '.92') +
+      ear(364, 140, 54, 1, 'var(--pop)', '.76') +
+      ear(310, 140, 42, 1, 'var(--pop)', '.6')
+    )
+  ),
+
+  /* ── 別府 ──────────────────────────────────────────────
+     印象採集：整座城市的屋瓦之間到處在冒湯煙／血の池地獄的朱紅／
+              海地獄的鈷藍／鶴見岳／竹細工／砂湯／地獄蒸的蒸籠
+     取用：屋瓦聚落（中景）＋ 從瓦片縫裡升起的八道湯煙（焦點）＋ 朱紅與鈷藍的兩池
+     氣質：蒸氣白、瓦的灰藍、地獄的朱紅，濕熱                       */
+  beppu: frame(
+    hand(
+      P('M150 88 L242 40 L334 88 Z', 'var(--far)', '.85') +
+      P('M-4 88 L58 58 L120 88 Z', 'var(--far)', '.6')
+    ) +
+    /* 湯煙 */
+    steam(46, 96, 46, 9, 'var(--pale)', '.72') +
+    steam(96, 92, 58, 11, 'var(--pale)', '.85') +
+    steam(146, 96, 48, 9, 'var(--pale)', '.75') +
+    steam(196, 88, 66, 12, 'var(--pale)', '.92') +
+    steam(248, 94, 52, 10, 'var(--pale)', '.8') +
+    steam(300, 96, 44, 9, 'var(--pale)', '.7') +
+    steam(350, 92, 54, 10, 'var(--pale)', '.74') +
+    /* 屋瓦 */
+    hand2(
+      P('M4 112 L18 96 L74 96 L88 112 Z', 'var(--mid)') + R(16, 93, 60, 4, 'var(--near)', 2) +
+      P('M70 104 L84 88 L142 88 L156 104 Z', 'var(--mid)') + R(82, 85, 62, 4, 'var(--near)', 2) +
+      P('M140 116 L154 100 L214 100 L228 116 Z', 'var(--mid)') + R(152, 97, 64, 4, 'var(--near)', 2) +
+      P('M214 106 L228 90 L288 90 L302 106 Z', 'var(--mid)') + R(226, 87, 64, 4, 'var(--near)', 2) +
+      P('M292 114 L306 98 L364 98 L378 114 Z', 'var(--mid)') + R(304, 95, 62, 4, 'var(--near)', 2) +
+      R(104, 78, 7, 12, 'var(--near)', 2) + R(250, 80, 7, 12, 'var(--near)', 2)
+    ) +
+    /* 地面與兩池 */
+    hand(
+      P('M-4 114 C 80 108 160 118 250 112 C 320 107 360 115 404 110 L404 140 L-4 140 Z', 'var(--near)')
+    ) +
+    hand2(
+      E(132, 128, 112, 19, 'var(--pop)') +
+      E(120, 123, 74, 8, 'var(--pale)', '.26') +
+      E(336, 124, 62, 13, 'var(--far)') +
+      E(330, 121, 38, 5, 'var(--pale)', '.3')
+    ) +
+    steam(120, 112, 26, 4.4, 'var(--pale)', '.45') +
+    steam(340, 112, 20, 4, 'var(--pale)', '.4')
+  ),
+
+  /* ── 太宰府 ───────────────────────────────────────────
+     印象採集：朱紅的太鼓橋跨過心字池／飛梅與整片梅林／參道的梅ヶ枝餅／
+              巨大的楠木樹蔭／御神牛／一列朱紅鳥居／九博的曲線
+     取用：太鼓橋（焦點）＋ 心字池與倒影 ＋ 放大到比橋還大的梅花 ＋ 縮小成模型的鳥居
+          ＋ 楠木樹冠當作畫框
+     氣質：朱紅、梅粉、池水深綠、參道的暖米色                       */
+  dazaifu: frame(
+    hand(
+      P('M-6 -6 C 44 -10 86 12 78 42 C 70 70 20 66 -6 50 Z', 'var(--far)') +
+      P('M406 -6 C 356 -10 322 14 332 40 C 340 62 380 60 406 46 Z', 'var(--far)') +
+      P('M-4 96 C 80 90 170 100 250 94 C 320 89 360 97 404 92 L404 140 L-4 140 Z', 'var(--mid)')
+    ) +
+    /* 縮小成模型的鳥居 */
+    hand2(
+      P('M300 86 L342 86 L338 80 L304 80 Z', 'var(--far)') +
+      R(304, 82, 34, 3.5, 'var(--far)') +
+      R(308, 86, 4.5, 20, 'var(--far)') + R(329, 86, 4.5, 20, 'var(--far)')
+    ) +
+    /* 焦點：太鼓橋 */
+    P('M118 118 C 132 168 268 168 282 118 L268 118 C 258 152 142 152 132 118 Z', 'var(--pop)', '.22') +
+    hand2(
+      P('M118 116 C 130 62 270 62 282 116 L267 116 C 257 76 143 76 133 116 Z', 'var(--pop)') +
+      S('M126 100 C 142 66 258 66 274 100', 'var(--pop)', 3, '.9') +
+      S('M148 88 L148 78 M176 78 L176 69 M224 78 L224 69 M252 88 L252 78', 'var(--pop)', 3, '.9') +
+      R(114, 112, 14, 22, 'var(--near)', 3) + R(272, 112, 14, 22, 'var(--near)', 3)
+    ) +
+    S('M150 108 q10 -5 20 0 t20 0', 'var(--pale)', 2.2, '.35') +
+    S('M220 118 q10 -5 20 0 t20 0', 'var(--pale)', 2.2, '.3') +
+    /* 放大的梅花 */
+    hand2(
+      S('M-4 138 C 22 128 34 118 44 106', 'var(--near)', 3, '.8') +
+      plum(52, 100, 2.2, 'var(--pale)', 'var(--pop)') +
+      plum(96, 124, 1.25, 'var(--pale)', 'var(--pop)') +
+      plum(22, 118, 0.85, 'var(--pale)', 'var(--pop)') +
+      plum(354, 74, 0.95, 'var(--pale)', 'var(--pop)') +
+      plum(316, 50, 0.6, 'var(--pale)', 'var(--pop)')
+    )
+  ),
+
+  /* ── 行前・移動中 ──────────────────────────────────────
+     取用：一架小飛機拉出的虛線 ＋ 九州的層層山影 ＋ 站在海裡的鳥居 ＋ 圖示化的太陽 */
+  journey: frame(
+    C(332, 48, 22, 'var(--pop)', '.4') +
+    cloud(58, 40, 0.85, 'var(--pale)', '.8') +
+    cloud(238, 30, 0.6, 'var(--pale)', '.6') +
+    S('M6 92 C 70 52 170 32 262 44', 'var(--near)', 2, '.4', '3 8') +
+    hand(
+      P('M-4 94 L44 74 L96 90 L150 68 L206 88 L262 70 L320 90 L404 76 L404 108 L-4 108 Z', 'var(--far)') +
+      P('M40 106 L120 62 L200 106 Z', 'var(--mid)', '.9') +
+      P('M-4 104 C 90 100 160 108 250 102 C 320 97 360 105 404 100 L404 140 L-4 140 Z', 'var(--mid)')
+    ) +
+    P('M120 62 L106 78 L134 78 Z', 'var(--pale)', '.7') +
+    S('M22 116 q10 -5 20 0 t20 0', 'var(--pale)', 2.4, '.4') +
+    S('M250 120 q10 -5 20 0 t20 0', 'var(--pale)', 2.4, '.35') +
+    S('M310 112 q10 -5 20 0 t20 0', 'var(--pale)', 2.4, '.3') +
+    /* 海裡的鳥居 */
+    hand2(
+      P('M164 76 L246 76 L240 68 L170 68 Z', 'var(--pop)') +
+      R(170, 70, 70, 4.5, 'var(--pop)') +
+      R(176, 76, 8, 46, 'var(--pop)') + R(226, 76, 8, 46, 'var(--pop)') +
+      R(172, 88, 66, 5, 'var(--pop)')
+    ) +
+    /* 飛機 */
+    G('translate(262,44) rotate(-14) scale(.62)',
+      E(0, 0, 58, 7, 'var(--near)') +
+      P('M4 0 L-26 -32 L-10 -32 L32 -3 Z', 'var(--near)') +
+      P('M4 0 L-26 32 L-10 32 L32 3 Z', 'var(--near)', '.75') +
+      P('M-48 0 L-60 -18 L-50 -18 L-32 -2 Z', 'var(--near)') +
+      P('M-48 0 L-60 18 L-50 18 L-32 2 Z', 'var(--near)', '.75')
+    )
+  )
 };
 
-/* 線性圖示。用 currentColor，尺寸由 CSS 控制。 */
+/* ---------- 線性圖示。用 currentColor，尺寸由 CSS 控制 ---------- */
 function ic(d, extra) {
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
     + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + (extra || '') + '</svg>';
@@ -229,8 +564,184 @@ ART.icons = {
   check: ic('<path d="M4.5 12.5 9.5 17.5 19.5 6.5"/>')
 };
 
-/* 8 個地區的代表圖示（指南分頁用小圖章） */
-ART.stamp = function (reg) {
-  return '<span class="stamp" data-reg="' + reg + '"><svg viewBox="0 0 400 132" preserveAspectRatio="xMidYMid slice">'
-    + (ART.scenes[reg] || ART.scenes.journey) + '</svg></span>';
+/* ============================================================
+   路線地圖。資料在 data/geo.js（地點是真實經緯度）。
+   day 給 1–9 會highlight那天的移動；不給就是 9 天總覽。
+   ============================================================ */
+ART.map = function (day) {
+  var V = GEO.view, PL = GEO.places, LAND = GEO.land;
+  var stops = (day && GEO.route[day]) ? GEO.route[day] : GEO.loop;
+  var on = {}, seen = [], o = '', i, k, q, a, b, mx, my, ang, d, pts = [];
+
+  function n(v) { return Math.round(v * 10) / 10; }
+  function xy(key) { q = PL[key]; return [n((q.lon - V.lon0) * V.sx), n((V.lat0 - q.lat) * V.sy)]; }
+  function pt(lon, lat) { return [n((lon - V.lon0) * V.sx), n((V.lat0 - lat) * V.sy)]; }
+
+  function label(key, hot) {
+    var t = PL[key], p = xy(key);
+    return '<text x="' + n(p[0] + t.lx) + '" y="' + n(p[1] + t.ly) + '" text-anchor="' + t.la +
+      '" font-size="' + (hot ? 12.5 : 11) + '" font-weight="' + (hot ? 800 : 600) +
+      '" fill="var(--map-ink)"' + (hot ? '' : ' opacity=".45"') +
+      ' stroke="var(--map-land)" stroke-width="3.4" paint-order="stroke" stroke-linejoin="round">' +
+      t.n + '</text>';
+  }
+  /* 一座手繪的小山：左面亮、右面暗 */
+  function hill(x, y, w, h) {
+    return P('M' + n(x - w / 2) + ' ' + n(y) + ' L' + n(x) + ' ' + n(y - h) +
+             ' L' + n(x + w / 2) + ' ' + n(y) + ' Z', 'var(--map-hill)') +
+           P('M' + n(x) + ' ' + n(y - h) + ' L' + n(x + w / 2) + ' ' + n(y) +
+             ' L' + n(x + w * 0.12) + ' ' + n(y) + ' Z', 'var(--map-hill2)');
+  }
+  function range(x, y, s) {
+    return hill(x - 9 * s, y, 15 * s, 7 * s) + hill(x + 9.5 * s, y, 14 * s, 6.4 * s) +
+           hill(x, y - 0.5, 20 * s, 11.5 * s);
+  }
+  /* 羅盤 */
+  function compass(x, y, s) {
+    return G('translate(' + x + ',' + y + ') scale(' + s + ')',
+      C(0, 0, 14, 'var(--map-land)', '.6') +
+      P('M0 -14 L3.6 -3.6 L14 0 L3.6 3.6 L0 14 L-3.6 3.6 L-14 0 L-3.6 -3.6 Z', 'var(--map-ink)', '.42') +
+      P('M0 -14 L3.6 -3.6 L0 0 L-3.6 -3.6 Z', 'var(--pop)') +
+      '<text x="0" y="-17.5" text-anchor="middle" font-size="9" font-weight="800"' +
+      ' fill="var(--map-ink)" opacity=".55">N</text>');
+  }
+  /* 比例尺：25 公里 */
+  function scalebar(x, y) {
+    var L = n(25 / 111.195 * V.sy), h = 3.6;
+    return R(x, y, L, h, 'var(--map-ink)', 0, '.5') +
+      R(x + L / 2, y, L / 2, h, 'var(--map-land)', 0, '.85') +
+      '<rect x="' + x + '" y="' + y + '" width="' + L + '" height="' + h +
+      '" fill="none" stroke="var(--map-ink)" stroke-width=".9" opacity=".5"/>' +
+      '<text x="' + n(x + L + 5) + '" y="' + (y + h) + '" font-size="9" font-weight="700"' +
+      ' fill="var(--map-ink)" opacity=".5">25 km</text>';
+  }
+
+  for (i = 0; i < stops.length; i++) on[stops[i]] = 1;
+
+  o += '<g style="isolation:isolate">';
+  o += R(-4, -4, V.w + 8, V.h + 8, 'var(--map-sea)');
+
+  /* 陸地。先沿著海岸描三層越來越寬的淡邊，被陸地蓋掉內側之後
+     只剩外側，就成了古地圖那種一圈一圈的等深線暈染。 */
+  var echo = '', shade = '', land = '', line = '';
+  for (i = 0; i < LAND.length; i++) {
+    echo += S(LAND[i].d, 'var(--map-echo)', 15, '.16') ;
+    shade += S(LAND[i].d, 'var(--map-echo)', 8, '.2');
+    land += P(LAND[i].d, 'var(--map-land)');
+    line += S(LAND[i].d, 'var(--map-ink)', 0.9, '.3');
+  }
+  o += hand2(echo + shade +
+    G('translate(0,3.5)', (function () {
+      var t = '', j; for (j = 0; j < LAND.length; j++) t += P(LAND[j].d, 'var(--map-edge)'); return t;
+    })()) +
+    land + line);
+
+  /* 縣界 */
+  for (i = 0; i < LAND.length; i++) o += S(LAND[i].d, 'var(--map-ink)', 0.9, '.13', '3 3');
+
+  /* 山 */
+  o += hand2((function () {
+    var t = '', j, p;
+    for (j = 0; j < GEO.hills.length; j++) {
+      p = pt(GEO.hills[j][0], GEO.hills[j][1]);
+      t += range(p[0], p[1], GEO.hills[j][2]);
+    }
+    return t;
+  })());
+
+  /* 海上的小浪紋 */
+  for (i = 0; i < GEO.waves.length; i++) {
+    a = GEO.waves[i];
+    o += G('translate(' + a[0] + ',' + a[1] + ') scale(' + a[2] + ')',
+      S('M-11 0 q5.5 -4 11 0 t11 0', 'var(--map-ink)', 1.7, '.3') +
+      S('M-8 5.5 q5.5 -4 11 0 t8 0', 'var(--map-ink)', 1.7, '.22'));
+  }
+
+  /* 海域名 */
+  for (i = 0; i < GEO.seas.length; i++) {
+    a = GEO.seas[i];
+    o += '<text x="' + a[0] + '" y="' + a[1] + '" text-anchor="' + a[3] +
+      '" font-size="9.5" font-weight="600" fill="var(--map-ink)" opacity=".32">' + a[2] + '</text>';
+  }
+
+  o += compass(30, 28, 0.85) + scalebar(18, 224);
+
+  /* 9 天整體路線走一遍（淡虛線），讓人知道今天在整趟裡的哪一段 */
+  d = '';
+  for (i = 0; i < GEO.loop.length; i++) {
+    a = xy(GEO.loop[i]); d += (i ? 'L' : 'M') + a[0] + ' ' + a[1] + ' ';
+  }
+  o += S(d, 'var(--map-ink)', 1.7, '.3', '2 6');
+
+  /* 沒去的地點：小點 */
+  for (k in PL) if (!on[k]) {
+    a = xy(k);
+    o += C(a[0], a[1], 3.4, 'var(--map-land)', '.8') + C(a[0], a[1], 2.2, 'var(--map-ink)', '.45');
+  }
+
+  /* 今天的路線 */
+  d = '';
+  for (i = 0; i < stops.length; i++) {
+    a = xy(stops[i]); pts.push(a); d += (i ? 'L' : 'M') + a[0] + ' ' + a[1] + ' ';
+  }
+  if (pts.length > 1) {
+    o += S(d, 'var(--map-land)', 7.5, '.85');
+    o += hand2(S(d, 'var(--pop)', 3.2, '1', '11 5.5'));
+    for (i = 1; i < pts.length; i++) {
+      a = pts[i - 1]; b = pts[i];
+      mx = (a[0] + b[0]) / 2; my = (a[1] + b[1]) / 2;
+      ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+      o += G('translate(' + n(mx) + ',' + n(my) + ') rotate(' + n(ang) + ')',
+        P('M-4.4 -5 L5.8 0 L-4.4 5 Z', 'var(--pop)') +
+        P('M-4.4 -5 L-1.6 0 L-4.4 5 Z', 'var(--map-land)', '.55'));
+    }
+  } else {
+    a = pts[0];
+    o += C(a[0], a[1], 14, 'var(--pop)', '.16') + C(a[0], a[1], 9.5, 'var(--pop)', '.2');
+  }
+
+  /* 停留點：外白內色，加一圈細環 */
+  for (i = 0; i < stops.length; i++) {
+    k = stops[i]; if (seen.indexOf(k) >= 0) continue; seen.push(k);
+    a = xy(k);
+    o += C(a[0], a[1], 7, 'var(--map-land)') +
+      '<circle cx="' + a[0] + '" cy="' + a[1] + '" r="6.1" fill="none" stroke="var(--pop)" stroke-width="1.3" opacity=".55"/>' +
+      C(a[0], a[1], 4.2, 'var(--pop)');
+  }
+
+  /* 標籤：今天的粗體，其他的淡淡放著當定位參考 */
+  for (k in PL) if (!on[k]) o += label(k, false);
+  for (i = 0; i < seen.length; i++) o += label(seen[i], true);
+
+  o += '<rect class="gr" x="-4" y="-4" width="' + (V.w + 8) + '" height="' + (V.h + 8) + '" fill="url(#hz-grain)"/>';
+  o += '</g>';
+
+  return '<svg class="kmap" viewBox="0 0 ' + V.w + ' ' + V.h + '" preserveAspectRatio="xMidYMid meet" ' +
+    'role="img" aria-label="' + (day ? ('第 ' + day + ' 天路線圖') : '九天路線總覽圖') + '">' + o + '</svg>';
 };
+
+/* 一張畫的 <svg> 外殼。variant: 'wide'（預設，完整構圖）／'band'（裁掉上方天空）／'stamp'（中央方形） */
+ART.svg = function (reg, cls, par) {
+  return '<svg class="' + (cls || 'scene') + '" viewBox="0 0 400 132" preserveAspectRatio="'
+    + (par || 'xMidYMax slice') + '" aria-hidden="true">'
+    + (ART.scenes[reg] || ART.scenes.journey) + '</svg>';
+};
+
+/* 指南分頁的小圖章 */
+ART.stamp = function (reg) {
+  return '<span class="stamp" data-reg="' + reg + '">' + ART.svg(reg, 'scene', 'xMidYMid slice') + '</span>';
+};
+
+/* 把濾鏡定義塞進文件裡（整份文件共用一次就好） */
+ART.mount = function () {
+  if (document.getElementById('hz-art-defs')) return;
+  var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('id', 'hz-art-defs');
+  s.setAttribute('aria-hidden', 'true');
+  s.setAttribute('focusable', 'false');
+  s.setAttribute('style', 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none');
+  s.innerHTML = '<defs>' + ART.defs + '</defs>';
+  document.body.insertBefore(s, document.body.firstChild);
+};
+
+})();

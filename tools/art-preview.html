@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>城市印象插畫 — 校稿板</title>
+<script>var T=Date.now();document.write('<link rel="stylesheet" href="../app.css?t='+T+'">');</script>
+<style>
+  body{padding:12px}
+  .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .box{border-radius:14px;overflow:hidden;box-shadow:var(--sh-1);background:var(--card)}
+  .box .art{aspect-ratio:400/132}
+  .cap{display:flex;gap:6px;align-items:center;padding:5px 9px;font-size:11px;color:var(--ink2)}
+  .cap b{color:var(--reg)}
+  .sw{display:flex;gap:2px;margin-left:auto}
+  .sw i{width:11px;height:11px;border-radius:2px;display:block}
+  .small{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+</style></head><body>
+<div class="wrap" id="host"></div>
+<div class="small" id="stamps"></div>
+<div id="maps" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px"></div>
+<script>document.write('<script src="../data/geo.js?t='+T+'"><\/script>');document.write('<script src="../data/art.js?t='+T+'"><\/script>');</script>
+<script>
+var NAMES={fukuoka:'福岡・博多',nagasaki:'長崎・佐世保',kumamoto:'熊本',aso:'阿蘇・高千穗',kurokawa:'黑川溫泉',yufuin:'由布院',beppu:'別府',dazaifu:'太宰府',journey:'行前・移動'};
+if(location.search.indexOf('dark')>=0) document.documentElement.setAttribute('data-theme','dark');
+ART.mount();
+var Q=new URLSearchParams(location.search);
+if(Q.get('cols')) document.getElementById('host').style.gridTemplateColumns='repeat('+Q.get('cols')+',1fr)';
+var ONLY=Q.get('only')?Q.get('only').split(','):null;
+var LIST=Object.keys(ART.scenes).filter(function(k){return !ONLY||ONLY.indexOf(k)>=0;});
+document.getElementById('host').innerHTML=LIST.map(function(k){
+  return '<div class="box" data-reg="'+k+'"><div class="art">'+ART.svg(k,'scene','xMidYMid meet')+'</div>'
+    +'<div class="cap"><b>'+NAMES[k]+'</b><span>'+k+'</span><span class="sw">'
+    +['--c-sky','--c-far','--c-mid','--c-near','--c-pop','--c-pale'].map(function(v){return '<i style="background:var('+v+')"></i>';}).join('')
+    +'</span></div></div>';
+}).join('');
+document.getElementById('stamps').innerHTML=LIST.map(function(k){return ART.stamp(k);}).join('');
+var mk=Q.get('maps'); if(mk!==null){
+  var days=mk?mk.split(','):[null,2,5,7,8];
+  document.getElementById('maps').innerHTML=days.map(function(d){
+    var reg=d?(window.TRIP?null:null):'journey';
+    return '<div class="box" data-reg="'+(d?({2:'nagasaki',4:'kumamoto',5:'aso',6:'kurokawa',7:'yufuin',8:'beppu'}[d]||'journey'):'journey')+'">'
+      +ART.map(d?+d:null)+'<div class="cap"><b>'+(d?('Day '+d):'總覽')+'</b></div></div>';
+  }).join('');
+}
+</script>
+</body></html>

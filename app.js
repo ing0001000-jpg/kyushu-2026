@@ -73,10 +73,7 @@
   function dayDiff(a, b) { return Math.round((b - a) / 86400000); }
   function fmtMD(s) { var a = s.split('-'); return (+a[1]) + '/' + (+a[2]); }
   function I(name) { return ART.icons[name] || ''; }
-  function scene(reg) {
-    return '<svg class="scene" viewBox="0 0 400 132" preserveAspectRatio="xMidYMax slice" aria-hidden="true">'
-      + (ART.scenes[reg] || ART.scenes.journey) + '</svg>';
-  }
+  function scene(reg) { return ART.svg(reg); }
   function regOf(n) { return TRIP.dayRegion[n] || 'journey'; }
 
   var PART = { am: ['上午', 'sun'], pm: ['下午', 'cloud'], night: ['晚上', 'moon'] };
@@ -207,6 +204,23 @@
       + '</div></a>';
   }
 
+  /* ---------- 路線地圖 ---------- */
+  function mapCard(n) {
+    var stops = (GEO.route[n] || []), foot, i, parts = [];
+    if (stops.length < 2) {
+      foot = '<span class="hop">' + esc(GEO.places[stops[0]].n) + '</span>'
+           + '<span class="sep">整天都在這一帶</span>';
+    } else {
+      for (i = 0; i < stops.length; i++) parts.push('<span class="hop">' + esc(GEO.places[stops[i]].n) + '</span>');
+      foot = parts.join('<span class="sep">→</span>');
+    }
+    return '<div class="mapcard">' + ART.map(n) + '<div class="map-foot">' + foot + '</div></div>';
+  }
+  function mapOverview() {
+    return '<div class="mapcard" data-reg="journey">' + ART.map(null)
+      + '<div class="map-foot"><span class="hop">福岡</span><span class="sep">出發，順時針繞北九州一圈再回到福岡</span></div></div>';
+  }
+
   /* ---------- views ---------- */
   function viewToday() {
     var t = today(), s = dateObj(TRIP.start), e = dateObj(TRIP.end), h = '';
@@ -221,6 +235,8 @@
         + '<div class="big">' + left + '<small>天</small></div>'
         + '<h2>' + esc(TRIP.title) + '</h2>'
         + '<div class="meta">' + esc(TRIP.party) + '</div></div></div>';
+
+      h += '<div class="sec-title">9 天路線</div>' + mapOverview();
 
       h += '<div class="sec-title">準備進度</div><div class="card card-p stack">'
         + '<div><div class="prog-row"><b>行前待辦</b><span>' + tDone + ' / ' + tIds.length + '</span></div>'
@@ -259,6 +275,7 @@
         + '<div class="meta">' + esc(day.region) + '</div></div></div>';
 
       h += '<div data-reg="' + esc(reg) + '">';
+      h += '<div class="sec-title">今天往哪裡跑</div>' + mapCard(day.n);
       if (day.alerts) h += '<div class="stack" style="margin-top:12px">' + alertsHtml(day.alerts) + '</div>';
       if (day.drive) h += '<div class="drive" style="margin-top:12px">' + I('car') + '<span>' + esc(day.drive) + '</span></div>';
       h += blocksHtml(day) + '</div>';
@@ -272,7 +289,8 @@
   }
 
   function viewPlan() {
-    return '<div class="sec-title">9 天行程</div><div class="stack">'
+    return '<div class="sec-title">路線總覽</div>' + mapOverview()
+      + '<div class="sec-title">9 天行程</div><div class="stack">'
       + TRIP.days.map(function (d) { return dayCard(d); }).join('') + '</div>'
       + '<div class="card card-p" style="margin-top:18px"><div class="muted">'
       + '行程內容擷取自《2026九州行程0927~1005.xls》，未經改寫。營業時間與價格請以現場公告為準。</div></div>';
@@ -291,6 +309,7 @@
       + '<div class="meta">' + esc(d.region) + '</div></div></div>';
 
     h += '<div data-reg="' + esc(reg) + '">';
+    h += '<div class="sec-title">今天往哪裡跑</div>' + mapCard(d.n);
     if (d.alerts) h += '<div class="stack" style="margin-top:12px">' + alertsHtml(d.alerts) + '</div>';
     if (d.drive) h += '<div class="drive" style="margin-top:12px">' + I('car') + '<span>' + esc(d.drive) + '</span></div>';
     h += blocksHtml(d) + '</div>';
@@ -336,7 +355,7 @@
     var h = '<div class="sec-title">各區美食與景點</div><div class="stack">';
     h += GUIDE.regions.map(function (r) {
       return '<details class="acc" data-reg="' + esc(r.id) + '"><summary>'
-        + '<span class="stamp"><svg viewBox="0 0 400 132" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + ART.scenes[r.id] + '</svg></span>'
+        + ART.stamp(r.id)
         + '<span class="acc-t"><b>' + esc(r.name) + '</b><span>' + esc(r.days) + '</span></span>'
         + '<span class="caret">⌄</span></summary><div class="acc-body">'
         + '<div class="sub-h">吃什麼</div><ul class="ilist">'
@@ -591,6 +610,8 @@
     }
     document.getElementById('theme-btn').innerHTML = I('moon');
   })();
+
+  ART.mount();
 
   window.addEventListener('hashchange', function () { if (!gateNeeded()) render(); });
   if (!location.hash) location.replace('#/today');

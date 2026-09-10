@@ -12,8 +12,10 @@
   --ok:#2f7d5b; --ok-soft:#e0efe7;
   --warn:#8a5a12; --warn-soft:#fbeed6; --warn-line:#e7cf9e;
   --dgr:#a5271f; --dgr-soft:#fbe2df; --dgr-line:#eeb2ac;
-  --sh-1:0 1px 2px rgba(20,34,42,.07);
-  --sh-2:0 2px 4px rgba(20,34,42,.05),0 8px 20px rgba(20,34,42,.07);
+  --sh-1:0 1px 2px rgba(34,32,26,.06);
+  --sh-2:0 2px 6px rgba(34,32,26,.055),0 12px 28px rgba(34,32,26,.075);
+  /* 紙張纖維（SVG 雜訊，瀏覽器只算一次再平鋪，離線也沒問題） */
+  --fiber:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='150' height='150' filter='url(%23f)' opacity='0.07'/></svg>");
   --display:"Archivo Black",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --body:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Hiragino Sans","Noto Sans TC","Microsoft JhengHei",sans-serif;
 }
@@ -40,41 +42,118 @@
   --sh-2:0 2px 4px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.35);
 }
 
-/* ---------- 地區色相 ---------- */
-[data-reg="fukuoka"]{--rb:#e0483a}
-[data-reg="nagasaki"]{--rb:#2b62ab}
-[data-reg="kumamoto"]{--rb:#2f7d5b}
-[data-reg="aso"]{--rb:#d1700f}
-[data-reg="kurokawa"]{--rb:#7b5ea7}
-[data-reg="yufuin"]{--rb:#0e8c8c}
-[data-reg="beppu"]{--rb:#cf3f7a}
-[data-reg="dazaifu"]{--rb:#a8752c}
-[data-reg="journey"]{--rb:#cf4229}
+/* ---------- 城市配色盤 ----------
+   每座城市一組 6 色的有限色盤，是先決定「這座城市看起來像什麼顏色」
+   才反推出來的，不是照片取色。插畫與 UI 共用同一組。
+   --c-sky 紙／天空　--c-far 遠景　--c-mid 中景　--c-near 近景（墨）
+   --c-pop 點綴（整張畫唯一的高彩度）　--c-pale 亮部（光／霧／白牆）
+   --rb 是這個地區在 UI 上的主色。
+   ------------------------------------------------------------ */
+[data-reg="fukuoka"]{ /* 中洲屋台的夜：暖橘燈光 × 河水藍 */
+  --rb:#d9482f;
+  --c-sky:#f7e3c7; --c-far:#f0b078; --c-mid:#2f5c7a;
+  --c-near:#22333f; --c-pop:#d9482f; --c-pale:#fff2dd }
+[data-reg="nagasaki"]{ /* 坡道之城：海霧藍 × 電車黃 */
+  --rb:#2b6ca8;
+  --c-sky:#e9f1f3; --c-far:#a7c6d0; --c-mid:#2f6ea8;
+  --c-near:#1e3a52; --c-pop:#e6b23c; --c-pale:#fdfaf2 }
+[data-reg="kumamoto"]{ /* 黑天守與銀杏：墨黑 × 漆喰白 × 銀杏金 */
+  --rb:#37725a;
+  --c-sky:#f4eede; --c-far:#a7c19c; --c-mid:#98968a;
+  --c-near:#22303a; --c-pop:#dfa41c; --c-pale:#fdf7ea }
+[data-reg="aso"]{ /* 高原：草綠 × 火山灰白 × 赤牛橘 */
+  --rb:#cf6b1e;
+  --c-sky:#d9edf1; --c-far:#9ecfc4; --c-mid:#7ba85c;
+  --c-near:#43604a; --c-pop:#e07a2e; --c-pale:#fbf7ea }
+[data-reg="kurokawa"]{ /* 杉林的暮色：紫灰 × 湯與燈的琥珀 */
+  --rb:#6e5b8f;
+  --c-sky:#d9d2e8; --c-far:#6f6289; --c-mid:#443e5c;
+  --c-near:#292541; --c-pop:#e8a13f; --c-pale:#f6efe0 }
+[data-reg="yufuin"]{ /* 清晨盆地：薄荷灰藍 × 稻穗金 */
+  --rb:#17827f;
+  --c-sky:#e7f0ec; --c-far:#a8cfc6; --c-mid:#2f7d7b;
+  --c-near:#274a48; --c-pop:#dfa63c; --c-pale:#fbf8ec }
+[data-reg="beppu"]{ /* 湯煙之町：蒸氣白 × 瓦灰藍 × 地獄朱 */
+  --rb:#c94360;
+  --c-sky:#f4eae1; --c-far:#7fa8bf; --c-mid:#56646f;
+  --c-near:#2c3740; --c-pop:#cf4457; --c-pale:#fff7ee }
+[data-reg="dazaifu"]{ /* 太鼓橋與飛梅：朱紅 × 池水綠 × 梅粉 */
+  --rb:#c2593f;
+  --c-sky:#f6eee0; --c-far:#8fae7e; --c-mid:#3f6b52;
+  --c-near:#2f4436; --c-pop:#d24a3d; --c-pale:#f4c3ce }
+[data-reg="journey"]{ /* 出發：暮色米 × 海藍 × 鳥居朱 */
+  --rb:#cf4229;
+  --c-sky:#f6e7d2; --c-far:#f0b878; --c-mid:#2e6d8e;
+  --c-near:#24333d; --c-pop:#d9482f; --c-pale:#fff6e8 }
 
 [data-reg]{
+  --sky:var(--c-sky); --far:var(--c-far); --mid:var(--c-mid);
+  --near:var(--c-near); --pop:var(--c-pop); --pale:var(--c-pale);
+  --map-sea:color-mix(in srgb, var(--c-mid) 18%, #d9e6e8);
+  --map-land:color-mix(in srgb, var(--c-pop) 7%, #f8f3e7);
+  --map-edge:color-mix(in srgb, var(--c-near) 24%, transparent);
+  --map-ink:color-mix(in srgb, var(--c-near) 88%, #101820);
+  --map-echo:color-mix(in srgb, var(--c-mid) 62%, var(--map-sea));
+  --map-hill:color-mix(in srgb, var(--c-near) 19%, var(--map-land));
+  --map-hill2:color-mix(in srgb, var(--c-near) 36%, var(--map-land));
   --reg:var(--rb);
-  --reg-shade:color-mix(in srgb, var(--rb) 60%, #0b141a);
-  --reg-tint:color-mix(in srgb, var(--rb) 15%, var(--card));
+  --reg-shade:color-mix(in srgb, var(--rb) 62%, #0b141a);
+  --reg-tint:color-mix(in srgb, var(--rb) 14%, var(--card));
 }
+/* 深色主題：整張畫變成同一座城市的「夜間版海報」，
+   紙色壓暗、點綴色反而更亮，構圖與辨識度不變。 */
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) [data-reg]{
+  --sky:color-mix(in srgb, var(--c-sky) 20%, #0d171d);
+  --far:color-mix(in srgb, var(--c-far) 62%, #0e181e);
+  --mid:color-mix(in srgb, var(--c-mid) 80%, #0b1319);
+  --near:color-mix(in srgb, var(--c-near) 50%, #05090c);
+  --pop:color-mix(in srgb, var(--c-pop) 88%, #ffffff);
+  --pale:color-mix(in srgb, var(--c-pale) 62%, #16222a);
+  --map-sea:color-mix(in srgb, var(--c-mid) 30%, #060d12);
+  --map-land:color-mix(in srgb, var(--c-pop) 10%, #33434e);
+  --map-edge:color-mix(in srgb, #000000 34%, transparent);
+  --map-ink:color-mix(in srgb, var(--c-pop) 12%, #d7e2e7);
+  --map-echo:color-mix(in srgb, var(--c-mid) 55%, var(--map-sea));
+  --map-hill:color-mix(in srgb, #ffffff 15%, var(--map-land));
+  --map-hill2:color-mix(in srgb, #000000 28%, var(--map-land));
   --reg:color-mix(in srgb, var(--rb) 74%, #ffffff);
-  --reg-shade:color-mix(in srgb, var(--rb) 74%, #000000);
-  --reg-tint:color-mix(in srgb, var(--rb) 24%, var(--card));
+  --reg-shade:color-mix(in srgb, var(--rb) 70%, #000000);
+  --reg-tint:color-mix(in srgb, var(--rb) 22%, var(--card));
 }}
 :root[data-theme="dark"] [data-reg]{
+  --sky:color-mix(in srgb, var(--c-sky) 20%, #0d171d);
+  --far:color-mix(in srgb, var(--c-far) 62%, #0e181e);
+  --mid:color-mix(in srgb, var(--c-mid) 80%, #0b1319);
+  --near:color-mix(in srgb, var(--c-near) 50%, #05090c);
+  --pop:color-mix(in srgb, var(--c-pop) 88%, #ffffff);
+  --pale:color-mix(in srgb, var(--c-pale) 62%, #16222a);
+  --map-sea:color-mix(in srgb, var(--c-mid) 30%, #060d12);
+  --map-land:color-mix(in srgb, var(--c-pop) 10%, #33434e);
+  --map-edge:color-mix(in srgb, #000000 34%, transparent);
+  --map-ink:color-mix(in srgb, var(--c-pop) 12%, #d7e2e7);
+  --map-echo:color-mix(in srgb, var(--c-mid) 55%, var(--map-sea));
+  --map-hill:color-mix(in srgb, #ffffff 15%, var(--map-land));
+  --map-hill2:color-mix(in srgb, #000000 28%, var(--map-land));
   --reg:color-mix(in srgb, var(--rb) 74%, #ffffff);
-  --reg-shade:color-mix(in srgb, var(--rb) 74%, #000000);
-  --reg-tint:color-mix(in srgb, var(--rb) 24%, var(--card));
+  --reg-shade:color-mix(in srgb, var(--rb) 70%, #000000);
+  --reg-tint:color-mix(in srgb, var(--rb) 22%, var(--card));
 }
 
 /* ---------- base ---------- */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--paper)}
+/* 紙張纖維：整個介面墊在一張有顆粒的紙上，不是純色底 */
 body{
-  margin:0;background:var(--paper);color:var(--ink);
+  margin:0;color:var(--ink);
+  background-color:var(--paper);
+  background-image:var(--fiber);
+  background-size:150px 150px;
+  background-blend-mode:multiply;
   font:15px/1.68 var(--body);
   -webkit-font-smoothing:antialiased;overflow-wrap:anywhere;
 }
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) body{background-blend-mode:screen} }
+:root[data-theme="dark"] body{background-blend-mode:screen}
 h1,h2,h3{margin:0;font-weight:800;line-height:1.32;text-wrap:balance}
 p{margin:0}
 a{color:inherit;text-decoration:none}
@@ -113,6 +192,10 @@ svg{display:block}
   font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--ink3);
   margin:24px 0 10px
 }
+.sec-title::before{
+  content:"";flex:none;width:8px;height:8px;border-radius:2px;
+  background:var(--reg,var(--brand));transform:rotate(45deg);opacity:.85
+}
 .sec-title::after{content:"";flex:1;height:1px;background:var(--line)}
 .sec-title:first-child{margin-top:2px}
 
@@ -125,28 +208,59 @@ svg{display:block}
   border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);
 }
 #tabbar a{
+  position:relative;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
   padding:8px 2px 9px;font-size:10.5px;font-weight:700;color:var(--ink3);min-height:54px
+}
+#tabbar a>*{position:relative;z-index:1}
+#tabbar a.on::before{
+  content:"";position:absolute;z-index:0;top:5px;left:50%;transform:translateX(-50%);
+  width:46px;height:28px;border-radius:99px;background:var(--brand-soft)
 }
 #tabbar .ti{display:block;width:22px;height:22px}
 #tabbar svg{width:22px;height:22px}
 #tabbar a.on{color:var(--brand)}
 
-/* ---------- 插畫 ---------- */
+/* ---------- 城市印象插畫 ---------- */
 .scene{width:100%;height:100%;display:block}
-.art{position:relative;line-height:0;background:var(--reg-tint)}
+.art{position:relative;line-height:0;background:var(--sky)}
 .art .scene{height:100%}
+/* 顆粒疊在畫面上：淺色主題用 multiply（像鉛筆壓在紙上），
+   深色主題改 soft-light，免得整張畫被壓死 */
+.gr{mix-blend-mode:multiply;opacity:.6}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .gr{mix-blend-mode:soft-light;opacity:.7} }
+:root[data-theme="dark"] .gr{mix-blend-mode:soft-light;opacity:.7}
 
 .stamp{
-  flex:none;width:46px;height:46px;border-radius:13px;overflow:hidden;
-  display:block;border:1px solid var(--line);background:var(--reg-tint)
+  flex:none;width:50px;height:50px;border-radius:14px;overflow:hidden;
+  display:block;background:var(--sky);
+  box-shadow:0 0 0 1px var(--line),0 1px 3px rgba(20,34,42,.1)
 }
 .stamp svg{width:100%;height:100%}
 
+.kmap{width:100%;height:auto;display:block}
+.mapcard{
+  border-radius:18px;overflow:hidden;background:var(--map-sea);
+  border:1px solid var(--line);box-shadow:var(--sh-1)
+}
+.map-foot{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:10px 14px 11px;background:var(--card);border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--ink2);line-height:1.5
+}
+.map-foot .hop{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--reg)}
+.map-foot .sep{color:var(--ink3);font-weight:400}
+.map-foot .km{margin-left:auto;font-family:var(--display);font-size:11px;color:var(--ink3);white-space:nowrap}
+
 /* ---------- hero ---------- */
 .hero{border-radius:20px;overflow:hidden;box-shadow:var(--sh-2);background:var(--card)}
-.hero-art{height:126px;background:var(--reg-tint)}
-.hero-body{background:var(--reg-shade);color:#fff;padding:15px 18px 17px}
+/* 用 aspect-ratio 而不是固定高度：不管螢幕多寬，整張構圖都完整看得到 */
+.hero-art{aspect-ratio:400/132;background:var(--sky)}
+.hero-body{
+  background-color:var(--reg-shade);background-image:var(--fiber);
+  background-size:150px 150px;background-blend-mode:soft-light;
+  color:#fff;padding:15px 18px 17px
+}
 .hero-body .eyebrow{opacity:.72}
 .hero .big{font-family:var(--display);font-size:46px;line-height:1;margin:5px 0 3px;font-variant-numeric:tabular-nums}
 .hero .big small{font-size:15px;margin-left:6px;opacity:.8;font-family:var(--body);font-weight:800}
@@ -170,7 +284,9 @@ svg{display:block}
   background:var(--card);border:1px solid var(--line);box-shadow:var(--sh-1)
 }
 .daycard.now{border-color:var(--reg);box-shadow:0 0 0 3px var(--reg-tint),var(--sh-2)}
-.dc-art{height:88px;position:relative;background:var(--reg-tint)}
+.daycard:active{transform:scale(.994)}
+.daycard{transition:transform .12s ease}
+.dc-art{aspect-ratio:400/112;position:relative;background:var(--sky)}
 .dc-badge{
   position:absolute;left:12px;top:12px;width:42px;height:42px;border-radius:50%;
   background:var(--card);color:var(--reg);display:grid;place-items:center;
@@ -309,7 +425,7 @@ dl{margin:0}
 
 /* ---------- 飯店 ---------- */
 .hotel{border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--sh-1)}
-.hotel-art{height:80px;background:var(--reg-tint)}
+.hotel-art{aspect-ratio:400/94;background:var(--sky)}
 .hotel-b{padding:13px 15px 14px}
 .hotel-b .nights{font-family:var(--display);font-size:11px;color:var(--ink3);letter-spacing:.07em}
 .hotel-b h3{font-size:16.5px;margin-top:3px}

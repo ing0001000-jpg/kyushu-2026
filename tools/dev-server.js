@@ -15,6 +15,12 @@ http.createServer(function (req, res) {
   if (file.indexOf(root) !== 0) { res.writeHead(403).end('forbidden'); return; }
   fs.readFile(file, function (err, buf) {
     if (err) { res.writeHead(404, { 'Content-Type': 'text/plain' }).end('404'); return; }
+    /* 開發時把 index.html 內的本地 css/js 加上時間戳，
+       免得瀏覽器（或預覽面板）拿舊檔來跑。 */
+    if (path.extname(file) === '.html') {
+      buf = Buffer.from(String(buf).replace(/(src|href)="((?!https?:|\/\/|data:)[^"]+\.(?:js|css))"/g,
+        function (m, a, u) { return a + '="' + u + '?t=' + Date.now() + '"'; }), 'utf8');
+    }
     res.writeHead(200, {
       'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream',
       'Cache-Control': 'no-store, no-cache, must-revalidate',
