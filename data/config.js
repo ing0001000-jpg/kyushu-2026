@@ -11,5 +11,5 @@ window.CONFIG = {
     "name": "kyushu-2026",
     "branch": "main"
   },
-  "cacheVersion": 6
+  "cacheVersion": 8
 };

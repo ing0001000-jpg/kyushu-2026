@@ -16,8 +16,7 @@
 </style></head><body>
 <div class="wrap" id="host"></div>
 <div class="small" id="stamps"></div>
-<div id="maps" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px"></div>
-<script>document.write('<script src="../data/geo.js?t='+T+'"><\/script>');document.write('<script src="../data/art.js?t='+T+'"><\/script>');</script>
+<script>document.write('<script src="../data/art.js?t='+T+'"><\/script>');</script>
 <script>
 var NAMES={fukuoka:'福岡・博多',nagasaki:'長崎・佐世保',kumamoto:'熊本',aso:'阿蘇・高千穗',kurokawa:'黑川溫泉',yufuin:'由布院',beppu:'別府',dazaifu:'太宰府',journey:'行前・移動'};
 if(location.search.indexOf('dark')>=0) document.documentElement.setAttribute('data-theme','dark');
@@ -33,13 +32,5 @@ document.getElementById('host').innerHTML=LIST.map(function(k){
     +'</span></div></div>';
 }).join('');
 document.getElementById('stamps').innerHTML=LIST.map(function(k){return ART.stamp(k);}).join('');
-var mk=Q.get('maps'); if(mk!==null){
-  var days=mk?mk.split(','):[null,2,5,7,8];
-  document.getElementById('maps').innerHTML=days.map(function(d){
-    var reg=d?(window.TRIP?null:null):'journey';
-    return '<div class="box" data-reg="'+(d?({2:'nagasaki',4:'kumamoto',5:'aso',6:'kurokawa',7:'yufuin',8:'beppu'}[d]||'journey'):'journey')+'">'
-      +ART.map(d?+d:null)+'<div class="cap"><b>'+(d?('Day '+d):'總覽')+'</b></div></div>';
-  }).join('');
-}
 </script>
 </body></html>

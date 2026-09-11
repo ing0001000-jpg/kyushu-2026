@@ -188,6 +188,7 @@ window.TRIP = {
       "blocks": [
         {
           "part": "am",
+          "where": "桃園 → 福岡",
           "items": [
             {
               "time": "08:00–11:20",
@@ -199,6 +200,7 @@ window.TRIP = {
         },
         {
           "part": "pm",
+          "where": "福岡・博多",
           "items": [
             {
               "time": "",
@@ -226,6 +228,7 @@ window.TRIP = {
         },
         {
           "part": "night",
+          "where": "福岡・博多",
           "items": [
             {
               "time": "",
@@ -253,6 +256,7 @@ window.TRIP = {
       "blocks": [
         {
           "part": "am",
+          "where": "福岡",
           "items": [
             {
               "time": "06:15–09:35",
@@ -270,6 +274,7 @@ window.TRIP = {
         },
         {
           "part": "pm",
+          "where": "佐世保",
           "items": [
             {
               "time": "",
@@ -298,6 +303,7 @@ window.TRIP = {
         },
         {
           "part": "night",
+          "where": "佐世保 → 長崎",
           "items": [
             {
               "time": "",
@@ -319,6 +325,7 @@ window.TRIP = {
       "blocks": [
         {
           "part": "am",
+          "where": "長崎",
           "items": [
             {
               "time": "",
@@ -334,6 +341,7 @@ window.TRIP = {
         },
         {
           "part": "pm",
+          "where": "長崎",
           "items": [
             {
               "time": "",
@@ -349,6 +357,7 @@ window.TRIP = {
         },
         {
           "part": "night",
+          "where": "長崎",
           "items": [
             {
               "time": "",
@@ -370,6 +379,7 @@ window.TRIP = {
       "blocks": [
         {
           "part": "am",
+          "where": "長崎 → 熊本",
           "items": [
             {
               "time": "9:00 前",
@@ -393,6 +403,7 @@ window.TRIP = {
         },
         {
           "part": "pm",
+          "where": "熊本",
           "items": [
             {
               "time": "",
@@ -410,6 +421,7 @@ window.TRIP = {
         },
         {
           "part": "night",
+          "where": "熊本",
           "items": [
             {
               "time": "",
@@ -460,6 +472,7 @@ window.TRIP = {
       "blocks": [
         {
           "part": "am",
+          "where": "熊本 → 高千穗",
           "items": [
             {
               "time": "08:00",
@@ -483,6 +496,7 @@ window.TRIP = {
         },
         {
           "part": "pm",
+          "where": "阿蘇",
           "items": [
             {
               "time": "13:30",
@@ -500,6 +514,7 @@ window.TRIP = {
         },
         {
           "part": "night",
+          "where": "阿蘇 → 熊本",
           "items": [
             {
               "time": "18:00",
@@ -521,6 +536,7 @@ window.TRIP = {
       "blocks": [
         {
           "part": "am",
+          "where": "熊本 → 阿蘇 → 黑川",
           "items": [
             {
               "time": "09:00",
@@ -538,6 +554,7 @@ window.TRIP = {
         },
         {
           "part": "pm",
+          "where": "黑川溫泉",
           "items": [
             {
               "time": "",
@@ -548,6 +565,7 @@ window.TRIP = {
         },
         {
           "part": "night",
+          "where": "黑川溫泉",
           "items": [
             {
               "time": "",
@@ -576,6 +594,7 @@ window.TRIP = {
       "blocks": [
         {
           "part": "am",
+          "where": "黑川 → 九重",
           "items": [
             {
               "time": "09:00–10:00",
@@ -598,6 +617,7 @@ window.TRIP = {
         },
         {
           "part": "pm",
+          "where": "由布院",
           "items": [
             {
               "time": "12:00–14:00",
@@ -626,6 +646,7 @@ window.TRIP = {
         },
         {
           "part": "night",
+          "where": "別府",
           "items": [
             {
               "time": "～21:30",
@@ -660,6 +681,7 @@ window.TRIP = {
       "blocks": [
         {
           "part": "am",
+          "where": "別府",
           "items": [
             {
               "time": "09:00–11:15",
@@ -676,6 +698,7 @@ window.TRIP = {
         },
         {
           "part": "pm",
+          "where": "安心院 → 太宰府",
           "items": [
             {
               "time": "11:55–12:45",
@@ -708,6 +731,7 @@ window.TRIP = {
         },
         {
           "part": "night",
+          "where": "太宰府 → 博多",
           "items": [
             {
               "time": "17:45–18:20",
@@ -741,6 +765,7 @@ window.TRIP = {
       "blocks": [
         {
           "part": "am",
+          "where": "福岡・天神",
           "items": [
             {
               "time": "09:30–11:30",
@@ -758,6 +783,7 @@ window.TRIP = {
         },
         {
           "part": "pm",
+          "where": "福岡 → 機場",
           "items": [
             {
               "time": "13:00–15:30",
@@ -786,6 +812,7 @@ window.TRIP = {
         },
         {
           "part": "night",
+          "where": "福岡 → 桃園",
           "items": [
             {
               "time": "17:10–18:40",

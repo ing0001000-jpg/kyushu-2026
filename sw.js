@@ -1,9 +1,9 @@
 /* 離線快取。改版時把 CACHE 的版本號 +1，舊快取會自動清掉。 */
-var CACHE = 'kyushu2026-v6';
+var CACHE = 'kyushu2026-v8';
 var ASSETS = [
   './', './index.html', './app.css', './app.js', './admin.js',
-  './data/config.js', './data/geo.js', './data/art.js', './data/trip.js', './data/guide.js', './data/places.js', './data/packing.js',
-  './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'
+  './data/config.js', './data/art.js', './data/trip.js', './data/guide.js', './data/places.js', './data/packing.js',
+  './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', function (e) {

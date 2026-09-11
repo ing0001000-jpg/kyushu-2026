@@ -6,7 +6,7 @@ var root = path.join(__dirname, '..');
 var R = function (p) { return fs.readFileSync(path.join(root, p), 'utf8'); };
 
 var css = R('app.css');
-var js = ['data/config.js', 'data/geo.js', 'data/art.js', 'data/trip.js', 'data/guide.js', 'data/places.js', 'data/packing.js', 'app.js', 'admin.js'].map(R).join('\n');
+var js = ['data/config.js', 'data/art.js', 'data/trip.js', 'data/guide.js', 'data/places.js', 'data/packing.js', 'app.js', 'admin.js'].map(R).join('\n');
 var icon = fs.readFileSync(path.join(root, 'icons/icon-192.png')).toString('base64');
 
 /* 取 index.html 的 <body> 內容，去掉 <script src> 標籤 */

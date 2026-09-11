@@ -89,13 +89,6 @@
 [data-reg]{
   --sky:var(--c-sky); --far:var(--c-far); --mid:var(--c-mid);
   --near:var(--c-near); --pop:var(--c-pop); --pale:var(--c-pale);
-  --map-sea:color-mix(in srgb, var(--c-mid) 18%, #d9e6e8);
-  --map-land:color-mix(in srgb, var(--c-pop) 7%, #f8f3e7);
-  --map-edge:color-mix(in srgb, var(--c-near) 24%, transparent);
-  --map-ink:color-mix(in srgb, var(--c-near) 88%, #101820);
-  --map-echo:color-mix(in srgb, var(--c-mid) 62%, var(--map-sea));
-  --map-hill:color-mix(in srgb, var(--c-near) 19%, var(--map-land));
-  --map-hill2:color-mix(in srgb, var(--c-near) 36%, var(--map-land));
   --reg:var(--rb);
   --reg-shade:color-mix(in srgb, var(--rb) 62%, #0b141a);
   --reg-tint:color-mix(in srgb, var(--rb) 14%, var(--card));
@@ -109,13 +102,6 @@
   --near:color-mix(in srgb, var(--c-near) 50%, #05090c);
   --pop:color-mix(in srgb, var(--c-pop) 88%, #ffffff);
   --pale:color-mix(in srgb, var(--c-pale) 62%, #16222a);
-  --map-sea:color-mix(in srgb, var(--c-mid) 30%, #060d12);
-  --map-land:color-mix(in srgb, var(--c-pop) 10%, #33434e);
-  --map-edge:color-mix(in srgb, #000000 34%, transparent);
-  --map-ink:color-mix(in srgb, var(--c-pop) 12%, #d7e2e7);
-  --map-echo:color-mix(in srgb, var(--c-mid) 55%, var(--map-sea));
-  --map-hill:color-mix(in srgb, #ffffff 15%, var(--map-land));
-  --map-hill2:color-mix(in srgb, #000000 28%, var(--map-land));
   --reg:color-mix(in srgb, var(--rb) 74%, #ffffff);
   --reg-shade:color-mix(in srgb, var(--rb) 70%, #000000);
   --reg-tint:color-mix(in srgb, var(--rb) 22%, var(--card));
@@ -127,13 +113,6 @@
   --near:color-mix(in srgb, var(--c-near) 50%, #05090c);
   --pop:color-mix(in srgb, var(--c-pop) 88%, #ffffff);
   --pale:color-mix(in srgb, var(--c-pale) 62%, #16222a);
-  --map-sea:color-mix(in srgb, var(--c-mid) 30%, #060d12);
-  --map-land:color-mix(in srgb, var(--c-pop) 10%, #33434e);
-  --map-edge:color-mix(in srgb, #000000 34%, transparent);
-  --map-ink:color-mix(in srgb, var(--c-pop) 12%, #d7e2e7);
-  --map-echo:color-mix(in srgb, var(--c-mid) 55%, var(--map-sea));
-  --map-hill:color-mix(in srgb, #ffffff 15%, var(--map-land));
-  --map-hill2:color-mix(in srgb, #000000 28%, var(--map-land));
   --reg:color-mix(in srgb, var(--rb) 74%, #ffffff);
   --reg-shade:color-mix(in srgb, var(--rb) 70%, #000000);
   --reg-tint:color-mix(in srgb, var(--rb) 22%, var(--card));
@@ -238,20 +217,6 @@ svg{display:block}
 }
 .stamp svg{width:100%;height:100%}
 
-.kmap{width:100%;height:auto;display:block}
-.mapcard{
-  border-radius:18px;overflow:hidden;background:var(--map-sea);
-  border:1px solid var(--line);box-shadow:var(--sh-1)
-}
-.map-foot{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  padding:10px 14px 11px;background:var(--card);border-top:1px solid var(--line);
-  font-size:12.5px;color:var(--ink2);line-height:1.5
-}
-.map-foot .hop{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--reg)}
-.map-foot .sep{color:var(--ink3);font-weight:400}
-.map-foot .km{margin-left:auto;font-family:var(--display);font-size:11px;color:var(--ink3);white-space:nowrap}
-
 /* ---------- hero ---------- */
 .hero{border-radius:20px;overflow:hidden;box-shadow:var(--sh-2);background:var(--card)}
 /* 用 aspect-ratio 而不是固定高度：不管螢幕多寬，整張構圖都完整看得到 */
@@ -266,6 +231,52 @@ svg{display:block}
 .hero .big small{font-size:15px;margin-left:6px;opacity:.8;font-family:var(--body);font-weight:800}
 .hero h2{font-size:19px;margin-top:3px}
 .hero .meta{font-size:12.5px;opacity:.82;margin-top:6px;line-height:1.55}
+
+/* ---------- 現在：跟著行程走 ---------- */
+.now-k{
+  display:inline-flex;align-items:center;gap:7px;margin-top:10px;
+  font-size:12px;font-weight:800;letter-spacing:.06em;
+  background:rgba(255,255,255,.16);padding:4px 11px 4px 9px;border-radius:99px
+}
+.now-k i{width:8px;height:8px;border-radius:50%;background:#fff;animation:nowpulse 1.8s ease-out infinite}
+@keyframes nowpulse{
+  0%{box-shadow:0 0 0 0 rgba(255,255,255,.75)}
+  70%{box-shadow:0 0 0 8px rgba(255,255,255,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}
+}
+.hero .now-h{font-size:22px;line-height:1.3;margin-top:8px}
+.now-also{font-size:12px;opacity:.82;margin-top:5px;line-height:1.5}
+.now-where{
+  margin-top:12px;padding-top:11px;border-top:1px dashed rgba(255,255,255,.28);
+  font-size:13.5px;font-weight:700;line-height:1.55
+}
+.now-strip{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.now-strip span{font-size:11.5px;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.13);opacity:.85}
+.now-strip span b{font-weight:800;margin-right:5px;opacity:.75}
+.now-strip span.cur{background:#fff;color:var(--reg-shade);opacity:1;font-weight:800}
+.now-strip span.past{opacity:.45;text-decoration:line-through}
+
+.nxlist{padding-top:6px;padding-bottom:6px}
+.nx{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px dashed var(--line)}
+.nx:first-child{border-top:0}
+.nx-t{flex:none;min-width:54px;font-family:var(--display);font-size:12px;color:var(--reg);font-variant-numeric:tabular-nums}
+.nx-b{flex:1;min-width:0;font-size:14.5px;font-weight:800;line-height:1.4}
+.nx-b small{display:block;font-size:12px;font-weight:500;color:var(--ink3);margin-top:2px}
+.nx-go{
+  flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  background:var(--reg-tint);color:var(--reg)
+}
+.nx-go svg{width:17px;height:17px}
+
+.part-w{font-size:12.5px;color:var(--ink3);font-weight:600}
+.ev.now{border-color:var(--reg);box-shadow:0 0 0 3px var(--reg-tint),var(--sh-1)}
+.ev.now::before{width:12px;height:12px;left:-21px;top:16px;box-shadow:0 0 0 3px var(--paper),0 0 0 7px var(--reg-tint)}
+.ev-now{
+  float:right;margin:0 0 4px 8px;font-size:11px;font-weight:800;color:#fff;
+  background:var(--reg);padding:2px 9px;border-radius:99px
+}
+.ev.past{opacity:.55}
+.ev.past::before{background:var(--line2)}
 
 /* ---------- 進度 ---------- */
 .prog-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
@@ -372,6 +383,27 @@ svg{display:block}
 .chk-t{display:block;font-size:14.5px;font-weight:700}
 .chk-d{display:block;font-size:12.5px;color:var(--ink3);margin-top:2px;line-height:1.55}
 .chk input:checked~.chk-b .chk-t{text-decoration:line-through;color:var(--ink3);font-weight:500}
+
+/* 自己要帶的 */
+.mine-row{display:flex;align-items:stretch;border-top:1px solid var(--line)}
+.grp-h+.mine-row{border-top:0}
+.mine-row .chk{flex:1;border-top:0;min-width:0}
+.mine-del{
+  flex:none;width:46px;border:0;background:none;color:var(--ink3);
+  font-size:20px;line-height:1;cursor:pointer
+}
+.mine-del:active{color:var(--dgr)}
+.mine-add{display:flex;gap:8px;padding:12px 15px;border-top:1px solid var(--line);background:var(--card2)}
+.grp-h+.mine-add{border-top:0}
+.mine-add input{
+  flex:1;min-width:0;font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink)
+}
+.mine-add input:focus{outline:2px solid var(--ok);outline-offset:0;border-color:transparent}
+.mine-add button{
+  flex:none;font:inherit;font-size:14px;font-weight:800;padding:0 16px;border-radius:12px;
+  border:0;background:var(--ok);color:#fff;cursor:pointer
+}
 .chk .star{color:var(--brand)}
 .chk-by{font-weight:800;color:var(--brand)}
 

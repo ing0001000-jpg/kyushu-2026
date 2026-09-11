@@ -46,13 +46,14 @@
 
   /* ---------- storage (never throw) ---------- */
   var KEY = 'kyushu2026:v1';
-  var state = { theme: null, checks: {}, rate: 0.215 };
+  var state = { theme: null, checks: {}, rate: 0.215, mine: [] };
   try {
     var raw = localStorage.getItem(KEY);
     if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') {
       state.theme = p.theme || null;
       state.checks = p.checks || {};
       if (typeof p.rate === 'number' && p.rate > 0) state.rate = p.rate;
+      if (Array.isArray(p.mine)) state.mine = p.mine.filter(function (x) { return x && x.id && x.t; });
     } }
   } catch (e) { /* 無痕模式／封鎖儲存時照常運作 */ }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
@@ -66,9 +67,22 @@
   function mapUrl(q) { return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); }
   function yen(n) { return 'JPY ' + Number(n).toLocaleString('en-US'); }
   function dateObj(s) { var a = s.split('-'); return new Date(+a[0], +a[1] - 1, +a[2]); }
+  /* 預覽用：網址加 ?now=2026-09-28T07:30 就能看到那個時間點的「今天」 */
+  (function () {
+    var m = /[?&]now=([0-9T:\-]+)/.exec(location.search);
+    if (m) window.__mockNow = m[1];
+  })();
+  function nowDate() {
+    if (window.__mockNow) {
+      var a = window.__mockNow.split(/[-T:]/);
+      return new Date(+a[0], +a[1] - 1, +a[2], +(a[3] || 0), +(a[4] || 0));
+    }
+    return new Date();
+  }
+  function nowMins() { var n = nowDate(); return n.getHours() * 60 + n.getMinutes(); }
   function today() {
     if (window.__mockDate) return dateObj(window.__mockDate);
-    var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    var n = nowDate(); return new Date(n.getFullYear(), n.getMonth(), n.getDate());
   }
   function dayDiff(a, b) { return Math.round((b - a) / 86400000); }
   function fmtMD(s) { var a = s.split('-'); return (+a[1]) + '/' + (+a[2]); }
@@ -91,6 +105,161 @@
     applyTheme(); save();
   });
 
+  /* ---------- 現在進行到哪 ----------
+     把當天每一項排上時間軸：有寫時間的照寫的，沒寫的平均塞進前後兩個有寫的時間之間
+     （上午從 9:00、下午從 12:00、晚上從 18:00 算起，晚上排到 22:00）。
+     每一項的結束時間＝寫明的結束時間，沒寫就算到下一項開始。 */
+  var PART_WIN = { am: [540, 720], pm: [720, 1080], night: [1080, 1320] };
+  var PART_ORD = ['am', 'pm', 'night'];
+  function hmOf(s) { var m = /(\d{1,2}):(\d{2})/.exec(s); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+  function hhmm(m) { m = Math.round(m); return Math.floor(m / 60) + ':' + ('0' + (m % 60)).slice(-2); }
+  function clip(s, n) { s = s || ''; return s.length > n ? s.slice(0, n) + '…' : s; }
+  function spanOf(t) {
+    t = (t || '').trim();
+    var all = t.match(/\d{1,2}:\d{2}/g) || [];
+    if (all.length >= 2) return [hmOf(all[0]), hmOf(all[1])];
+    if (all.length === 1) return /^[～~]/.test(t) ? [null, hmOf(all[0])] : [hmOf(all[0]), null];
+    if (/午餐/.test(t)) return [720, null];
+    if (/晚餐/.test(t)) return [1080, null];
+    return [null, null];
+  }
+  function dayTimeline(day) {
+    var tl = [];
+    day.blocks.forEach(function (b) {
+      var w = PART_WIN[b.part] || [0, 1440];
+      var its = b.items.map(function (it) { var sp = spanOf(it.time); return { it: it, part: b.part, s: sp[0], e: sp[1], est: sp[0] == null, w: w }; });
+      var i = 0, j, k, cnt, from, to, step;
+      while (i < its.length) {
+        if (its[i].s != null) { i++; continue; }
+        j = i; while (j < its.length && its[j].s == null) j++;
+        cnt = j - i;
+        to = j < its.length ? its[j].s : w[1];
+        if (i === 0) { from = w[0]; step = (to - from) / cnt; for (k = 0; k < cnt; k++) its[i + k].s = from + step * k; }
+        else if (its[i - 1].e != null) { from = its[i - 1].e; step = (to - from) / cnt; for (k = 0; k < cnt; k++) its[i + k].s = from + step * k; }
+        else { from = its[i - 1].s; step = (to - from) / (cnt + 1); for (k = 0; k < cnt; k++) its[i + k].s = from + step * (k + 1); }
+        i = j;
+      }
+      its.forEach(function (x) { if (x.est) x.s = Math.round(x.s / 5) * 5; tl.push(x); });
+    });
+    tl.forEach(function (x, i) {
+      var nx = tl[i + 1];
+      x.end = x.e != null ? x.e : (nx && nx.s > x.s ? nx.s : x.w[1]);
+      if (x.end <= x.s) x.end = x.s + 30;
+    });
+    return tl;
+  }
+  function nowStatus(day, mins) {
+    var tl = dayTimeline(day), cur = [], next = null;
+    tl.forEach(function (x) {
+      if (x.s <= mins && mins < x.end) cur.push(x);
+      else if (x.s > mins && !next) next = x;
+    });
+    cur.sort(function (a, b) { return b.s - a.s; });
+    return { tl: tl, mins: mins, cur: cur[0] || null, also: cur.slice(1), next: next };
+  }
+  function isTodayDay(day) {
+    var t = today(), s = dateObj(TRIP.start);
+    return t >= s && t <= dateObj(TRIP.end) && dayDiff(s, t) === day.n - 1;
+  }
+  /* 航班：從標籤裡抓航班號與是哪一團，例如「虎航 IT240・小阿姨團 4 人」 */
+  function flightOf(it) {
+    var m = /\b(BR|IT|CI|JX|MM|GK)\s?\d{2,4}\b/.exec((it.tag || '') + ' ' + (it.title || ''));
+    if (!m) return null;
+    var parts = (it.tag || '').split('・');
+    return { code: m[0], air: (parts[0] || '').replace(m[0], '').trim(), who: (parts[1] || '').trim() };
+  }
+  function partNow(st) { return st.cur ? st.cur.part : st.next ? st.next.part : 'night'; }
+
+  function whereHtml(day, part) {
+    var bs = day.blocks.filter(function (b) { return b.items.length && b.where; });
+    if (!bs.length) return '';
+    var pi = PART_ORD.indexOf(part), curB = null, line = '', i;
+    for (i = 0; i < bs.length; i++) if (bs[i].part === part) curB = bs[i];
+    if (curB) {
+      if (bs.every(function (b) { return b.where === curB.where; })) line = '今天都在' + curB.where;
+      else {
+        /* 「A → B」這種是一段移動，不一定此刻就在路上，所以不說「現在在」 */
+        var moving = /→/.test(curB.where), dest = curB.where.split('→').pop().trim();
+        line = moving ? PART[curB.part][0] + '這段：' + curB.where : '現在在' + curB.where;
+        for (i = 0; i < bs.length; i++) {
+          var b = bs[i];
+          if (PART_ORD.indexOf(b.part) <= pi || b.where === curB.where) continue;
+          /* 下一段就是剛才的目的地（例如「長崎 → 熊本」之後的「熊本」），不用再講一次 */
+          if (!/→/.test(b.where) && b.where.indexOf(dest) === 0) break;
+          line += /→/.test(b.where) ? '，' + PART[b.part][0] + '移動：' + b.where
+                                     : '，' + PART[b.part][0] + '往' + b.where + '出發';
+          break;
+        }
+      }
+    }
+    /* 動線小籤：連續同一個地方就合併 */
+    var groups = [];
+    bs.forEach(function (b) {
+      var g = groups[groups.length - 1];
+      if (g && g.where === b.where) g.parts.push(b.part); else groups.push({ where: b.where, parts: [b.part] });
+    });
+    var strip = groups.length < 2 ? '' : '<div class="now-strip">' + groups.map(function (g) {
+      var idx = g.parts.map(function (p) { return PART_ORD.indexOf(p); });
+      var cls = idx.indexOf(pi) >= 0 ? 'cur' : (Math.max.apply(null, idx) < pi ? 'past' : '');
+      var lb = g.parts.length === 3 ? '全天' : g.parts.map(function (p) { return PART[p][0]; }).join('・');
+      return '<span' + (cls ? ' class="' + cls + '"' : '') + '><b>' + lb + '</b>' + esc(g.where) + '</span>';
+    }).join('') + '</div>';
+    return (line ? '<div class="now-where">' + esc(line) + '</div>' : '') + strip;
+  }
+
+  function nowHeroHtml(day, st, hotel) {
+    var k, h2, sub = '', f;
+    if (st.cur) {
+      k = '現在';
+      f = flightOf(st.cur.it);
+      if (f) {
+        h2 = (f.who ? f.who + ' ' : '') + '搭機中 ✈';
+        sub = st.cur.it.title + '　' + (f.air ? f.air + ' ' : '') + f.code + (st.cur.e != null ? '，' + hhmm(st.cur.e) + ' 抵達' : '');
+      } else {
+        h2 = st.cur.it.title;
+        sub = st.cur.it.time || '';
+        if (st.cur.it.desc) sub += (sub ? '　' : '') + clip(st.cur.it.desc, 40);
+      }
+    } else if (st.next) {
+      k = st.next === st.tl[0] ? '今天第一站' : '下一站';
+      f = flightOf(st.next.it);
+      if (f) {
+        h2 = (f.who ? f.who + ' ' : '') + '準備搭機 ✈';
+        sub = st.next.it.title + '　' + (f.air ? f.air + ' ' : '') + f.code + '，' + hhmm(st.next.s) + ' 起飛';
+      } else {
+        h2 = st.next.it.title;
+        sub = (st.next.est ? '大約 ' : '') + hhmm(st.next.s) + ' 開始';
+      }
+    } else {
+      k = '今天行程結束';
+      h2 = hotel ? '回 ' + hotel.name + ' 休息' : '一路平安，歡迎回家';
+      sub = hotel ? (hotel.access || hotel.addr || '') : '';
+    }
+    var also = st.also.length ? '<div class="now-also">同一時間：' + st.also.map(function (x) {
+      var g = flightOf(x.it); return esc(g && g.who ? g.who + '　' + x.it.title : x.it.title);
+    }).join('、') + '</div>' : '';
+    return '<div class="now-k"><i></i>' + esc(k) + '</div>'
+      + '<h2 class="now-h">' + esc(h2) + '</h2>'
+      + (sub ? '<div class="meta">' + esc(sub) + '</div>' : '')
+      + also
+      + whereHtml(day, partNow(st));
+  }
+
+  function nextCardHtml(st) {
+    var up = st.tl.filter(function (x) { return x.s > st.mins; });
+    if (!st.cur) up = up.slice(1);          /* 沒有進行中的時候，第一項已經在上面大字顯示了 */
+    up = up.slice(0, 3);
+    if (!up.length) return '';
+    return '<div class="sec-title">接下來</div><div class="card card-p nxlist">' + up.map(function (x) {
+      var f = flightOf(x.it);
+      return '<div class="nx"><div class="nx-t">' + (x.est ? '約 ' : '') + hhmm(x.s) + '</div>'
+        + '<div class="nx-b">' + esc(x.it.title)
+        + '<small>' + esc(f && f.who ? f.who + '・' + f.code : PART[x.part][0] + (x.it.desc ? '・' + clip(x.it.desc, 22) : '')) + '</small></div>'
+        + (x.it.map ? '<a class="nx-go" target="_blank" rel="noopener" href="' + esc(mapUrl(x.it.map)) + '" aria-label="導航到 ' + esc(x.it.title) + '">' + I('nav') + '</a>' : '')
+        + '</div>';
+    }).join('') + '</div>';
+  }
+
   /* ---------- fragments ---------- */
   function hotelOf(key) {
     if (!key) return null;
@@ -109,8 +278,9 @@
     return '<a class="btn" target="_blank" rel="noopener" href="' + esc(mapUrl(q)) + '">'
       + I('nav') + (label || '導航 · ' + esc(q)) + '</a>';
   }
-  function eventHtml(it) {
-    var h = '<div class="ev">';
+  function eventHtml(it, cls) {
+    var h = '<div class="ev' + (cls ? ' ' + cls : '') + '">';
+    if (cls === 'now') h += '<span class="ev-now">進行中</span>';
     if (it.time) h += '<div class="ev-time">' + esc(it.time) + '</div>';
     h += '<div class="ev-title">' + esc(it.title) + '</div>';
     if (it.desc) h += '<div class="ev-desc">' + esc(it.desc) + '</div>';
@@ -119,12 +289,21 @@
     return h + '</div>';
   }
   function blocksHtml(day) {
+    /* 今天的話，標出「進行中」和已經過去的項目 */
+    var st = isTodayDay(day) ? nowStatus(day, nowMins()) : null;
+    function cls(it) {
+      if (!st) return '';
+      if ((st.cur && st.cur.it === it) || st.also.some(function (x) { return x.it === it; })) return 'now';
+      for (var i = 0; i < st.tl.length; i++) if (st.tl[i].it === it) return st.tl[i].end <= st.mins ? 'past' : '';
+      return '';
+    }
     return day.blocks.map(function (b) {
       if (!b.items.length) return '';
       var pt = PART[b.part];
       return '<div class="part"><div class="part-h">' + I(pt[1]) + '<b>' + pt[0] + '</b>'
+        + (b.where ? '<span class="part-w">' + esc(b.where) + '</span>' : '')
         + '<span class="pill">' + b.items.length + '</span></div>'
-        + '<div class="tl">' + b.items.map(eventHtml).join('') + '</div></div>';
+        + '<div class="tl">' + b.items.map(function (it) { return eventHtml(it, cls(it)); }).join('') + '</div></div>';
     }).join('');
   }
   function hotelCard(h, heading) {
@@ -153,6 +332,7 @@
   function allPackIds() {
     var ids = [];
     PACKING.forEach(function (g) { g.items.forEach(function (i) { ids.push('p:' + g.id + ':' + i.id); }); });
+    state.mine.forEach(function (x) { ids.push('m:' + x.id); });
     return ids;
   }
   function doneCount(ids) { var n = 0; ids.forEach(function (i) { if (state.checks[i]) n++; }); return n; }
@@ -204,23 +384,6 @@
       + '</div></a>';
   }
 
-  /* ---------- 路線地圖 ---------- */
-  function mapCard(n) {
-    var stops = (GEO.route[n] || []), foot, i, parts = [];
-    if (stops.length < 2) {
-      foot = '<span class="hop">' + esc(GEO.places[stops[0]].n) + '</span>'
-           + '<span class="sep">整天都在這一帶</span>';
-    } else {
-      for (i = 0; i < stops.length; i++) parts.push('<span class="hop">' + esc(GEO.places[stops[i]].n) + '</span>');
-      foot = parts.join('<span class="sep">→</span>');
-    }
-    return '<div class="mapcard">' + ART.map(n) + '<div class="map-foot">' + foot + '</div></div>';
-  }
-  function mapOverview() {
-    return '<div class="mapcard" data-reg="journey">' + ART.map(null)
-      + '<div class="map-foot"><span class="hop">福岡</span><span class="sep">出發，順時針繞北九州一圈再回到福岡</span></div></div>';
-  }
-
   /* ---------- views ---------- */
   function viewToday() {
     var t = today(), s = dateObj(TRIP.start), e = dateObj(TRIP.end), h = '';
@@ -235,8 +398,6 @@
         + '<div class="big">' + left + '<small>天</small></div>'
         + '<h2>' + esc(TRIP.title) + '</h2>'
         + '<div class="meta">' + esc(TRIP.party) + '</div></div></div>';
-
-      h += '<div class="sec-title">9 天路線</div>' + mapOverview();
 
       h += '<div class="sec-title">準備進度</div><div class="card card-p stack">'
         + '<div><div class="prog-row"><b>行前待辦</b><span>' + tDone + ' / ' + tIds.length + '</span></div>'
@@ -268,14 +429,17 @@
     } else {
       var idx = dayDiff(s, t), day = TRIP.days[idx], reg = regOf(day.n), hotel = hotelOf(day.hotel);
 
+      var st = nowStatus(day, nowMins());
+
+      /* 最上面跟著行程走：現在在做什麼、在哪裡、接下來往哪 */
       h += '<div class="hero" data-reg="' + esc(reg) + '"><div class="hero-art">' + scene(reg) + '</div>'
-        + '<div class="hero-body"><div class="eyebrow">Day ' + day.n + ' · ' + esc(day.dow) + '</div>'
-        + '<div class="big">' + fmtMD(day.date) + '</div>'
-        + '<h2>' + esc(day.title) + '</h2>'
-        + '<div class="meta">' + esc(day.region) + '</div></div></div>';
+        + '<div class="hero-body"><div class="eyebrow">Day ' + day.n + ' · ' + fmtMD(day.date) + ' ' + esc(day.dow)
+        + ' · ' + PART[partNow(st)][0] + ' ' + hhmm(st.mins) + '</div>'
+        + nowHeroHtml(day, st, hotel)
+        + '</div></div>';
 
       h += '<div data-reg="' + esc(reg) + '">';
-      h += '<div class="sec-title">今天往哪裡跑</div>' + mapCard(day.n);
+      h += nextCardHtml(st);
       if (day.alerts) h += '<div class="stack" style="margin-top:12px">' + alertsHtml(day.alerts) + '</div>';
       if (day.drive) h += '<div class="drive" style="margin-top:12px">' + I('car') + '<span>' + esc(day.drive) + '</span></div>';
       h += blocksHtml(day) + '</div>';
@@ -289,8 +453,7 @@
   }
 
   function viewPlan() {
-    return '<div class="sec-title">路線總覽</div>' + mapOverview()
-      + '<div class="sec-title">9 天行程</div><div class="stack">'
+    return '<div class="sec-title">9 天行程</div><div class="stack">'
       + TRIP.days.map(function (d) { return dayCard(d); }).join('') + '</div>'
       + '<div class="card card-p" style="margin-top:18px"><div class="muted">'
       + '行程內容擷取自《2026九州行程0927~1005.xls》，未經改寫。營業時間與價格請以現場公告為準。</div></div>';
@@ -309,7 +472,6 @@
       + '<div class="meta">' + esc(d.region) + '</div></div></div>';
 
     h += '<div data-reg="' + esc(reg) + '">';
-    h += '<div class="sec-title">今天往哪裡跑</div>' + mapCard(d.n);
     if (d.alerts) h += '<div class="stack" style="margin-top:12px">' + alertsHtml(d.alerts) + '</div>';
     if (d.drive) h += '<div class="drive" style="margin-top:12px">' + I('car') + '<span>' + esc(d.drive) + '</span></div>';
     h += blocksHtml(d) + '</div>';
@@ -330,7 +492,22 @@
     var h = '<div class="card card-p">'
       + '<div class="prog-row"><b>打包進度</b><span>' + done + ' / ' + ids.length + '</span></div>'
       + '<div class="prog"><i style="width:' + (ids.length ? done / ids.length * 100 : 0) + '%"></i></div>'
-      + '<div class="muted" style="margin-top:10px">勾選狀態只存在這支手機的瀏覽器裡，不會同步給其他人。</div></div>';
+      + '<div class="muted" style="margin-top:10px">勾選狀態和自己加的項目都只存在這支手機的瀏覽器裡，不會同步給其他人。</div></div>';
+
+    /* 自己要帶的：每個人各自輸入，存在自己手機 */
+    var mi = state.mine.map(function (x) { return 'm:' + x.id; }), md = doneCount(mi);
+    h += '<div class="grp mine" style="margin-top:12px">'
+      + '<div class="grp-h"><span class="gi">🎒</span><b>我自己要帶的</b>'
+      + '<span class="cnt">' + md + '/' + mi.length + '</span></div>'
+      + state.mine.map(function (x) {
+          var id = 'm:' + x.id;
+          return '<div class="mine-row"><label class="chk"><input type="checkbox" data-k="' + esc(id) + '"' + (state.checks[id] ? ' checked' : '') + '>'
+            + '<span class="chk-b"><span class="chk-t">' + esc(x.t) + '</span></span></label>'
+            + '<button type="button" class="mine-del" data-del="' + esc(x.id) + '" aria-label="刪除「' + esc(x.t) + '」">×</button></div>';
+        }).join('')
+      + '<form class="mine-add" data-form="mine" autocomplete="off">'
+      + '<input name="t" maxlength="60" enterkeyhint="done" placeholder="' + (state.mine.length ? '再加一項…' : '例如：隱形眼鏡藥水、行動電源') + '" aria-label="新增自己要帶的項目">'
+      + '<button type="submit">新增</button></form></div>';
 
     h += '<div class="stack" style="margin-top:12px">' + PACKING.map(function (g) {
       var gi = g.items.map(function (i) { return 'p:' + g.id + ':' + i.id; }), gd = doneCount(gi);
@@ -595,6 +772,46 @@
     var el = e.target;
     if (!el || el.type !== 'checkbox' || !el.dataset.k) return;
     if (el.checked) state.checks[el.dataset.k] = 1; else delete state.checks[el.dataset.k];
+    save();
+    var y = window.pageYOffset;
+    render();
+    window.scrollTo(0, y);
+  });
+
+  /* 今天頁跟著時間走：每分鐘、以及從背景切回來時重畫一次（正在打字時不打擾） */
+  function refreshNow() {
+    if (document.visibilityState === 'hidden' || gateNeeded()) return;
+    if (!/^#\/(today|day\/)/.test(location.hash || '#/today')) return;
+    var a = document.activeElement;
+    if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) return;
+    var y = window.pageYOffset;
+    render();
+    window.scrollTo(0, y);
+  }
+  setInterval(refreshNow, 60000);
+  document.addEventListener('visibilitychange', refreshNow);
+
+  /* 自己要帶的項目：新增／刪除 */
+  document.getElementById('view').addEventListener('submit', function (e) {
+    var f = e.target;
+    if (!f || f.dataset.form !== 'mine') return;
+    e.preventDefault();
+    var t = (f.elements.t.value || '').replace(/\s+/g, ' ').trim();
+    if (!t) return;
+    state.mine.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: t.slice(0, 60) });
+    save();
+    var y = window.pageYOffset;
+    render();
+    window.scrollTo(0, y);
+    var inp = document.querySelector('form[data-form="mine"] input');
+    if (inp) inp.focus({ preventScroll: true });
+  });
+  document.getElementById('view').addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-del]');
+    if (!b) return;
+    var id = b.dataset.del;
+    state.mine = state.mine.filter(function (x) { return x.id !== id; });
+    delete state.checks['m:' + id];
     save();
     var y = window.pageYOffset;
     render();

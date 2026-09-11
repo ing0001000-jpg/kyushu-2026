@@ -1,0 +1,80 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>App 圖示</title>
+<!--
+  App 圖示的原稿。跟城市插畫用同一套手繪濾鏡、紙張顆粒與「出發」色盤。
+  用 Chrome headless 截圖成 PNG（見 README「App 圖示」）：
+    ?size=512  → icons/icon-512.png（也當 maskable）
+    ?size=192  → icons/icon-192.png
+    ?size=180  → icons/apple-touch-icon.png
+  重要的東西（鳥居、火山口）都放在中央 80% 的圓裡，Android 裁成圓形也不會切到。
+-->
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden }
+  svg { display: block }
+  .gr { mix-blend-mode: multiply; opacity: .42 }
+</style>
+<script src="../data/art.js"></script>
+<body>
+<script>
+(function () {
+  var size = +(new URLSearchParams(location.search).get('size') || 512);
+  var c = { sky: '#f6e7d2', far: '#f0b878', mid: '#2e6d8e', sea: '#24566f', near: '#24333d', pop: '#d9482f', pale: '#fff6e8' };
+
+  function P(d, f, o) { return '<path d="' + d + '" fill="' + f + '"' + (o ? ' opacity="' + o + '"' : '') + '/>'; }
+  function S(d, col, w, o) {
+    return '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' + w +
+      '" stroke-linecap="round" stroke-linejoin="round"' + (o ? ' opacity="' + o + '"' : '') + '/>';
+  }
+  function R(x, y, w, h, f, o) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + f + '"' + (o ? ' opacity="' + o + '"' : '') + '/>'; }
+  function C(x, y, r, f, o) { return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + f + '"' + (o ? ' opacity="' + o + '"' : '') + '/>'; }
+  function hand(s) { return '<g filter="url(#hz-hand)">' + s + '</g>'; }
+  function hand2(s) { return '<g filter="url(#hz-hand2)">' + s + '</g>'; }
+
+  var o = '';
+  /* 天空 */
+  o += R(-8, -8, 528, 528, c.sky);
+  /* 太陽：圖示般的大圓 */
+  o += hand(C(366, 142, 64, c.pop, '.88'));
+  /* 雲 */
+  o += hand2(
+    '<ellipse cx="118" cy="128" rx="58" ry="17" fill="' + c.pale + '" opacity=".9"/>' +
+    '<ellipse cx="146" cy="112" rx="30" ry="18" fill="' + c.pale + '" opacity=".9"/>'
+  );
+  /* 遠山（暮色橘） */
+  o += hand(P('M-10 318 L60 280 L132 306 L196 272 L262 300 L330 268 L404 300 L470 276 L522 294 L522 380 L-10 380 Z', c.far));
+  /* 火山：平頂的火口，像阿蘇 */
+  o += hand(
+    P('M34 356 L198 198 Q256 184 314 198 L478 356 Z', c.mid) +
+    P('M256 190 L314 198 L478 356 L300 356 Z', c.near, '.22')
+  );
+  /* 火口冒出的煙 */
+  o += hand2(
+    S('M244 186 q-16 -20 0 -40 t0 -40', c.pale, 10, '.85') +
+    S('M272 184 q14 -16 0 -32 t0 -32', c.pale, 8, '.6')
+  );
+  /* 海 */
+  o += hand(P('M-10 344 C 110 330 214 356 330 340 C 420 328 468 344 522 336 L522 522 L-10 522 Z', c.sea));
+  o += S('M52 400 q14 -8 28 0 t28 0', c.pale, 5, '.4') +
+       S('M392 392 q14 -8 28 0 t28 0', c.pale, 5, '.4') +
+       S('M404 444 q14 -8 28 0 t28 0', c.pale, 5, '.28') +
+       S('M60 452 q14 -8 28 0 t28 0', c.pale, 5, '.28');
+  /* 海中的朱紅鳥居（接續舊圖示的鳥居） */
+  o += hand2(
+    P('M108 262 Q256 242 404 262 L394 282 Q256 266 118 282 Z', c.pop) +
+    R(136, 282, 240, 13, c.pop) +
+    R(246, 295, 20, 24, c.pop) +
+    R(144, 320, 224, 16, c.pop) +
+    R(166, 282, 26, 150, c.pop) +
+    R(320, 282, 26, 150, c.pop)
+  );
+  /* 鳥居在水面的倒影 */
+  o += S('M160 446 h44 M314 446 h44', c.pop, 6, '.35') + S('M170 462 h26 M324 462 h26', c.pop, 5, '.22');
+  /* 紙張顆粒 */
+  o += '<rect class="gr" x="0" y="0" width="512" height="512" fill="url(#hz-grain)"/>';
+
+  document.body.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size +
+    '" viewBox="0 0 512 512"><defs>' + ART.defs + '</defs>' + o + '</svg>';
+})();
+</script>
+</body>
