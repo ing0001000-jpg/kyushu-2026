@@ -1,10 +1,33 @@
-# 九州旅遊助手 2026/09/27–10/05
+# 旅遊助手
 
 **已上線：https://ing0001000-jpg.github.io/kyushu-2026/**
 
 手機用 Safari／Chrome 開上面的網址 →「加入主畫面」，桌面會出現⛩️圖示，點開是全螢幕、沒有網址列，離線也能用。
 
-給 6 人九州自駕團用的手機 App。純 HTML／CSS／JS，**沒有任何外部依賴**（不載入 CDN、不載入網路字型），所以在日本沒訊號時也能用。
+家人朋友出國用的手機 App。純 HTML／CSS／JS，**沒有任何外部依賴**（不載入 CDN、不載入網路字型），所以在國外沒訊號時也能用。
+
+## 一個 App，多趟旅行
+
+引擎（`app.js` / `app.css` / `admin.js`）與行程資料是分開的：
+
+```
+data/site.js           站台設定 + 行程索引（只有選單需要的欄位）
+data/art/_core.js      繪圖工具、圖示、通用場景
+data/art/jp-kyushu.js  插畫包：九州 8 城（跨旅行共用，再去同一城市直接指回來）
+trips/kyushu-2026/     這趟的 trip / guide / places / packing
+```
+
+- 網址帶行程代號：`#/kyushu-2026/today`、`#/kyushu-2026/day/3`，可以直接分享給旅伴
+- 進 App 後在標題列點行程名（或 `#/trips`）切換行程；舊書籤 `#/today` 會自動導到上次看的那趟
+- 只有**點進去的那趟**才會載入資料，Service Worker 第一次瀏覽時自動把它收進離線快取，**新增行程不必改 `sw.js`**
+- 打包勾選、自訂項目、匯率是每趟各一份（`hz:<行程>:state`）；深淺色主題與入口密碼是全站共用
+- 入口密碼一組，過了就看得到所有行程 —— 只是擋路人與搜尋引擎，不是資安機制
+
+### 新增一趟旅行
+
+後台 →「設定與發布」→「行程」，填代號／名稱／起訖日／主色 →「新增行程」。
+會產生一份骨架存成這台裝置的草稿（天數自動依日期展開），編輯完按「發布到 GitHub」才上線。
+新行程還沒有專屬插畫時會退回通用場景，不會壞掉。
 
 ## 五個分頁
 
@@ -63,7 +86,7 @@ node tools/build-single.js
 
 第一次打開會要求填**名字**和**進入密碼**，通過後記在該台裝置，之後不再問。名字只存在自己手機上，不會回傳給任何人。
 
-密碼在後台的「設定與發布」裡自己設，`data/config.js` 只存 SHA-256 雜湊，看不到密碼原文。要設兩組：
+密碼在後台的「設定與發布」裡自己設，`data/site.js` 只存 SHA-256 雜湊，看不到密碼原文。要設兩組：
 
 | | 給誰 | 用途 |
 |---|---|---|
@@ -101,31 +124,47 @@ node tools/build-single.js
 
 那組權杖等於這個 repo 的鑰匙。手機借人、遺失或換機時，記得到 GitHub 設定頁把它撤銷。
 
-> 忘記後台密碼：清掉瀏覽器對這個網站的資料，或直接在電腦上編輯 `data/config.js` 把 `gate` 的欄位清空，再 push。
+> 忘記後台密碼：清掉瀏覽器對這個網站的資料，或直接在電腦上編輯 `data/site.js` 把 `gate` 的欄位清空，再 push。
 
 ## 匯入 Google 地圖收藏
 
-`data/places.js` 是從 Google 地圖的「已儲存清單」匯入的，顯示在「指南」每一區的「我的收藏」，每筆都用座標導航。
+`trips/<行程>/places.js` 是從 Google 地圖的「已儲存清單」匯入的，顯示在「指南」每一區的「我的收藏」，每筆都用座標導航。
 
 ```bash
-node tools/import-places.js <匯出檔.csv|.json|.geojson|.kml> [--resolve]
+node tools/import-places.js <匯出檔.csv|.json|.geojson|.kml> [--trip=kyushu-2026] [--resolve]
 ```
 
 - 吃 Google 地圖清單匯出的 CSV、Takeout 的 GeoJSON、我的地圖的 KML
-- 用座標判斷屬於哪一區（離八個區域錨點最近且 40 公里內），沒座標就退回名稱關鍵字比對，都判不出來的丟進「未分區」
+- 分區錨點與關鍵字從 `trips/<行程>/trip.js` 的 `regions[]` 讀（`anchor`、`keywords`），讀不到才用工具內建的九州預設值
+- 用座標判斷屬於哪一區（離錨點最近且 40 公里內），沒座標就退回名稱關鍵字比對，都判不出來的丟進「未分區」
 - CSV 匯出常常只有短網址沒座標，加 `--resolve` 會連網展開後再判斷
-- **會整個覆蓋 `data/places.js`**，在後台改過的收藏地點會被蓋掉
+- **會整個覆蓋 `trips/<行程>/places.js`**，在後台改過的收藏地點會被蓋掉
 
 ## 改內容
 
-日常改行程建議直接用後台（上一節）。要在電腦上改檔案的話，所有內容都在 `data/`，改完重整就生效（改單檔版要重跑 `node tools/build-single.js`）：
+日常改行程建議直接用後台（上一節）。要在電腦上改檔案的話，改完重整就生效（改單檔版要重跑 `node tools/build-single.js`）：
 
-- `data/trip.js` — 9 天行程、航班、租車、住宿、費用。`map` 欄位放日文地名，導航鈕用 Google Maps 搜尋 URL 帶入，所以不需要經緯度。
-- `data/guide.js` — 地區美食景點、實用資訊、日文短句
-- `data/packing.js` — 打包清單（`window.PACKING`）與行前待辦（`window.TODOS`）
-- `data/places.js` — 從 Google 地圖收藏匯入的地點，由 `tools/import-places.js` 或後台產生
-- `data/config.js` — 密碼雜湊與 GitHub repo 設定，由後台產生
-- `data/art.js` — 城市印象插畫（9 個場景 + 線性圖示），全部是內嵌 SVG，零外部請求。
+- `trips/<行程>/trip.js` — 每天行程、航班、租車、住宿、費用、`regions[]`。`map` 欄位放當地地名，導航鈕用 Google Maps 搜尋 URL 帶入，所以不需要經緯度。
+- `trips/<行程>/guide.js` — 地區美食景點、實用資訊、常用會話
+- `trips/<行程>/packing.js` — 打包清單（`window.PACKING`）與行前待辦（`window.TODOS`）
+- `trips/<行程>/places.js` — 從 Google 地圖收藏匯入的地點，由 `tools/import-places.js` 或後台產生
+- `data/site.js` — 密碼雜湊、GitHub repo 設定與行程索引，由後台產生
+- `data/art/_core.js`、`data/art/<包>.js` — 城市印象插畫與線性圖示，全部是內嵌 SVG，零外部請求
+
+### regions：地區的單一真相
+
+`TRIP.regions[]` 同時決定四件事，以前這份清單散在四個檔案裡：
+
+```js
+{ id: 'fukuoka', name: '福岡',
+  art: 'jp-kyushu/fukuoka',        // 用哪張插畫（跨旅行共用的圖庫 key）
+  anchor: '33.59,130.40',           // import-places 分區用
+  keywords: ['博多', '天神'],
+  palette: { rb, sky, far, mid, near, pop, pale } }   // UI 與插畫共用的 6 色
+```
+
+色盤由 `app.js` 開機時注入 `<style id="hz-palette">`，所以換一趟旅行不必動 `app.css`。
+後台的地區下拉、`dayRegion`、指南分區也都認同一組 `id`。
 
 ### 城市印象插畫
 
@@ -165,7 +204,7 @@ node tools/import-places.js <匯出檔.csv|.json|.geojson|.kml> [--resolve]
 
 - 每一項照 `time` 排上時間軸：`08:00–11:20` 有頭有尾、`10:00` 只有開始、`～22:00` 只有結束；沒寫時間的平均塞在前後兩個有寫的時間之間（上午從 9:00、下午從 12:00、晚上從 18:00 起算，晚上排到 22:00），所以「約 13:30」這種是估的。
 - 標籤裡有航班號（BR／IT…）的會被認成航班，顯示「〇〇團 搭機中 ✈」和抵達時間。同一時間有兩件事（例如第 9 天一團在飛、一團還在機場）會列在「同一時間」。
-- 「在哪裡」讀的是每個時段的 `where`（在 `data/trip.js` 每個 block 上，例如 `"where": "佐世保 → 長崎"`）。後台改行程不會動到它；要改的話直接改那個欄位。
+- 「在哪裡」讀的是每個時段的 `where`（在 `trips/<行程>/trip.js` 每個 block 上，例如 `"where": "佐世保 → 長崎"`）。後台改行程不會動到它；要改的話直接改那個欄位。
 - 用手機的時間。每分鐘、以及從背景切回來時自動更新。
 - 預覽某個時間點：網址加 `?now=2026-09-28T07:30`。
 

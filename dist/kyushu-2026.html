@@ -60,42 +60,8 @@
    --c-pop 點綴（整張畫唯一的高彩度）　--c-pale 亮部（光／霧／白牆）
    --rb 是這個地區在 UI 上的主色。
    ------------------------------------------------------------ */
-[data-reg="fukuoka"]{ /* 中洲屋台的夜：暖橘燈光 × 河水藍 */
-  --rb:#d9482f;
-  --c-sky:#f7e3c7; --c-far:#f0b078; --c-mid:#2f5c7a;
-  --c-near:#22333f; --c-pop:#d9482f; --c-pale:#fff2dd }
-[data-reg="nagasaki"]{ /* 坡道之城：海霧藍 × 電車黃 */
-  --rb:#2b6ca8;
-  --c-sky:#e9f1f3; --c-far:#a7c6d0; --c-mid:#2f6ea8;
-  --c-near:#1e3a52; --c-pop:#e6b23c; --c-pale:#fdfaf2 }
-[data-reg="kumamoto"]{ /* 黑天守與銀杏：墨黑 × 漆喰白 × 銀杏金 */
-  --rb:#37725a;
-  --c-sky:#f4eede; --c-far:#a7c19c; --c-mid:#98968a;
-  --c-near:#22303a; --c-pop:#dfa41c; --c-pale:#fdf7ea }
-[data-reg="aso"]{ /* 高原：草綠 × 火山灰白 × 赤牛橘 */
-  --rb:#cf6b1e;
-  --c-sky:#d9edf1; --c-far:#9ecfc4; --c-mid:#7ba85c;
-  --c-near:#43604a; --c-pop:#e07a2e; --c-pale:#fbf7ea }
-[data-reg="kurokawa"]{ /* 杉林的暮色：紫灰 × 湯與燈的琥珀 */
-  --rb:#6e5b8f;
-  --c-sky:#d9d2e8; --c-far:#6f6289; --c-mid:#443e5c;
-  --c-near:#292541; --c-pop:#e8a13f; --c-pale:#f6efe0 }
-[data-reg="yufuin"]{ /* 清晨盆地：薄荷灰藍 × 稻穗金 */
-  --rb:#17827f;
-  --c-sky:#e7f0ec; --c-far:#a8cfc6; --c-mid:#2f7d7b;
-  --c-near:#274a48; --c-pop:#dfa63c; --c-pale:#fbf8ec }
-[data-reg="beppu"]{ /* 湯煙之町：蒸氣白 × 瓦灰藍 × 地獄朱 */
-  --rb:#c94360;
-  --c-sky:#f4eae1; --c-far:#7fa8bf; --c-mid:#56646f;
-  --c-near:#2c3740; --c-pop:#cf4457; --c-pale:#fff7ee }
-[data-reg="dazaifu"]{ /* 太鼓橋與飛梅：朱紅 × 池水綠 × 梅粉 */
-  --rb:#c2593f;
-  --c-sky:#f6eee0; --c-far:#8fae7e; --c-mid:#3f6b52;
-  --c-near:#2f4436; --c-pop:#d24a3d; --c-pale:#f4c3ce }
-[data-reg="journey"]{ /* 出發：暮色米 × 海藍 × 鳥居朱 */
-  --rb:#cf4229;
-  --c-sky:#f6e7d2; --c-far:#f0b878; --c-mid:#2e6d8e;
-  --c-near:#24333d; --c-pop:#d9482f; --c-pale:#fff6e8 }
+/* 實際的色盤值由 app.js 依 TRIP.regions[].palette 注入 <style id="hz-palette">，
+   所以換一趟旅行不必動這支 CSS。下面這段推導規則是所有行程共用的。 */
 
 [data-reg]{
   --sky:var(--c-sky); --far:var(--c-far); --mid:var(--c-mid);
@@ -621,13 +587,37 @@ dl{margin:0}
 .owner-row a{color:var(--ink3);text-decoration:none;border:1px solid var(--line);
   border-radius:999px;padding:5px 12px;background:var(--card)}
 
+/* ---------- 行程選單 ---------- */
+.triplist{ gap:12px }
+.tripcard{ display:flex; overflow:hidden; border-radius:var(--r2); background:var(--card);
+  box-shadow:var(--sh-2); text-decoration:none; color:inherit }
+.tripcard .tc-bar{ width:8px; flex:0 0 8px; background:var(--rb) }
+.tripcard .tc-b{ padding:14px 16px }
+.tripcard h3{ margin:2px 0 4px; font-size:17px; letter-spacing:-.01em }
+.tripcard .meta{ font-size:13px; color:var(--muted) }
+.tripcard .tc-k{ font-size:11px; font-weight:700; letter-spacing:.08em; color:var(--rb) }
+.tripcard.past{ opacity:.62 }
+.tripcard.past .tc-k{ color:var(--muted) }
+.tripcard.live .tc-k::before{ content:''; display:inline-block; width:6px; height:6px; margin-right:5px;
+  border-radius:50%; background:var(--rb); vertical-align:middle }
+
+/* 標題列的行程切換 */
+#tb-sub .tripsw{ color:inherit; text-decoration:none; font-weight:600 }
+#tb-sub .tb-dot{ margin:0 6px; opacity:.5 }
+
+/* 後台：行程切換列與雙欄欄位 */
+.a-trips{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px }
+.a-trips .a-chip{ text-decoration:none }
+.a-2col{ display:grid; grid-template-columns:1fr 1fr; gap:10px }
+@media (max-width:380px){ .a-2col{ grid-template-columns:1fr } }
+
 </style>
 
 <header id="topbar">
   <div class="tb-inner">
     <div class="tb-text">
-      <h1 id="tb-title">九州旅遊助手</h1>
-      <p id="tb-sub">2026/09/27 – 10/05</p>
+      <h1 id="tb-title">旅遊助手</h1>
+      <p id="tb-sub"></p>
     </div>
     <button id="theme-btn" class="icon-btn" type="button" aria-label="切換深淺色">◐</button>
   </div>
@@ -644,8 +634,10 @@ dl{margin:0}
 </nav>
 
 <script>
-/* 站台設定 — 由後台發布。存的是密碼雜湊，不是密碼本身。 */
-window.CONFIG = {
+window.__BUNDLED_TRIP = 'kyushu-2026';
+/* 站台設定與行程索引 — 由後台發布。存的是密碼雜湊，不是密碼本身。
+   trips[] 只放選單需要的欄位，行程內容在 trips/<id>/ 底下，點進去才載入。 */
+window.SITE = {
   "gate": {
     "enabled": true,
     "salt": "4tf01iv822qmtv3m34y",
@@ -657,7 +649,19 @@ window.CONFIG = {
     "name": "kyushu-2026",
     "branch": "main"
   },
-  "cacheVersion": 8
+  "cacheVersion": 9,
+  "trips": [
+    {
+      "id": "kyushu-2026",
+      "title": "2026 九州自駕 9 日",
+      "start": "2026-09-27",
+      "end": "2026-10-05",
+      "color": "#cf4229",
+      "artPacks": [
+        "jp-kyushu"
+      ]
+    }
+  ]
 };
 
 /* ============================================================
@@ -795,8 +799,125 @@ function cloud(x, y, s, fill, op) {
     C(0, 0, 13, fill, op) + C(16, -5, 10, fill, op) + C(30, 2, 11, fill, op) +
     R(-1, -3, 32, 14, fill, 7, op));
 }
+/* ---------- 插畫包登錄 ----------
+   場景 key 一律 '<包名>/<地點>'，例如 'jp-kyushu/fukuoka'。
+   同一座城市之後再去一次，指回同一張就好，不用重畫。 */
+ART.scenes = {};
+ART.k = {
+  P: P, S: S, R: R, C: C, E: E, G: G,
+  hand: hand, hand2: hand2, frame: frame,
+  steam: steam, cedar: cedar, house: house,
+  plum: plum, ginkgo: ginkgo, ear: ear, cloud: cloud
+};
+ART.pack = function (name, scenes) {
+  Object.keys(scenes).forEach(function (k) { ART.scenes[name + '/' + k] = scenes[k]; });
+};
+ART.fallback = 'core/journey';
+ART.has = function (key) { return !!(key && ART.scenes[key]); };
 
-ART.scenes = {
+/* 沒有專屬插畫的行程也要能看 —— 一律退回這張 */
+ART.pack('core', {
+
+  /* ── 行前・移動中 ──────────────────────────────────────
+     取用：一架小飛機拉出的虛線 ＋ 九州的層層山影 ＋ 站在海裡的鳥居 ＋ 圖示化的太陽 */
+  journey: frame(
+    C(332, 48, 22, 'var(--pop)', '.4') +
+    cloud(58, 40, 0.85, 'var(--pale)', '.8') +
+    cloud(238, 30, 0.6, 'var(--pale)', '.6') +
+    S('M6 92 C 70 52 170 32 262 44', 'var(--near)', 2, '.4', '3 8') +
+    hand(
+      P('M-4 94 L44 74 L96 90 L150 68 L206 88 L262 70 L320 90 L404 76 L404 108 L-4 108 Z', 'var(--far)') +
+      P('M40 106 L120 62 L200 106 Z', 'var(--mid)', '.9') +
+      P('M-4 104 C 90 100 160 108 250 102 C 320 97 360 105 404 100 L404 140 L-4 140 Z', 'var(--mid)')
+    ) +
+    P('M120 62 L106 78 L134 78 Z', 'var(--pale)', '.7') +
+    S('M22 116 q10 -5 20 0 t20 0', 'var(--pale)', 2.4, '.4') +
+    S('M250 120 q10 -5 20 0 t20 0', 'var(--pale)', 2.4, '.35') +
+    S('M310 112 q10 -5 20 0 t20 0', 'var(--pale)', 2.4, '.3') +
+    /* 海裡的鳥居 */
+    hand2(
+      P('M164 76 L246 76 L240 68 L170 68 Z', 'var(--pop)') +
+      R(170, 70, 70, 4.5, 'var(--pop)') +
+      R(176, 76, 8, 46, 'var(--pop)') + R(226, 76, 8, 46, 'var(--pop)') +
+      R(172, 88, 66, 5, 'var(--pop)')
+    ) +
+    /* 飛機 */
+    G('translate(262,44) rotate(-14) scale(.62)',
+      E(0, 0, 58, 7, 'var(--near)') +
+      P('M4 0 L-26 -32 L-10 -32 L32 -3 Z', 'var(--near)') +
+      P('M4 0 L-26 32 L-10 32 L32 3 Z', 'var(--near)', '.75') +
+      P('M-48 0 L-60 -18 L-50 -18 L-32 -2 Z', 'var(--near)') +
+      P('M-48 0 L-60 18 L-50 18 L-32 2 Z', 'var(--near)', '.75')
+    )
+  )
+});
+
+/* ---------- 線性圖示。用 currentColor，尺寸由 CSS 控制 ---------- */
+function ic(d, extra) {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
+    + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + (extra || '') + '</svg>';
+}
+
+ART.icons = {
+  today: ic('<path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'),
+  plan:  ic('<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14.5h3M13.5 14.5h3M7.5 18h3"/>'),
+  pack:  ic('<rect x="3.5" y="7.5" width="17" height="13" rx="3"/><path d="M8.5 7.5V6a3.5 3.5 0 0 1 7 0v1.5"/><path d="M3.5 13h17"/>'),
+  guide: ic('<path d="M3.5 11h17a8.5 8.5 0 0 1-17 0z"/><path d="M6 19.5h12"/><path d="M13 8.5c0-2 3-2 3-4"/><path d="M9 8.5c0-1.6 2.2-1.8 2.2-3.5"/>'),
+  info:  ic('<rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 3.5h6v3H9z"/><path d="M9 11h6M9 15h4"/>'),
+
+  sun:   ic('<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>'),
+  cloud: ic('<circle cx="8.5" cy="8" r="3"/><path d="M8.5 2.6v1.4M4.2 8H2.8M5.2 4.7 4.2 3.7M11.8 4.7l1-1"/><path d="M7 19h10.5a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.6-1.2A3.6 3.6 0 0 0 7 19z"/>'),
+  moon:  ic('<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/>'),
+
+  car:   ic('<path d="M4 16.5V19a1 1 0 0 1-1 1H2.5"/><path d="M20 16.5V19a1 1 0 0 0 1 1h.5"/><path d="M2.8 16.5h18.4v-4l-2-.6-2-4.4H8.8l-2 4.4-2 .6z"/><circle cx="7.5" cy="16.5" r="1.6"/><circle cx="16.5" cy="16.5" r="1.6"/>'),
+  bed:   ic('<path d="M3 19v-9M3 14h18v5M21 14v-3.5a2.5 2.5 0 0 0-2.5-2.5H10v6"/><circle cx="6.6" cy="11" r="2"/>'),
+  nav:   ic('<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4 13.8 14 8.4 15.6l1.8-5.6z"/>'),
+  photo: ic('<rect x="2.8" y="6" width="18.4" height="14" rx="2.5"/><path d="M8.5 6l1.5-2.5h4L15.5 6"/><circle cx="12" cy="13" r="3.4"/>'),
+  plane: ic('<path d="M2.5 13.2 21 5l-3.2 8.8L11 15.6l-2.4 4.6-1.4-4.2z"/>'),
+  onsen: ic('<path d="M4 20h16"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/><path d="M8.5 9.5c1.4-1.6-1.4-3 0-4.6"/><path d="M12 9c1.4-1.6-1.4-3 0-4.6"/><path d="M15.5 9.5c1.4-1.6-1.4-3 0-4.6"/>'),
+  yen:   ic('<path d="M7 5l5 6.5L17 5M12 11.5V19M8 13.5h8M8 16.5h8"/>'),
+  alert: ic('<path d="M12 3.5 21 19H3z"/><path d="M12 9.5v4M12 16.4v.2"/>'),
+  check: ic('<path d="M4.5 12.5 9.5 17.5 19.5 6.5"/>')
+};
+
+/* 一張畫的 <svg> 外殼。variant: 'wide'（預設，完整構圖）／'band'（裁掉上方天空）／'stamp'（中央方形） */
+ART.svg = function (reg, cls, par) {
+  return '<svg class="' + (cls || 'scene') + '" viewBox="0 0 400 132" preserveAspectRatio="'
+    + (par || 'xMidYMax slice') + '" aria-hidden="true">'
+    + (ART.scenes[reg] || ART.scenes[ART.fallback] || '') + '</svg>';
+};
+
+/* 指南分頁的小圖章 */
+ART.stamp = function (reg) {
+  return '<span class="stamp" data-reg="' + reg + '">' + ART.svg(reg, 'scene', 'xMidYMid slice') + '</span>';
+};
+
+/* 把濾鏡定義塞進文件裡（整份文件共用一次就好） */
+ART.mount = function () {
+  if (document.getElementById('hz-art-defs')) return;
+  var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('id', 'hz-art-defs');
+  s.setAttribute('aria-hidden', 'true');
+  s.setAttribute('focusable', 'false');
+  s.setAttribute('style', 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none');
+  s.innerHTML = '<defs>' + ART.defs + '</defs>';
+  document.body.insertBefore(s, document.body.firstChild);
+};
+
+})();
+/* ============================================================
+   插畫包：日本九州（8 座城市）
+   風格與畫布規格見 data/art/_core.js 檔頭。
+   場景 key 為 'jp-kyushu/<city>'，由 TRIP.regions[].art 指過來。
+   ============================================================ */
+(function () {
+var k = window.ART.k;
+var P = k.P, S = k.S, R = k.R, C = k.C, E = k.E, G = k.G;
+var hand = k.hand, hand2 = k.hand2, frame = k.frame;
+var steam = k.steam, cedar = k.cedar, house = k.house;
+var plum = k.plum, ginkgo = k.ginkgo, ear = k.ear, cloud = k.cloud;
+
+window.ART.pack('jp-kyushu', {
 
   /* ── 福岡・博多 ─────────────────────────────────────────
      印象採集：中洲屋台的暖光與布簾／那珂川的夜與倒影／天神的都市天際線／
@@ -1163,92 +1284,7 @@ ART.scenes = {
       plum(316, 50, 0.6, 'var(--pale)', 'var(--pop)')
     )
   ),
-
-  /* ── 行前・移動中 ──────────────────────────────────────
-     取用：一架小飛機拉出的虛線 ＋ 九州的層層山影 ＋ 站在海裡的鳥居 ＋ 圖示化的太陽 */
-  journey: frame(
-    C(332, 48, 22, 'var(--pop)', '.4') +
-    cloud(58, 40, 0.85, 'var(--pale)', '.8') +
-    cloud(238, 30, 0.6, 'var(--pale)', '.6') +
-    S('M6 92 C 70 52 170 32 262 44', 'var(--near)', 2, '.4', '3 8') +
-    hand(
-      P('M-4 94 L44 74 L96 90 L150 68 L206 88 L262 70 L320 90 L404 76 L404 108 L-4 108 Z', 'var(--far)') +
-      P('M40 106 L120 62 L200 106 Z', 'var(--mid)', '.9') +
-      P('M-4 104 C 90 100 160 108 250 102 C 320 97 360 105 404 100 L404 140 L-4 140 Z', 'var(--mid)')
-    ) +
-    P('M120 62 L106 78 L134 78 Z', 'var(--pale)', '.7') +
-    S('M22 116 q10 -5 20 0 t20 0', 'var(--pale)', 2.4, '.4') +
-    S('M250 120 q10 -5 20 0 t20 0', 'var(--pale)', 2.4, '.35') +
-    S('M310 112 q10 -5 20 0 t20 0', 'var(--pale)', 2.4, '.3') +
-    /* 海裡的鳥居 */
-    hand2(
-      P('M164 76 L246 76 L240 68 L170 68 Z', 'var(--pop)') +
-      R(170, 70, 70, 4.5, 'var(--pop)') +
-      R(176, 76, 8, 46, 'var(--pop)') + R(226, 76, 8, 46, 'var(--pop)') +
-      R(172, 88, 66, 5, 'var(--pop)')
-    ) +
-    /* 飛機 */
-    G('translate(262,44) rotate(-14) scale(.62)',
-      E(0, 0, 58, 7, 'var(--near)') +
-      P('M4 0 L-26 -32 L-10 -32 L32 -3 Z', 'var(--near)') +
-      P('M4 0 L-26 32 L-10 32 L32 3 Z', 'var(--near)', '.75') +
-      P('M-48 0 L-60 -18 L-50 -18 L-32 -2 Z', 'var(--near)') +
-      P('M-48 0 L-60 18 L-50 18 L-32 2 Z', 'var(--near)', '.75')
-    )
-  )
-};
-
-/* ---------- 線性圖示。用 currentColor，尺寸由 CSS 控制 ---------- */
-function ic(d, extra) {
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
-    + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + (extra || '') + '</svg>';
-}
-
-ART.icons = {
-  today: ic('<path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'),
-  plan:  ic('<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14.5h3M13.5 14.5h3M7.5 18h3"/>'),
-  pack:  ic('<rect x="3.5" y="7.5" width="17" height="13" rx="3"/><path d="M8.5 7.5V6a3.5 3.5 0 0 1 7 0v1.5"/><path d="M3.5 13h17"/>'),
-  guide: ic('<path d="M3.5 11h17a8.5 8.5 0 0 1-17 0z"/><path d="M6 19.5h12"/><path d="M13 8.5c0-2 3-2 3-4"/><path d="M9 8.5c0-1.6 2.2-1.8 2.2-3.5"/>'),
-  info:  ic('<rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 3.5h6v3H9z"/><path d="M9 11h6M9 15h4"/>'),
-
-  sun:   ic('<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>'),
-  cloud: ic('<circle cx="8.5" cy="8" r="3"/><path d="M8.5 2.6v1.4M4.2 8H2.8M5.2 4.7 4.2 3.7M11.8 4.7l1-1"/><path d="M7 19h10.5a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.6-1.2A3.6 3.6 0 0 0 7 19z"/>'),
-  moon:  ic('<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/>'),
-
-  car:   ic('<path d="M4 16.5V19a1 1 0 0 1-1 1H2.5"/><path d="M20 16.5V19a1 1 0 0 0 1 1h.5"/><path d="M2.8 16.5h18.4v-4l-2-.6-2-4.4H8.8l-2 4.4-2 .6z"/><circle cx="7.5" cy="16.5" r="1.6"/><circle cx="16.5" cy="16.5" r="1.6"/>'),
-  bed:   ic('<path d="M3 19v-9M3 14h18v5M21 14v-3.5a2.5 2.5 0 0 0-2.5-2.5H10v6"/><circle cx="6.6" cy="11" r="2"/>'),
-  nav:   ic('<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4 13.8 14 8.4 15.6l1.8-5.6z"/>'),
-  photo: ic('<rect x="2.8" y="6" width="18.4" height="14" rx="2.5"/><path d="M8.5 6l1.5-2.5h4L15.5 6"/><circle cx="12" cy="13" r="3.4"/>'),
-  plane: ic('<path d="M2.5 13.2 21 5l-3.2 8.8L11 15.6l-2.4 4.6-1.4-4.2z"/>'),
-  onsen: ic('<path d="M4 20h16"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/><path d="M8.5 9.5c1.4-1.6-1.4-3 0-4.6"/><path d="M12 9c1.4-1.6-1.4-3 0-4.6"/><path d="M15.5 9.5c1.4-1.6-1.4-3 0-4.6"/>'),
-  yen:   ic('<path d="M7 5l5 6.5L17 5M12 11.5V19M8 13.5h8M8 16.5h8"/>'),
-  alert: ic('<path d="M12 3.5 21 19H3z"/><path d="M12 9.5v4M12 16.4v.2"/>'),
-  check: ic('<path d="M4.5 12.5 9.5 17.5 19.5 6.5"/>')
-};
-
-/* 一張畫的 <svg> 外殼。variant: 'wide'（預設，完整構圖）／'band'（裁掉上方天空）／'stamp'（中央方形） */
-ART.svg = function (reg, cls, par) {
-  return '<svg class="' + (cls || 'scene') + '" viewBox="0 0 400 132" preserveAspectRatio="'
-    + (par || 'xMidYMax slice') + '" aria-hidden="true">'
-    + (ART.scenes[reg] || ART.scenes.journey) + '</svg>';
-};
-
-/* 指南分頁的小圖章 */
-ART.stamp = function (reg) {
-  return '<span class="stamp" data-reg="' + reg + '">' + ART.svg(reg, 'scene', 'xMidYMid slice') + '</span>';
-};
-
-/* 把濾鏡定義塞進文件裡（整份文件共用一次就好） */
-ART.mount = function () {
-  if (document.getElementById('hz-art-defs')) return;
-  var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  s.setAttribute('id', 'hz-art-defs');
-  s.setAttribute('aria-hidden', 'true');
-  s.setAttribute('focusable', 'false');
-  s.setAttribute('style', 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none');
-  s.innerHTML = '<defs>' + ART.defs + '</defs>';
-  document.body.insertBefore(s, document.body.firstChild);
-};
+});
 
 })();
 
@@ -1269,6 +1305,178 @@ window.TRIP = {
     "8": "beppu",
     "9": "fukuoka"
   },
+  "regions": [
+    {
+      "id": "fukuoka",
+      "name": "福岡",
+      "art": "jp-kyushu/fukuoka",
+      "anchor": "33.5902,130.4017",
+      "keywords": [
+        "博多",
+        "天神",
+        "中洲",
+        "福岡"
+      ],
+      "palette": {
+        "rb": "#d9482f",
+        "sky": "#f7e3c7",
+        "far": "#f0b078",
+        "mid": "#2f5c7a",
+        "near": "#22333f",
+        "pop": "#d9482f",
+        "pale": "#fff2dd"
+      }
+    },
+    {
+      "id": "dazaifu",
+      "name": "太宰府",
+      "art": "jp-kyushu/dazaifu",
+      "anchor": "33.5215,130.5348",
+      "keywords": [
+        "太宰府",
+        "大宰府"
+      ],
+      "palette": {
+        "rb": "#c2593f",
+        "sky": "#f6eee0",
+        "far": "#8fae7e",
+        "mid": "#3f6b52",
+        "near": "#2f4436",
+        "pop": "#d24a3d",
+        "pale": "#f4c3ce"
+      }
+    },
+    {
+      "id": "nagasaki",
+      "name": "長崎",
+      "art": "jp-kyushu/nagasaki",
+      "anchor": "32.7503,129.8779",
+      "keywords": [
+        "長崎",
+        "佐世保",
+        "豪斯登堡"
+      ],
+      "palette": {
+        "rb": "#2b6ca8",
+        "sky": "#e9f1f3",
+        "far": "#a7c6d0",
+        "mid": "#2f6ea8",
+        "near": "#1e3a52",
+        "pop": "#e6b23c",
+        "pale": "#fdfaf2"
+      }
+    },
+    {
+      "id": "kumamoto",
+      "name": "熊本",
+      "art": "jp-kyushu/kumamoto",
+      "anchor": "32.8032,130.7079",
+      "keywords": [
+        "熊本",
+        "阿蘇熊本"
+      ],
+      "palette": {
+        "rb": "#37725a",
+        "sky": "#f4eede",
+        "far": "#a7c19c",
+        "mid": "#98968a",
+        "near": "#22303a",
+        "pop": "#dfa41c",
+        "pale": "#fdf7ea"
+      }
+    },
+    {
+      "id": "aso",
+      "name": "阿蘇",
+      "art": "jp-kyushu/aso",
+      "anchor": "32.8846,131.1042",
+      "keywords": [
+        "阿蘇",
+        "高千穗",
+        "南阿蘇"
+      ],
+      "palette": {
+        "rb": "#cf6b1e",
+        "sky": "#d9edf1",
+        "far": "#9ecfc4",
+        "mid": "#7ba85c",
+        "near": "#43604a",
+        "pop": "#e07a2e",
+        "pale": "#fbf7ea"
+      }
+    },
+    {
+      "id": "kurokawa",
+      "name": "黑川",
+      "art": "jp-kyushu/kurokawa",
+      "anchor": "33.0806,131.1447",
+      "keywords": [
+        "黑川",
+        "黒川"
+      ],
+      "palette": {
+        "rb": "#6e5b8f",
+        "sky": "#d9d2e8",
+        "far": "#6f6289",
+        "mid": "#443e5c",
+        "near": "#292541",
+        "pop": "#e8a13f",
+        "pale": "#f6efe0"
+      }
+    },
+    {
+      "id": "yufuin",
+      "name": "由布院",
+      "art": "jp-kyushu/yufuin",
+      "anchor": "33.2647,131.3556",
+      "keywords": [
+        "由布院",
+        "湯布院"
+      ],
+      "palette": {
+        "rb": "#17827f",
+        "sky": "#e7f0ec",
+        "far": "#a8cfc6",
+        "mid": "#2f7d7b",
+        "near": "#274a48",
+        "pop": "#dfa63c",
+        "pale": "#fbf8ec"
+      }
+    },
+    {
+      "id": "beppu",
+      "name": "別府",
+      "art": "jp-kyushu/beppu",
+      "anchor": "33.2846,131.4914",
+      "keywords": [
+        "別府",
+        "鐵輪"
+      ],
+      "palette": {
+        "rb": "#c94360",
+        "sky": "#f4eae1",
+        "far": "#7fa8bf",
+        "mid": "#56646f",
+        "near": "#2c3740",
+        "pop": "#cf4457",
+        "pale": "#fff7ee"
+      }
+    },
+    {
+      "id": "journey",
+      "name": "移動中",
+      "art": "core/journey",
+      "palette": {
+        "rb": "#cf4229",
+        "sky": "#f6e7d2",
+        "far": "#f0b878",
+        "mid": "#2e6d8e",
+        "near": "#24333d",
+        "pop": "#d9482f",
+        "pale": "#fff6e8"
+      }
+    }
+  ],
   "flights": [
     {
       "code": "BR106",
@@ -2082,7 +2290,15 @@ window.TRIP = {
         }
       ]
     }
-  ]
+  ],
+  "infoAlerts": [
+    {
+      "level": "danger",
+      "text": "**最後一天要分開行動。**兩團班機差 2 小時：小阿姨團（4 人）IT721 17:10 起飛，建議 15:10 前抵達機場報到，比行程表寫的「16:30 出發前往機場」早很多。澤右（2 人）BR101 19:20 起飛才符合原表格時間。"
+    }
+  ],
+  "source": "資料來源：《2026九州行程0927~1005.xls》。飯店地址與電話為網路查證結果，出發前建議再和訂房確認信核對一次。",
+  "planNote": "行程內容擷取自《2026九州行程0927~1005.xls》，未經改寫。營業時間與價格請以現場公告為準。"
 };
 
 /* 離線指南 — 由後台發布。景點／美食屬一般旅遊建議，非既定行程。 */
@@ -3420,15 +3636,39 @@ window.TODOS = [
   }
 ];
 
-/* 九州旅遊助手 — vanilla JS，無外部依賴（Google Fonts 失效時自動退回系統字型） */
+/* 旅遊助手 — vanilla JS，無外部依賴（Google Fonts 失效時自動退回系統字型）。
+   引擎與行程資料分離：這支只認 data/site.js 的行程索引，內容在 trips/<id>/ 底下。 */
 (function () {
   'use strict';
 
-  /* ---------- 資料覆寫層 ----------
-     後台改過的資料存在 localStorage，開機時蓋回原始資料上。
+  /* ---------- 儲存命名空間 ----------
+     全域（跨行程共用）：hz:theme / hz:gate / hz:lastTrip / hz:ghtoken / hz:site
+     每趟行程：hz:<tripId>:state（打包勾選、匯率）、hz:<tripId>:data（後台草稿）
+     舊版的 kyushu2026:* 開機時自動搬過來，搬完保留舊 key 當回退保險。 */
+  var NS = 'hz:';
+  var SITE = window.SITE || { gate: {}, repo: {}, trips: [] };
+  var TRIP_KEYS = ['TRIP', 'GUIDE', 'PLACES', 'PACKING', 'TODOS'];
+
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  function jGet(k) { try { return JSON.parse(lsGet(k) || 'null'); } catch (e) { return null; } }
+
+  (function migrateLegacy() {
+    if (lsGet(NS + 'migrated')) return;
+    var old = jGet('kyushu2026:v1');
+    if (old && !lsGet(NS + 'kyushu-2026:state')) {
+      lsSet(NS + 'kyushu-2026:state', JSON.stringify({ checks: old.checks || {}, rate: old.rate, mine: old.mine || [] }));
+      if (old.theme) lsSet(NS + 'theme', old.theme);
+    }
+    [['kyushu2026:data', 'kyushu-2026:data'], ['kyushu2026:gate', 'gate'], ['kyushu2026:ghtoken', 'ghtoken']]
+      .forEach(function (p) { var v = lsGet(p[0]); if (v && !lsGet(NS + p[1])) lsSet(NS + p[1], v); });
+    lsSet(NS + 'migrated', '1');
+  })();
+
+  /* ---------- 資料覆寫層（每趟一份） ----------
+     後台改過的資料存在 localStorage，載入該趟時蓋回原始資料上。
      用「就地取代」而不是換掉物件，下面各處抓到的參照才不會失效。 */
-  var DATA_KEY = 'kyushu2026:data';
-  var DATA_KEYS = ['TRIP', 'GUIDE', 'PLACES', 'PACKING', 'TODOS', 'CONFIG'];
   function deepCopy(o) { return JSON.parse(JSON.stringify(o)); }
   function replaceInPlace(t, s) {
     if (Array.isArray(t) && Array.isArray(s)) {
@@ -3440,45 +3680,74 @@ window.TODOS = [
     Object.keys(s).forEach(function (k) { t[k] = s[k]; });
     return t;
   }
+
+  /* 站台設定草稿（gate / repo / trips），跨行程共用 */
+  (function () { var s = jGet(NS + 'site'); if (s && typeof s === 'object') replaceInPlace(SITE, s); })();
+  window.SITE = SITE;
+  window.__saveSite = function () { return lsSet(NS + 'site', JSON.stringify(SITE)); };
+  window.__resetSite = function () { lsDel(NS + 'site'); };
+
+  var TRIP = null, GUIDE = null, PACKING = null, TODOS = null, PLACES = null;
+  var ART = window.ART;
+  var tripId = null;
+
   window.__ORIG = {};
-  DATA_KEYS.forEach(function (k) { if (window[k]) window.__ORIG[k] = deepCopy(window[k]); });
-  try {
-    var __ov = JSON.parse(localStorage.getItem(DATA_KEY) || 'null');
-    if (__ov && typeof __ov === 'object') {
-      DATA_KEYS.forEach(function (k) { if (__ov[k] && window[k]) replaceInPlace(window[k], __ov[k]); });
+  function bindTrip(id) {
+    tripId = id;
+    window.__ORIG = {};
+    TRIP_KEYS.forEach(function (k) { if (window[k]) window.__ORIG[k] = deepCopy(window[k]); });
+    /* 草稿蓋回線上資料；剛開的新行程線上還沒有檔案，就整份用草稿的 */
+    var ov = jGet(NS + id + ':data');
+    if (ov && typeof ov === 'object') {
+      TRIP_KEYS.forEach(function (k) {
+        if (!ov[k]) return;
+        if (window[k]) replaceInPlace(window[k], ov[k]); else window[k] = deepCopy(ov[k]);
+      });
     }
-  } catch (e) { /* 讀不到就用原始資料 */ }
+    if (!window.TRIP) throw new Error('這趟行程還沒有資料');
+    TRIP = window.TRIP;
+    GUIDE = window.GUIDE || { regions: [], practical: [], phrases: [] };
+    PACKING = window.PACKING || [];
+    TODOS = window.TODOS || [];
+    PLACES = window.PLACES || { updated: '', regions: {}, unassigned: [] };
+    window.GUIDE = GUIDE; window.PACKING = PACKING; window.TODOS = TODOS; window.PLACES = PLACES;
+    if (!TRIP.regions) TRIP.regions = [];
+    if (!TRIP.days) TRIP.days = [];
+    loadState();
+    injectPalette();
+    lsSet(NS + 'lastTrip', id);
+  }
+  window.__tripId = function () { return tripId; };
 
   window.__saveData = function () {
+    if (!tripId) return false;
     var out = { savedAt: new Date().toISOString() };
-    DATA_KEYS.forEach(function (k) { if (window[k]) out[k] = window[k]; });
-    try { localStorage.setItem(DATA_KEY, JSON.stringify(out)); return true; } catch (e) { return false; }
+    TRIP_KEYS.forEach(function (k) { if (window[k]) out[k] = window[k]; });
+    return lsSet(NS + tripId + ':data', JSON.stringify(out));
   };
-  window.__hasDraft = function () { try { return !!localStorage.getItem(DATA_KEY); } catch (e) { return false; } };
+  window.__hasDraft = function () { return !!(tripId && lsGet(NS + tripId + ':data')); };
+  /* 後台「新增行程」用：線上還沒有檔案，先把骨架寫成該趟的草稿 */
+  window.__seedTrip = function (id, data) { return lsSet(NS + id + ':data', JSON.stringify(data)); };
   window.__resetData = function () {
-    try { localStorage.removeItem(DATA_KEY); } catch (e) {}
-    DATA_KEYS.forEach(function (k) {
+    if (tripId) lsDel(NS + tripId + ':data');
+    TRIP_KEYS.forEach(function (k) {
       if (window[k] && window.__ORIG[k]) replaceInPlace(window[k], deepCopy(window.__ORIG[k]));
     });
   };
 
-  var TRIP = window.TRIP, GUIDE = window.GUIDE, PACKING = window.PACKING, TODOS = window.TODOS, ART = window.ART;
-  var CONFIG = window.CONFIG || { gate: {}, repo: {} };
-  var PLACES = window.PLACES || { updated: '', regions: {}, unassigned: [] };
-
-  /* ---------- storage (never throw) ---------- */
-  var KEY = 'kyushu2026:v1';
-  var state = { theme: null, checks: {}, rate: 0.215, mine: [] };
-  try {
-    var raw = localStorage.getItem(KEY);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') {
-      state.theme = p.theme || null;
+  /* ---------- state（打包勾選／匯率：每趟一份；主題：全站一份） ---------- */
+  var theme = lsGet(NS + 'theme') || null;
+  var state = { checks: {}, rate: 0.215, mine: [] };
+  function loadState() {
+    state = { checks: {}, rate: 0.215, mine: [] };
+    var p = jGet(NS + tripId + ':state');
+    if (p && typeof p === 'object') {
       state.checks = p.checks || {};
       if (typeof p.rate === 'number' && p.rate > 0) state.rate = p.rate;
       if (Array.isArray(p.mine)) state.mine = p.mine.filter(function (x) { return x && x.id && x.t; });
-    } }
-  } catch (e) { /* 無痕模式／封鎖儲存時照常運作 */ }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+    }
+  }
+  function save() { if (tripId) lsSet(NS + tripId + ':state', JSON.stringify(state)); }
 
   /* ---------- utils ---------- */
   function esc(s) {
@@ -3509,22 +3778,50 @@ window.TODOS = [
   function dayDiff(a, b) { return Math.round((b - a) / 86400000); }
   function fmtMD(s) { var a = s.split('-'); return (+a[1]) + '/' + (+a[2]); }
   function I(name) { return ART.icons[name] || ''; }
-  function scene(reg) { return ART.svg(reg); }
-  function regOf(n) { return TRIP.dayRegion[n] || 'journey'; }
+  function regOf(n) { return (TRIP.dayRegion && TRIP.dayRegion[n]) || defaultReg(); }
+
+  /* ---------- 地區：色盤與插畫都從 TRIP.regions 來 ----------
+     以前同一組地區 id 散在 app.css、art.js、admin.js 各一份，改成只有這裡一份。 */
+  function regionOf(id) {
+    var rs = (TRIP && TRIP.regions) || [];
+    for (var i = 0; i < rs.length; i++) if (rs[i].id === id) return rs[i];
+    return null;
+  }
+  function defaultReg() {
+    var rs = (TRIP && TRIP.regions) || [];
+    return regionOf('journey') ? 'journey' : (rs[0] ? rs[0].id : 'journey');
+  }
+  function artKey(id) { var r = regionOf(id); return (r && r.art) || ART.fallback; }
+  function scene(reg) { return ART.svg(artKey(reg)); }
+  function stamp(reg) {
+    return '<span class="stamp" data-reg="' + esc(reg) + '">'
+      + ART.svg(artKey(reg), 'scene', 'xMidYMid slice') + '</span>';
+  }
+  var PAL_KEYS = ['rb', 'sky', 'far', 'mid', 'near', 'pop', 'pale'];
+  function injectPalette() {
+    var el = document.getElementById('hz-palette');
+    if (!el) { el = document.createElement('style'); el.id = 'hz-palette'; document.head.appendChild(el); }
+    el.textContent = ((TRIP && TRIP.regions) || []).map(function (r) {
+      var p = r.palette || {};
+      return '[data-reg="' + r.id + '"]{' + PAL_KEYS.map(function (k) {
+        return (k === 'rb' ? '--rb:' : '--c-' + k + ':') + (p[k] || '#8a8a8a');
+      }).join(';') + '}';
+    }).join('\n');
+  }
 
   var PART = { am: ['上午', 'sun'], pm: ['下午', 'cloud'], night: ['晚上', 'moon'] };
 
   /* ---------- theme ---------- */
   function applyTheme() {
-    if (state.theme) document.documentElement.setAttribute('data-theme', state.theme);
+    if (theme) document.documentElement.setAttribute('data-theme', theme);
     else document.documentElement.removeAttribute('data-theme');
   }
   applyTheme();
   document.getElementById('theme-btn').addEventListener('click', function () {
     var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches;
-    if (!state.theme) state.theme = sysDark ? 'light' : 'dark';
-    else state.theme = state.theme === 'dark' ? 'light' : 'dark';
-    applyTheme(); save();
+    if (!theme) theme = sysDark ? 'light' : 'dark';
+    else theme = theme === 'dark' ? 'light' : 'dark';
+    applyTheme(); lsSet(NS + 'theme', theme);
   });
 
   /* ---------- 現在進行到哪 ----------
@@ -3793,7 +4090,7 @@ window.TODOS = [
     var t = today(), s = dateObj(TRIP.start);
     var isNow = allowNow !== false && dayDiff(s, t) === d.n - 1 && t >= s && t <= dateObj(TRIP.end);
     var hotel = hotelOf(d.hotel), reg = regOf(d.n);
-    return '<a class="daycard' + (isNow ? ' now' : '') + '" data-reg="' + esc(reg) + '" href="#/day/' + d.n + '">'
+    return '<a class="daycard' + (isNow ? ' now' : '') + '" data-reg="' + esc(reg) + '" href="' + hashFor('plan', d.n) + '">'
       + '<div class="dc-art">' + scene(reg)
       + '<div class="dc-badge">' + d.n + '</div>'
       + (isNow ? '<div class="dc-flag">今天</div>' : '') + '</div>'
@@ -3842,9 +4139,9 @@ window.TODOS = [
     } else if (t > e) {
       h += '<div class="hero" data-reg="journey"><div class="hero-art">' + scene('journey') + '</div>'
         + '<div class="hero-body"><div class="eyebrow">旅程已結束</div>'
-        + '<div class="big">9<small>天</small></div>'
+        + '<div class="big">' + TRIP.days.length + '<small>天</small></div>'
         + '<h2>' + esc(TRIP.title) + '</h2>'
-        + '<div class="meta">2026/09/27 – 10/05 · 歡迎回家</div></div></div>'
+        + '<div class="meta">' + esc(fmtRange(TRIP.start, TRIP.end)) + ' · 歡迎回家</div></div></div>'
         + '<div class="sec-title">全部行程</div><div class="stack">'
         + TRIP.days.map(function (d) { return dayCard(d, false); }).join('') + '</div>';
 
@@ -3869,7 +4166,7 @@ window.TODOS = [
       h += hotel ? hotelCard(hotel, '今晚住宿')
                  : '<div class="sec-title">住宿</div><div class="card card-p"><div class="muted">當晚搭機返台，無住宿。</div></div>';
       h += regionEatHtml(day.n);
-      h += '<div class="day-nav" data-reg="' + esc(reg) + '"><a class="wide" href="#/day/' + day.n + '">看今天完整行程 →</a></div>';
+      h += '<div class="day-nav" data-reg="' + esc(reg) + '"><a class="wide" href="' + hashFor('plan', day.n) + '">看今天完整行程 →</a></div>';
     }
     return h;
   }
@@ -3877,8 +4174,18 @@ window.TODOS = [
   function viewPlan() {
     return '<div class="sec-title">9 天行程</div><div class="stack">'
       + TRIP.days.map(function (d) { return dayCard(d); }).join('') + '</div>'
-      + '<div class="card card-p" style="margin-top:18px"><div class="muted">'
-      + '行程內容擷取自《2026九州行程0927~1005.xls》，未經改寫。營業時間與價格請以現場公告為準。</div></div>';
+      + (TRIP.planNote ? '<div class="card card-p" style="margin-top:18px"><div class="muted">'
+        + esc(TRIP.planNote) + '</div></div>' : '');
+  }
+
+  /* 住宿概況：筆數由 hotels 算，晚數從 nights 字串裡的「N 晚」加總 */
+  function hotelSummary() {
+    var hs = TRIP.hotels || [];
+    var nights = hs.reduce(function (sum, h) {
+      var m = /(\d+)\s*晚/.exec(h.nights || '');
+      return sum + (m ? Number(m[1]) : 0);
+    }, 0);
+    return hs.length + ' 筆訂房' + (nights ? '・' + nights + ' 晚' : '');
   }
 
   function viewDay(n) {
@@ -3887,7 +4194,7 @@ window.TODOS = [
     if (!d) return '<p>找不到這一天。</p>';
     var hotel = hotelOf(d.hotel), reg = regOf(d.n);
 
-    var h = '<a class="back" href="#/plan">‹ 全部行程</a>'
+    var h = '<a class="back" href="' + hashFor('plan') + '">‹ 全部行程</a>'
       + '<div class="hero" data-reg="' + esc(reg) + '"><div class="hero-art">' + scene(reg) + '</div>'
       + '<div class="hero-body"><div class="eyebrow">Day ' + d.n + ' · ' + esc(d.date.replace(/-/g, '/')) + ' ' + esc(d.dow) + '</div>'
       + '<h2 style="font-size:21px;margin-top:6px">' + esc(d.title) + '</h2>'
@@ -3898,11 +4205,12 @@ window.TODOS = [
     if (d.drive) h += '<div class="drive" style="margin-top:12px">' + I('car') + '<span>' + esc(d.drive) + '</span></div>';
     h += blocksHtml(d) + '</div>';
 
-    h += hotel ? hotelCard(hotel, d.n === 9 ? '住宿' : '今晚住宿')
+    h += hotel ? hotelCard(hotel, d.n === TRIP.days.length ? '住宿' : '今晚住宿')
                : '<div class="sec-title">住宿</div><div class="card card-p"><div class="muted">當晚搭機返台，無住宿。</div></div>';
     h += regionEatHtml(d.n);
 
-    var prev = d.n > 1 ? '#/day/' + (d.n - 1) : null, next = d.n < 9 ? '#/day/' + (d.n + 1) : null;
+    var prev = d.n > 1 ? hashFor('plan', d.n - 1) : null,
+        next = d.n < TRIP.days.length ? hashFor('plan', d.n + 1) : null;
     h += '<div class="day-nav">'
       + '<a class="' + (prev ? '' : 'dis') + '" href="' + (prev || '#') + '">‹ Day ' + (d.n - 1) + '</a>'
       + '<a class="' + (next ? '' : 'dis') + '" href="' + (next || '#') + '">Day ' + (d.n + 1) + ' ›</a></div>';
@@ -3951,35 +4259,36 @@ window.TODOS = [
   var PRACT_IC = { drive: 'car', onsen: 'onsen', money: 'yen', weather: 'sun', emergency: 'alert' };
 
   function viewGuide() {
-    var h = '<div class="sec-title">各區美食與景點</div><div class="stack">';
-    h += GUIDE.regions.map(function (r) {
+    var gr = (GUIDE && GUIDE.regions) || [], gp = (GUIDE && GUIDE.practical) || [], gf = (GUIDE && GUIDE.phrases) || [];
+    var h = gr.length ? '<div class="sec-title">各區美食與景點</div><div class="stack">' : '';
+    h += gr.map(function (r) {
       return '<details class="acc" data-reg="' + esc(r.id) + '"><summary>'
-        + ART.stamp(r.id)
+        + stamp(r.id)
         + '<span class="acc-t"><b>' + esc(r.name) + '</b><span>' + esc(r.days) + '</span></span>'
         + '<span class="caret">⌄</span></summary><div class="acc-body">'
         + '<div class="sub-h">吃什麼</div><ul class="ilist">'
-        + r.eat.map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
+        + (r.eat || []).map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
         + '</ul><div class="sub-h">看什麼</div><ul class="ilist">'
-        + r.see.map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
+        + (r.see || []).map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
         + '</ul>'
         + myPlacesHtml(r.id)
         + (r.tips && r.tips.length ? '<div class="sub-h">小提醒</div><ul class="ilist">'
             + r.tips.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '')
         + '</div></details>';
-    }).join('') + '</div>';
+    }).join('') + (gr.length ? '</div>' : '');
 
     /* 匯入時判斷不出區域的收藏，獨立列出，避免資料靜靜消失 */
     if (PLACES.unassigned && PLACES.unassigned.length) {
       h += '<div class="sec-title">我的收藏・未分區</div><div class="card card-p">'
         + placeListHtml(PLACES.unassigned)
-        + '<div class="muted" style="margin-top:10px">這些地點離九州各區錨點較遠或缺座標，沒有自動歸區。</div></div>';
+        + '<div class="muted" style="margin-top:10px">這些地點離各區錨點較遠或缺座標，沒有自動歸區。</div></div>';
     }
     if (PLACES.updated) {
       h += '<div class="muted" style="margin-top:10px">收藏地點匯入日期：' + esc(PLACES.updated) + '</div>';
     }
 
-    h += '<div class="sec-title">實用資訊</div><div class="stack">';
-    h += GUIDE.practical.map(function (pr) {
+    if (gp.length) h += '<div class="sec-title">實用資訊</div><div class="stack">';
+    h += gp.map(function (pr) {
       return '<details class="acc"><summary>'
         + '<span class="acc-ic">' + I(PRACT_IC[pr.id] || 'info') + '</span>'
         + '<span class="acc-t"><b>' + esc(pr.title) + '</b></span>'
@@ -3987,20 +4296,24 @@ window.TODOS = [
         + '<div class="acc-body"><ul class="ilist">'
         + pr.items.map(function (x) { return '<li>' + md(x) + '</li>'; }).join('')
         + '</ul></div></details>';
-    }).join('') + '</div>';
+    }).join('') + (gp.length ? '</div>' : '');
 
-    h += '<div class="sec-title">常用日文</div><div class="stack">';
-    h += GUIDE.phrases.map(function (g) {
+    if (gf.length) h += '<div class="sec-title">' + esc(GUIDE.phrasesTitle || '常用會話') + '</div><div class="stack">';
+    h += gf.map(function (g) {
       return '<details class="acc"><summary>'
         + '<span class="acc-ic">' + I('guide') + '</span>'
         + '<span class="acc-t"><b>' + esc(g.g) + '</b></span>'
         + '<span class="caret">⌄</span></summary><div class="acc-body">'
         + g.list.map(function (x) {
-            return '<div class="ph"><div class="jp">' + esc(x.jp) + '</div>'
+            return '<div class="ph"><div class="jp">' + esc(x.local != null ? x.local : x.jp) + '</div>'
               + '<div class="tw">' + esc(x.tw) + '</div><div class="rm">' + esc(x.rm) + '</div></div>';
           }).join('')
         + '</div></details>';
-    }).join('') + '</div>';
+    }).join('') + (gf.length ? '</div>' : '');
+
+    if (!gr.length && !gp.length && !gf.length) {
+      h += '<div class="card card-p"><div class="muted">這趟還沒有指南內容。到後台的「指南」分頁加吧。</div></div>';
+    }
 
     h += '<div class="card card-p" style="margin-top:18px"><div class="muted">'
       + '本頁的景點與美食為一般旅遊建議，不是已排定的行程；營業時間、價格與活動舉辦與否請以官方即時公告為準。</div></div>';
@@ -4008,8 +4321,9 @@ window.TODOS = [
   }
 
   function viewInfo() {
-    var h = '<div class="sec-title">航班</div><div class="card card-p">';
-    h += TRIP.flights.map(function (f) {
+    var h = '', flights = TRIP.flights || [], hotels = TRIP.hotels || [];
+    if (flights.length) h += '<div class="sec-title">航班</div><div class="card card-p">';
+    h += flights.map(function (f) {
       return '<div class="fl"><div class="fl-code"><b>' + esc(f.code) + '</b><span>' + esc(f.air) + '</span></div>'
         + '<div style="flex:1;min-width:0">'
         + '<div class="fl-rt"><div><div class="t">' + esc(f.dep) + '</div><div class="a">' + esc(f.from) + '</div></div>'
@@ -4017,30 +4331,37 @@ window.TODOS = [
         + '<div style="text-align:right"><div class="t">' + esc(f.arr) + '</div><div class="a">' + esc(f.to) + '</div></div></div>'
         + '<div class="fl-when">' + esc(f.date.replace(/-/g, '/')) + '<span class="whopill">' + esc(f.who) + '</span></div>'
         + '</div></div>';
-    }).join('') + '</div>';
+    }).join('') + (flights.length ? '</div>' : '');
 
-    h += '<div style="margin-top:11px">' + alertsHtml([{ level: 'danger',
-      text: '**最後一天要分開行動。**兩團班機差 2 小時：小阿姨團（4 人）IT721 17:10 起飛，建議 15:10 前抵達機場報到，比行程表寫的「16:30 出發前往機場」早很多。澤右（2 人）BR101 19:20 起飛才符合原表格時間。' }]) + '</div>';
+    /* 這段提醒以前寫死在程式碼裡，改成資料，後台就能改 */
+    if (TRIP.infoAlerts && TRIP.infoAlerts.length) {
+      h += '<div style="margin-top:11px">' + alertsHtml(TRIP.infoAlerts) + '</div>';
+    }
 
-    h += '<div class="sec-title">租車</div><div class="card card-p" data-reg="fukuoka"><dl>'
+    if (TRIP.car && TRIP.car.pickup) h += '<div class="sec-title">租車</div><div class="card card-p" data-reg="' + esc(regOf(1)) + '"><dl>'
       + '<div class="kv"><dt>取車</dt><dd>' + esc(TRIP.car.pickup.date.replace(/-/g, '/')) + ' ' + esc(TRIP.car.pickup.time) + '<br>' + esc(TRIP.car.pickup.place) + '</dd></div>'
       + '<div class="kv"><dt>還車</dt><dd>' + esc(TRIP.car.dropoff.date.replace(/-/g, '/')) + ' ' + esc(TRIP.car.dropoff.time) + '<br>' + esc(TRIP.car.dropoff.place) + '</dd></div>'
       + '</dl><ul class="ilist" style="margin-top:10px">'
       + TRIP.car.notes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>'
       + navBtn(TRIP.car.pickup.map, '取車地點') + navBtn(TRIP.car.dropoff.map, '還車地點') + '</div>';
 
-    h += '<div class="sec-title">住宿　6 筆訂房・8 晚</div><div class="stack">'
-      + TRIP.hotels.map(function (ht) { return hotelCard(ht, null); }).join('') + '</div>';
+    if (hotels.length) {
+      h += '<div class="sec-title">住宿　' + hotelSummary() + '</div><div class="stack">'
+        + hotels.map(function (ht) { return hotelCard(ht, null); }).join('') + '</div>';
+    }
 
+    var budget = TRIP.budget || {};
+    if (hotels.length || budget.jpyTotal) {
     h += '<div class="sec-title">費用</div><div class="card card-p">';
-    h += TRIP.hotels.map(function (ht) {
+    h += hotels.map(function (ht) {
       return '<div class="total-row"><span>' + esc(ht.name) + '</span><span class="money">' + yen(ht.price) + '</span></div>';
     }).join('');
-    h += '<div class="total-row grand"><span>住宿合計（日幣）</span><span class="money">' + yen(TRIP.budget.jpyTotal) + '</span></div>';
-    h += '<div style="margin-top:14px">' + TRIP.budget.extra.map(function (x) {
+    h += '<div class="total-row grand"><span>住宿合計（日幣）</span><span class="money">' + yen(budget.jpyTotal || 0) + '</span></div>';
+    h += '<div style="margin-top:14px">' + (budget.extra || []).map(function (x) {
       return '<div class="total-row"><span>' + esc(x.label) + '</span><span class="money">' + esc(x.amount) + '</span></div>';
     }).join('') + '</div>';
-    h += '<div class="muted" style="margin-top:12px">' + esc(TRIP.budget.note) + '</div></div>';
+    h += '<div class="muted" style="margin-top:12px">' + esc(budget.note || '') + '</div></div>';
+    }
 
     h += '<div class="sec-title">日幣換算</div><div class="card card-p">'
       + '<div class="conv"><input id="jpy-in" type="number" inputmode="decimal" value="10000" aria-label="日圓金額">'
@@ -4048,14 +4369,14 @@ window.TODOS = [
       + '<div class="rate-row"><span>匯率　1 JPY =</span><input id="rate-in" type="number" inputmode="decimal" step="0.001" value="' + state.rate + '" aria-label="匯率"><span>TWD</span></div>'
       + '<div class="muted" style="margin-top:10px">匯率是離線手動設定值，出發前請自行更新為當日匯率。</div></div>';
 
-    h += '<div class="sec-title">同行成員</div><div class="card card-p"><div style="font-size:13.5px">' + esc(TRIP.party) + '</div></div>';
+    if (TRIP.party) h += '<div class="sec-title">同行成員</div><div class="card card-p"><div style="font-size:13.5px">' + esc(TRIP.party) + '</div></div>';
 
-    h += '<div class="card card-p" style="margin-top:18px"><div class="muted">'
-      + '資料來源：《2026九州行程0927~1005.xls》。飯店地址與電話為網路查證結果，出發前建議再和訂房確認信核對一次。</div></div>';
+    if (TRIP.source) h += '<div class="card card-p" style="margin-top:18px"><div class="muted">' + esc(TRIP.source) + '</div></div>';
 
     var who = gateSession();
     h += '<div class="owner-row">'
       + (who && who.name ? '<span>' + esc(who.name) + '，行程有變動請在後台改。</span>' : '<span></span>')
+      + ((SITE.trips || []).length > 1 ? '<a href="#/trips">切換行程</a>' : '')
       + '<a href="#/admin">後台管理</a></div>';
     return h;
   }
@@ -4063,7 +4384,7 @@ window.TODOS = [
   /* ---------- 密碼門檻 ----------
      說明：這是「擋一下」用的，不是資安機制。資料本身是明文，
      會看網頁原始碼的人可以繞過。詳見 README。 */
-  var GATE_KEY = 'kyushu2026:gate';
+  var GATE_KEY = NS + 'gate';
   function hashPw(pw, salt) {
     var text = (salt || '') + ' ' + pw;
     if (window.crypto && crypto.subtle && crypto.subtle.digest) {
@@ -4085,7 +4406,7 @@ window.TODOS = [
 
   function gateSession() { try { return JSON.parse(localStorage.getItem(GATE_KEY) || 'null'); } catch (e) { return null; } }
   function gateNeeded() {
-    var g = CONFIG.gate || {};
+    var g = SITE.gate || {};
     if (!g.enabled || !g.entry) return false;
     var s = gateSession();
     return !(s && s.entry === g.entry);
@@ -4093,14 +4414,15 @@ window.TODOS = [
   window.__gateSession = gateSession;
 
   function showGate() {
-    var g = CONFIG.gate || {};
+    var g = SITE.gate || {};
+    var n = (SITE.trips || []).length;
     var wrap = document.createElement('div');
     wrap.id = 'gate';
     wrap.innerHTML =
       '<div class="gate-card">'
       + '<div class="gate-mark">' + I('today') + '</div>'
-      + '<h2>九州旅遊助手</h2>'
-      + '<p class="gate-sub">2026/09/27 – 10/05　六人自駕團</p>'
+      + '<h2>旅遊助手</h2>'
+      + '<p class="gate-sub">' + (n > 1 ? n + ' 趟行程' : '家人朋友的行程小抄') + '</p>'
       + '<label>你的名字<input id="gate-name" type="text" autocomplete="nickname" placeholder="例：澤右"></label>'
       + '<label>密碼<input id="gate-pw" type="password" autocomplete="current-password"></label>'
       + '<button id="gate-go" class="btn-primary" type="button">進入</button>'
@@ -4118,7 +4440,7 @@ window.TODOS = [
         if (h !== g.entry) { msg.textContent = '密碼不對'; pwEl.select(); return; }
         try { localStorage.setItem(GATE_KEY, JSON.stringify({ name: nm, entry: h, at: Date.now() })); } catch (e) {}
         wrap.remove();
-        render();
+        go();
       });
     }
     wrap.querySelector('#gate-go').addEventListener('click', tryEnter);
@@ -4126,51 +4448,213 @@ window.TODOS = [
     setTimeout(function () { nameEl.focus(); }, 50);
   }
 
-  /* ---------- router ---------- */
-  var TITLES = {
-    today: ['今天', '2026/09/27 – 10/05'], plan: ['行程總覽', '九州自駕 9 天'],
-    pack: ['行李打包', '出發前逐項確認'], guide: ['旅遊指南', '離線可用'],
-    info: ['旅遊資訊', '航班・租車・住宿・費用']
-  };
+  /* ---------- 行程載入 ----------
+     引擎只認 SITE.trips 的索引，內容在 trips/<id>/ 底下，進到那趟才載入。 */
+  function tripMeta(id) {
+    var ts = SITE.trips || [];
+    for (var i = 0; i < ts.length; i++) if (ts[i].id === id) return ts[i];
+    return null;
+  }
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var el = document.createElement('script');
+      el.src = src; el.async = false;
+      el.onload = function () { res(); };
+      el.onerror = function () { rej(new Error(src + ' 載入失敗')); };
+      document.head.appendChild(el);
+    });
+  }
+  var artLoaded = {}, activeTrip = null;
+  function ensureTrip(id) {
+    if (activeTrip === id) return Promise.resolve();
+    var meta = tripMeta(id);
+    if (!meta) return Promise.reject(new Error('找不到這趟行程'));
+    /* 單檔版（tools/build-single.js）已經把資料 inline 進來了，不用再抓 */
+    if (window.__BUNDLED_TRIP === id) { bindTrip(id); activeTrip = id; return Promise.resolve(); }
+    var base = 'trips/' + id + '/', chain = Promise.resolve();
+    /* 先清空，免得某支載不到時還留著上一趟的資料 */
+    TRIP_KEYS.forEach(function (k) { window[k] = null; });
+    /* 每支都是選配：線上還沒發布的新行程靠本機草稿也要能開 */
+    ['trip.js', 'guide.js', 'packing.js', 'places.js'].forEach(function (f) {
+      chain = chain.then(function () { return loadScript(base + f).catch(function () {}); });
+    });
+    (meta.artPacks || []).forEach(function (pk) {
+      if (artLoaded[pk]) return;
+      chain = chain.then(function () {
+        return loadScript('data/art/' + pk + '.js').then(function () { artLoaded[pk] = 1; }, function () {});
+      });
+    });
+    return chain.then(function () { bindTrip(id); activeTrip = id; });
+  }
 
-  function render() {
-    var hash = location.hash || '#/today';
-    var m = hash.match(/^#\/day\/(\d+)/), tab, html, i;
-    if (hash.indexOf('#/admin') === 0) {
-      if (!window.KYUSHU_ADMIN) { location.replace('#/today'); return; }
-      document.getElementById('tb-title').textContent = '後台管理';
-      document.getElementById('tb-sub').textContent = '編輯行程與發布';
-      var av = document.getElementById('view');
-      av.innerHTML = window.KYUSHU_ADMIN.view();
-      window.scrollTo(0, 0);
-      var alinks = document.querySelectorAll('#tabbar a');
-      for (var ai = 0; ai < alinks.length; ai++) alinks[ai].classList.remove('on');
-      window.KYUSHU_ADMIN.wire();
+  /* 沒指定要看哪趟時：優先進行中的，其次最近要出發的，再其次最近結束的 */
+  function pickTrip() {
+    var ts = (SITE.trips || []).slice();
+    if (!ts.length) return null;
+    var t = today(), live = null, next = null, past = null;
+    ts.forEach(function (x) {
+      var s0 = x.start ? dateObj(x.start) : null, e0 = x.end ? dateObj(x.end) : null;
+      if (s0 && e0 && t >= s0 && t <= e0) live = live || x;
+      else if (s0 && t < s0) { if (!next || dateObj(x.start) < dateObj(next.start)) next = x; }
+      else if (e0) { if (!past || dateObj(x.end) > dateObj(past.end)) past = x; }
+    });
+    return (live || next || past || ts[0]).id;
+  }
+  function currentTripId() {
+    var last = lsGet(NS + 'lastTrip');
+    return (last && tripMeta(last)) ? last : pickTrip();
+  }
+
+  /* ---------- router ----------
+     行程網址：#/<tripId>/today、#/<tripId>/day/3
+     舊書籤 #/today、#/day/3 會自動導到上次看的那趟。 */
+  var TAB_T = { today: '今天', plan: '行程總覽', pack: '行李打包', guide: '旅遊指南', info: '旅遊資訊' };
+  function tabSub(tab) {
+    if (tab === 'today') return fmtRange(TRIP.start, TRIP.end);
+    if (tab === 'plan') return TRIP.days.length + ' 天行程';
+    if (tab === 'pack') return '出發前逐項確認';
+    if (tab === 'guide') return '離線可用';
+    return '航班・住宿・費用';
+  }
+  function fmtRange(a, b) {
+    if (!a || !b) return '';
+    return a.replace(/-/g, '/') + ' – ' + b.slice(5).replace(/-/g, '/');
+  }
+  function parseHash() {
+    var h = (location.hash || '').replace(/^#\/?/, '');
+    var seg = h ? h.split('/') : [];
+    if (!seg.length || !seg[0]) return { kind: 'home' };
+    if (seg[0] === 'trips') return { kind: 'picker' };
+    if (seg[0] === 'admin') return { kind: 'admin' };
+    if (tripMeta(seg[0])) {
+      var rest = seg.slice(1);
+      if (rest[0] === 'admin') return { kind: 'admin', id: seg[0] };
+      if (rest[0] === 'day') return { kind: 'trip', id: seg[0], tab: 'plan', day: +rest[1] };
+      return { kind: 'trip', id: seg[0], tab: TAB_T[rest[0]] ? rest[0] : 'today' };
+    }
+    return { kind: 'legacy', tab: TAB_T[seg[0]] ? seg[0] : 'today', day: seg[0] === 'day' ? +seg[1] : null };
+  }
+  function hashFor(tab, day) {
+    return '#/' + tripId + '/' + (day ? 'day/' + day : tab);
+  }
+  window.__hashFor = hashFor;
+
+  function setBar(title, sub) {
+    document.getElementById('tb-title').textContent = title;
+    var el = document.getElementById('tb-sub');
+    var multi = (SITE.trips || []).length > 1;
+    if (multi && TRIP) {
+      el.innerHTML = '<a class="tripsw" href="#/trips">' + esc(TRIP.title) + ' ▾</a>'
+        + (sub ? '<span class="tb-dot">·</span>' + esc(sub) : '');
+    } else {
+      el.textContent = sub || '';
+    }
+  }
+  function markTab(tab) {
+    var links = document.querySelectorAll('#tabbar a');
+    for (var i = 0; i < links.length; i++) {
+      var t = links[i].dataset.tab;
+      links[i].classList.toggle('on', t === tab);
+      if (tripId) links[i].setAttribute('href', hashFor(t));
+    }
+  }
+  function paint(html) {
+    document.getElementById('view').innerHTML = html;
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- 行程選單 ---------- */
+  function tripStatus(x) {
+    var t = today();
+    if (!x.start || !x.end) return { cls: '', txt: '' };
+    var s0 = dateObj(x.start), e0 = dateObj(x.end), d = dayDiff(t, s0);
+    if (t > e0) return { cls: 'past', txt: '已結束' };
+    if (t >= s0) return { cls: 'live', txt: '進行中・Day ' + (dayDiff(s0, t) + 1) };
+    return { cls: 'soon', txt: d === 1 ? '明天出發' : '還有 ' + d + ' 天' };
+  }
+  function renderPicker() {
+    var ts = (SITE.trips || []).slice().sort(function (a, b) {
+      return String(b.start || '').localeCompare(String(a.start || ''));
+    });
+    document.getElementById('tb-title').textContent = '我的行程';
+    document.getElementById('tb-sub').textContent = ts.length + ' 趟';
+    var h = ts.length ? '<div class="stack triplist">' + ts.map(function (x) {
+      var st = tripStatus(x);
+      return '<a class="tripcard ' + st.cls + '" href="#/' + esc(x.id) + '/today"'
+        + ' style="--rb:' + esc(x.color || '#cf4229') + '">'
+        + '<div class="tc-bar"></div><div class="tc-b">'
+        + (st.txt ? '<div class="tc-k">' + esc(st.txt) + '</div>' : '')
+        + '<h3>' + esc(x.title || x.id) + '</h3>'
+        + '<div class="meta">' + esc(fmtRange(x.start, x.end)) + '</div>'
+        + '</div></a>';
+    }).join('') + '</div>'
+      : '<div class="card card-p"><div class="muted">還沒有任何行程。到後台新增一趟吧。</div></div>';
+    h += '<div class="owner-row"><span></span><a href="#/admin">後台管理</a></div>';
+    paint(h);
+    markTab(null);
+  }
+
+  function showError(msg) {
+    document.getElementById('tb-title').textContent = '載不到行程';
+    document.getElementById('tb-sub').textContent = '';
+    paint('<div class="card card-p"><div class="alert warn">' + I('alert')
+      + '<div><b>提醒</b>' + esc(msg) + '</div></div>'
+      + '<p class="muted" style="margin-top:10px">離線時只看得到之前開過的行程。</p>'
+      + '<a class="btn" href="#/trips">回行程選單</a></div>');
+    markTab(null);
+  }
+
+  function renderAdmin() {
+    if (!window.KYUSHU_ADMIN) { location.replace(tripId ? hashFor('today') : '#/trips'); return; }
+    document.getElementById('tb-title').textContent = '後台管理';
+    document.getElementById('tb-sub').textContent = TRIP ? TRIP.title : '編輯行程與發布';
+    document.getElementById('view').innerHTML = window.KYUSHU_ADMIN.view();
+    window.scrollTo(0, 0);
+    markTab(null);
+    window.KYUSHU_ADMIN.wire();
+  }
+
+  function render(r) {
+    r = r || parseHash();
+    if (r.kind !== 'trip') { go(); return; }
+    if (r.day) {
+      var dd = null;
+      for (var i = 0; i < TRIP.days.length; i++) if (TRIP.days[i].n === r.day) dd = TRIP.days[i];
+      paint(viewDay(r.day));
+      setBar('Day ' + r.day, dd ? dd.date.replace(/-/g, '/') + '　' + dd.dow : '');
+      markTab('plan');
       return;
     }
-    if (m) {
-      tab = 'plan'; html = viewDay(+m[1]);
-      var dd = null;
-      for (i = 0; i < TRIP.days.length; i++) if (TRIP.days[i].n === +m[1]) dd = TRIP.days[i];
-      document.getElementById('tb-title').textContent = 'Day ' + m[1];
-      document.getElementById('tb-sub').textContent = dd ? dd.date.replace(/-/g, '/') + '　' + dd.dow : '';
-    } else {
-      tab = hash.replace('#/', '') || 'today';
-      if (!TITLES[tab]) tab = 'today';
-      html = tab === 'today' ? viewToday() : tab === 'plan' ? viewPlan()
-        : tab === 'pack' ? viewPack() : tab === 'guide' ? viewGuide() : viewInfo();
-      document.getElementById('tb-title').textContent = TITLES[tab][0];
-      document.getElementById('tb-sub').textContent = TITLES[tab][1];
-    }
-
-    var v = document.getElementById('view');
-    v.innerHTML = html;
-    window.scrollTo(0, 0);
-
-    var links = document.querySelectorAll('#tabbar a');
-    for (i = 0; i < links.length; i++) links[i].classList.toggle('on', links[i].dataset.tab === tab);
-
+    var tab = r.tab || 'today';
+    paint(tab === 'today' ? viewToday() : tab === 'plan' ? viewPlan()
+      : tab === 'pack' ? viewPack() : tab === 'guide' ? viewGuide() : viewInfo());
+    setBar(TAB_T[tab], tabSub(tab));
+    markTab(tab);
     if (tab === 'info') wireConverter();
+  }
+
+  function go() {
+    if (gateNeeded()) return;
+    var r = parseHash(), id;
+    if (r.kind === 'picker') { renderPicker(); return; }
+    if (r.kind === 'home') {
+      id = currentTripId();
+      location.replace(id ? '#/' + id + '/today' : '#/trips');
+      return;
+    }
+    if (r.kind === 'legacy') {
+      id = currentTripId();
+      if (!id) { location.replace('#/trips'); return; }
+      location.replace('#/' + id + '/' + (r.day ? 'day/' + r.day : r.tab));
+      return;
+    }
+    if (r.kind === 'admin') {
+      id = r.id || currentTripId();
+      if (!id) { location.replace('#/trips'); return; }
+      ensureTrip(id).then(renderAdmin, function (e) { showError(e.message); });
+      return;
+    }
+    ensureTrip(r.id).then(function () { render(r); }, function (e) { showError(e.message); });
   }
 
   function wireConverter() {
@@ -4203,7 +4687,8 @@ window.TODOS = [
   /* 今天頁跟著時間走：每分鐘、以及從背景切回來時重畫一次（正在打字時不打擾） */
   function refreshNow() {
     if (document.visibilityState === 'hidden' || gateNeeded()) return;
-    if (!/^#\/(today|day\/)/.test(location.hash || '#/today')) return;
+    var rr = parseHash();
+    if (rr.kind !== 'trip' || (rr.tab !== 'today' && !rr.day)) return;
     var a = document.activeElement;
     if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) return;
     var y = window.pageYOffset;
@@ -4252,12 +4737,12 @@ window.TODOS = [
 
   ART.mount();
 
-  window.addEventListener('hashchange', function () { if (!gateNeeded()) render(); });
-  if (!location.hash) location.replace('#/today');
-  if (gateNeeded()) showGate(); else render();
-  window.__render = render;
+  window.addEventListener('hashchange', function () { if (!gateNeeded()) go(); });
+  if (gateNeeded()) showGate(); else go();
+  window.__render = function () { go(); };
 
-  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+  /* 開發時網址加 ?nosw=1 可以不裝 Service Worker，免得改檔案還被舊快取蓋住 */
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0 && !/[?&]nosw=/.test(location.search)) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
   }
 })();
@@ -4268,8 +4753,8 @@ window.TODOS = [
 (function () {
   'use strict';
 
-  var TOKEN_KEY = 'kyushu2026:ghtoken';
-  var SESSION_KEY = 'kyushu2026:adminok';
+  var TOKEN_KEY = 'hz:ghtoken';
+  var SESSION_KEY = 'hz:adminok';
   var API = 'https://api.github.com';
 
   var tab = 'trip';      /* trip | book | places | pack | guide | setup */
@@ -4284,8 +4769,16 @@ window.TODOS = [
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function cfg() { return window.CONFIG || (window.CONFIG = { gate: {}, repo: {} }); }
+  function site() { return window.SITE || (window.SITE = { gate: {}, repo: {}, trips: [] }); }
+  function cfg() { return site(); }
+  function tripId() { return window.__tripId(); }
+  function tripMeta() {
+    var ts = site().trips || [], id = tripId();
+    for (var i = 0; i < ts.length; i++) if (ts[i].id === id) return ts[i];
+    return null;
+  }
   function saveDraft() { window.__saveData(); }
+  function saveSite() { window.__saveSite(); }
   function rerender() { window.__render(); }
   function say(msg) { flash = msg; }
 
@@ -4336,11 +4829,12 @@ window.TODOS = [
   }
 
   /* ---------- 各分頁 ---------- */
-  var REGION_OPTS = [
-    { v: 'fukuoka', t: '福岡' }, { v: 'dazaifu', t: '太宰府' }, { v: 'nagasaki', t: '長崎' },
-    { v: 'kumamoto', t: '熊本' }, { v: 'aso', t: '阿蘇' }, { v: 'kurokawa', t: '黑川' },
-    { v: 'yufuin', t: '由布院' }, { v: 'beppu', t: '別府' }, { v: 'journey', t: '移動中' }
-  ];
+  /* 地區清單的單一真相就是 TRIP.regions，不再另外維護一份 */
+  function regionOpts() {
+    return ((window.TRIP && window.TRIP.regions) || []).map(function (r) {
+      return { v: r.id, t: r.name || r.id };
+    });
+  }
   var PART_LABEL = { am: '上午', pm: '下午', night: '晚上' };
 
   function tabTrip() {
@@ -4359,7 +4853,7 @@ window.TODOS = [
       + field('地區標題', base + '.region')
       + field('當天標題', base + '.title')
       + selectField('住宿', base + '.hotel', [{ v: '', t: '（無）' }].concat(
-          window.TRIP.hotels.map(function (ht) { return { v: ht.key, t: ht.name }; })))
+          (window.TRIP.hotels || []).map(function (ht) { return { v: ht.key, t: ht.name }; })))
       + '</div>';
 
     (d.blocks || []).forEach(function (b, bi) {
@@ -4422,7 +4916,7 @@ window.TODOS = [
   function tabPlaces() {
     var P = window.PLACES;
     if (!P) return '<div class="a-empty">還沒有匯入收藏地點。</div>';
-    var groups = REGION_OPTS.filter(function (r) { return r.v !== 'journey'; })
+    var groups = regionOpts().filter(function (r) { return r.v !== 'journey'; })
       .map(function (r) { return { id: r.v, name: r.t, arr: 'PLACES.regions.' + r.v, list: (P.regions && P.regions[r.v]) || [] }; });
     groups.push({ id: '', name: '未分區', arr: 'PLACES.unassigned', list: P.unassigned || [] });
 
@@ -4439,7 +4933,7 @@ window.TODOS = [
               + field('導航（緯度,經度）', p + '.map')
               + '<label class="af"><span>改分到</span><select data-act="move" data-arr="' + esc(g.arr) + '" data-i="' + i + '">'
               + '<option value="">（不動）</option>'
-              + REGION_OPTS.filter(function (r) { return r.v !== 'journey'; })
+              + regionOpts().filter(function (r) { return r.v !== 'journey'; })
                   .map(function (r) { return '<option value="' + r.v + '">' + esc(r.t) + '</option>'; }).join('')
               + '<option value="__un">未分區</option>'
               + '</select></label>'
@@ -4513,9 +5007,22 @@ window.TODOS = [
       + '、後台密碼 ' + (g.admin ? '已設定' : '未設定') + '。</p>'
       + '</div></div>';
 
+    h += '<div class="a-sec"><h3>行程</h3><div class="a-card">'
+      + '<p class="a-note">目前編輯的是 <b>' + esc((window.TRIP && window.TRIP.title) || tripId()) + '</b>。'
+      + '下面可以開一趟新的 —— 開完會先存成這台裝置的草稿，按「發布到 GitHub」才會上線。</p>'
+      + '<label class="af"><span>網址代號（英文小寫，例如 kyoto-2027）</span><input type="text" id="nt-id" placeholder="kyoto-2027" autocapitalize="off" autocorrect="off"></label>'
+      + '<label class="af"><span>行程名稱</span><input type="text" id="nt-title" placeholder="2027 京都賞楓 6 日"></label>'
+      + '<div class="a-2col">'
+      + '<label class="af"><span>出發日</span><input type="date" id="nt-start"></label>'
+      + '<label class="af"><span>回程日</span><input type="date" id="nt-end"></label>'
+      + '</div>'
+      + '<label class="af"><span>主色</span><input type="color" id="nt-color" value="#2b6ca8"></label>'
+      + '<button type="button" class="btn-primary" data-act="newtrip">新增行程</button>'
+      + '</div></div>';
+
     h += '<div class="a-sec"><h3>發布到 GitHub</h3><div class="a-card">'
       + '<p class="a-note">草稿只存在這台裝置。要讓其他 5 個人看到，按下面的「發布」。</p>'
-      + field('帳號', 'CONFIG.repo.owner') + field('儲存庫', 'CONFIG.repo.name') + field('分支', 'CONFIG.repo.branch')
+      + field('帳號', 'SITE.repo.owner') + field('儲存庫', 'SITE.repo.name') + field('分支', 'SITE.repo.branch')
       + '<label class="af"><span>GitHub 存取權杖（Token）</span><input type="password" id="gh-token" autocomplete="off" placeholder="' + (hasToken ? '已存在這台裝置，留空＝不改' : 'ghp_… 或 github_pat_…') + '"></label>'
       + '<div class="a-btnrow">'
       + '<button type="button" data-act="savetoken">儲存權杖</button>'
@@ -4557,7 +5064,7 @@ window.TODOS = [
           : '<label class="af"><span>後台密碼</span><input type="password" id="lock-pw" autocomplete="current-password"></label>'
             + '<button type="button" class="btn-primary" data-act="unlock">進入</button>')
       + '<div id="lock-msg" class="gate-msg"></div>'
-      + '<p class="a-note">忘記密碼的話，把瀏覽器這個網站的資料清掉，或直接改 <code>data/config.js</code>。</p>'
+      + '<p class="a-note">忘記密碼的話，把瀏覽器這個網站的資料清掉，或直接改 <code>data/site.js</code>。</p>'
       + '</div>';
   }
 
@@ -4567,6 +5074,13 @@ window.TODOS = [
 
     var h = '';
     if (flash) { h += '<div class="a-flash">' + esc(flash) + '</div>'; flash = ''; }
+    var ts = site().trips || [];
+    if (ts.length > 1) {
+      h += '<div class="a-trips">' + ts.map(function (x) {
+        return '<a class="a-chip' + (x.id === tripId() ? ' on' : '') + '" href="#/' + esc(x.id) + '/admin">'
+          + esc(x.title || x.id) + '</a>';
+      }).join('') + '</div>';
+    }
     h += '<div class="a-tabs">' + TABS.map(function (t) {
       return '<button type="button" class="a-chip' + (t.id === tab ? ' on' : '') + '" data-act="tab" data-tab="' + t.id + '">' + esc(t.t) + '</button>';
     }).join('') + '</div>';
@@ -4574,7 +5088,7 @@ window.TODOS = [
       + (tab === 'trip' ? tabTrip() : tab === 'book' ? tabBook() : tab === 'places' ? tabPlaces()
         : tab === 'pack' ? tabPack() : tab === 'guide' ? tabGuide() : tabSetup())
       + '</div>';
-    h += '<div class="a-foot"><a href="#/today">← 回 App</a>'
+    h += '<div class="a-foot"><a href="' + esc(window.__hashFor('today')) + '">← 回 App</a>'
       + '<span>' + (window.__hasDraft() ? '有未發布的草稿' : '與線上版一致') + '</span></div>';
     return h;
   }
@@ -4610,7 +5124,7 @@ window.TODOS = [
       var v = el.value;
       if (el.type === 'number') v = v === '' ? 0 : Number(v);
       setPath(el.dataset.p, v);
-      saveDraft();
+      if (el.dataset.p.indexOf('SITE.') === 0) saveSite(); else saveDraft();
     });
 
     root.addEventListener('change', function (e) {
@@ -4661,6 +5175,7 @@ window.TODOS = [
       if (act === 'savepw') return doSavePw();
       if (act === 'savetoken') return doSaveToken();
       if (act === 'cleartoken') return doClearToken();
+      if (act === 'newtrip') return doNewTrip();
       if (act === 'publish') return doPublish();
       if (act === 'export') return doExport();
       if (act === 'discard') return doDiscard();
@@ -4732,11 +5247,12 @@ window.TODOS = [
 
   function doExport() {
     var data = {};
-    ['TRIP', 'GUIDE', 'PLACES', 'PACKING', 'TODOS', 'CONFIG'].forEach(function (k) { data[k] = window[k]; });
+    ['TRIP', 'GUIDE', 'PLACES', 'PACKING', 'TODOS'].forEach(function (k) { data[k] = window[k]; });
+    data.SITE = site();
     var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'kyushu-draft-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.download = tripId() + '-draft-' + new Date().toISOString().slice(0, 10) + '.json';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
   }
@@ -4747,6 +5263,60 @@ window.TODOS = [
     unlocked = true;
     say('已還原成線上版。');
     rerender();
+  }
+
+  /* ---------- 新增行程 ----------
+     產生一份最小可用的骨架存成草稿，馬上就能編輯；發布時才會寫進 repo。 */
+  function daysBetween(a, b) {
+    var out = [], d = new Date(a + 'T00:00:00'), end = new Date(b + 'T00:00:00'), n = 1;
+    var DOW = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+    while (d <= end && n < 100) {
+      out.push({
+        n: n, date: d.toISOString().slice(0, 10), dow: DOW[d.getDay()],
+        region: '', title: '第 ' + n + ' 天', hotel: '',
+        blocks: [{ part: 'am', where: '', items: [] }, { part: 'pm', where: '', items: [] }, { part: 'night', where: '', items: [] }]
+      });
+      d.setDate(d.getDate() + 1); n++;
+    }
+    return out;
+  }
+  function doNewTrip() {
+    var id = (document.getElementById('nt-id').value || '').trim().toLowerCase();
+    var title = (document.getElementById('nt-title').value || '').trim();
+    var start = document.getElementById('nt-start').value;
+    var end = document.getElementById('nt-end').value;
+    var color = document.getElementById('nt-color').value || '#2b6ca8';
+    if (!/^[a-z0-9][a-z0-9-]{1,40}$/.test(id)) { say('網址代號只能用英文小寫、數字和減號。'); rerender(); return; }
+    if ((site().trips || []).some(function (x) { return x.id === id; })) { say('這個代號已經有人用了。'); rerender(); return; }
+    if (!title) { say('先幫這趟旅行取個名字。'); rerender(); return; }
+    if (!start || !end || end < start) { say('日期不對：回程日不能早於出發日。'); rerender(); return; }
+
+    var days = daysBetween(start, end);
+    var dayRegion = {};
+    days.forEach(function (d) { dayRegion[d.n] = 'journey'; });
+
+    var skeleton = {
+      TRIP: {
+        title: title, start: start, end: end, party: '',
+        dayRegion: dayRegion,
+        regions: [{
+          id: 'journey', name: '移動中', art: 'core/journey',
+          palette: { rb: color, sky: '#f6e7d2', far: '#f0b878', mid: '#2e6d8e', near: '#24333d', pop: color, pale: '#fff6e8' }
+        }],
+        flights: [], hotels: [], budget: { jpyTotal: 0, extra: [], note: '' },
+        days: days
+      },
+      GUIDE: { regions: [], practical: [], phrases: [] },
+      PACKING: [], TODOS: [],
+      PLACES: { updated: '', regions: {}, unassigned: [] }
+    };
+    window.__seedTrip(id, skeleton);
+    site().trips = (site().trips || []).concat([
+      { id: id, title: title, start: start, end: end, color: color, artPacks: [] }
+    ]);
+    saveSite();
+    say('「' + title + '」已建立（' + days.length + ' 天）。先編輯內容，好了再按發布。');
+    location.hash = '#/' + id + '/admin';
   }
 
   /* ---------- 發布 ---------- */
@@ -4824,15 +5394,23 @@ window.TODOS = [
     var ver = (Number(cfg().cacheVersion) || 1) + 1;
     cfg().cacheVersion = ver;
 
+    /* 行程索引跟著行程資料走，不必人工維護兩份 */
+    var id = tripId(), base = 'trips/' + id + '/', meta = tripMeta();
+    if (meta) {
+      meta.title = window.TRIP.title;
+      meta.start = window.TRIP.start;
+      meta.end = window.TRIP.end;
+    }
+
     var files = [
-      ['data/trip.js', jsFile('/* 行程資料 — 由後台發布，手改會被下次發布覆蓋。 */', [['TRIP', window.TRIP]])],
-      ['data/guide.js', jsFile('/* 離線指南 — 由後台發布。景點／美食屬一般旅遊建議，非既定行程。 */', [['GUIDE', window.GUIDE]])],
-      ['data/packing.js', jsFile('/* 打包清單與待辦 — 由後台發布。改 id 會弄丟已勾選狀態。 */', [['PACKING', window.PACKING], ['TODOS', window.TODOS]])],
-      ['data/config.js', jsFile('/* 站台設定 — 由後台發布。存的是密碼雜湊，不是密碼本身。 */', [['CONFIG', cfg()]])],
+      [base + 'trip.js', jsFile('/* 行程資料 — 由後台發布，手改會被下次發布覆蓋。 */', [['TRIP', window.TRIP]])],
+      [base + 'guide.js', jsFile('/* 離線指南 — 由後台發布。景點／美食屬一般旅遊建議，非既定行程。 */', [['GUIDE', window.GUIDE]])],
+      [base + 'packing.js', jsFile('/* 打包清單與待辦 — 由後台發布。改 id 會弄丟已勾選狀態。 */', [['PACKING', window.PACKING], ['TODOS', window.TODOS]])],
+      ['data/site.js', jsFile('/* 站台設定與行程索引 — 由後台發布。存的是密碼雜湊，不是密碼本身。 */', [['SITE', site()]])],
       ['sw.js', null]   /* 稍後用讀回來的內容改版本號 */
     ];
     if (window.PLACES) {
-      files.splice(3, 0, ['data/places.js', jsFile('/* 收藏地點 — 由後台發布或 tools/import-places.js 產生。 */', [['PLACES', window.PLACES]])]);
+      files.splice(3, 0, [base + 'places.js', jsFile('/* 收藏地點 — 由後台發布或 tools/import-places.js 產生。 */', [['PLACES', window.PLACES]])]);
     }
 
     log('快取版本 → v' + ver);
@@ -4841,8 +5419,12 @@ window.TODOS = [
     gh('/contents/sw.js?ref=' + encodeURIComponent(r.branch))
       .then(function (j) {
         var cur = new TextDecoder().decode(Uint8Array.from(atob(j.content.replace(/\n/g, '')), function (c) { return c.charCodeAt(0); }));
-        var next = cur.replace(/kyushu2026-v\d+/, 'kyushu2026-v' + ver);
-        files[files.length - 1][1] = next;
+        var re = /hz-v\d+/;
+        /* 沒命中就不能默默發下去：版本號沒加，團員手機會永遠用舊快取 */
+        if (!re.test(cur)) {
+          throw new Error('sw.js 裡找不到快取版本號（預期 hz-vN），已中止發布。請先檢查 sw.js 的 CACHE 行。');
+        }
+        files[files.length - 1][1] = cur.replace(re, 'hz-v' + ver);
       })
       .then(function () {
         return files.reduce(function (chain, f) {
@@ -4852,7 +5434,7 @@ window.TODOS = [
       .then(function () {
         log('');
         log('發布完成。GitHub Pages 約 1 分鐘後生效，團員重開 App 就會更新。');
-        saveDraft();
+        saveDraft(); saveSite();
       })
       .catch(function (e) {
         log('✗ 失敗：' + e.message);
@@ -4870,7 +5452,8 @@ window.TODOS = [
   window.KYUSHU_ADMIN = { view: view, wire: wire };
 
   /* app.js 先跑完才載入這支，若一開啟就是 #/admin，補畫一次 */
-  if (location.hash.indexOf('#/admin') === 0 && window.__render) window.__render();
+  /* 直接用 #/…/admin 進來時，app.js 可能在 admin.js 載入前就先畫過一次 */
+  if (/\/admin$/.test(location.hash) && window.__render) window.__render();
 })();
 
 </script>

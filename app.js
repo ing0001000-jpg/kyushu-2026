@@ -1,12 +1,36 @@
-/* 九州旅遊助手 — vanilla JS，無外部依賴（Google Fonts 失效時自動退回系統字型） */
+/* 旅遊助手 — vanilla JS，無外部依賴（Google Fonts 失效時自動退回系統字型）。
+   引擎與行程資料分離：這支只認 data/site.js 的行程索引，內容在 trips/<id>/ 底下。 */
 (function () {
   'use strict';
 
-  /* ---------- 資料覆寫層 ----------
-     後台改過的資料存在 localStorage，開機時蓋回原始資料上。
+  /* ---------- 儲存命名空間 ----------
+     全域（跨行程共用）：hz:theme / hz:gate / hz:lastTrip / hz:ghtoken / hz:site
+     每趟行程：hz:<tripId>:state（打包勾選、匯率）、hz:<tripId>:data（後台草稿）
+     舊版的 kyushu2026:* 開機時自動搬過來，搬完保留舊 key 當回退保險。 */
+  var NS = 'hz:';
+  var SITE = window.SITE || { gate: {}, repo: {}, trips: [] };
+  var TRIP_KEYS = ['TRIP', 'GUIDE', 'PLACES', 'PACKING', 'TODOS'];
+
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  function jGet(k) { try { return JSON.parse(lsGet(k) || 'null'); } catch (e) { return null; } }
+
+  (function migrateLegacy() {
+    if (lsGet(NS + 'migrated')) return;
+    var old = jGet('kyushu2026:v1');
+    if (old && !lsGet(NS + 'kyushu-2026:state')) {
+      lsSet(NS + 'kyushu-2026:state', JSON.stringify({ checks: old.checks || {}, rate: old.rate, mine: old.mine || [] }));
+      if (old.theme) lsSet(NS + 'theme', old.theme);
+    }
+    [['kyushu2026:data', 'kyushu-2026:data'], ['kyushu2026:gate', 'gate'], ['kyushu2026:ghtoken', 'ghtoken']]
+      .forEach(function (p) { var v = lsGet(p[0]); if (v && !lsGet(NS + p[1])) lsSet(NS + p[1], v); });
+    lsSet(NS + 'migrated', '1');
+  })();
+
+  /* ---------- 資料覆寫層（每趟一份） ----------
+     後台改過的資料存在 localStorage，載入該趟時蓋回原始資料上。
      用「就地取代」而不是換掉物件，下面各處抓到的參照才不會失效。 */
-  var DATA_KEY = 'kyushu2026:data';
-  var DATA_KEYS = ['TRIP', 'GUIDE', 'PLACES', 'PACKING', 'TODOS', 'CONFIG'];
   function deepCopy(o) { return JSON.parse(JSON.stringify(o)); }
   function replaceInPlace(t, s) {
     if (Array.isArray(t) && Array.isArray(s)) {
@@ -18,45 +42,74 @@
     Object.keys(s).forEach(function (k) { t[k] = s[k]; });
     return t;
   }
+
+  /* 站台設定草稿（gate / repo / trips），跨行程共用 */
+  (function () { var s = jGet(NS + 'site'); if (s && typeof s === 'object') replaceInPlace(SITE, s); })();
+  window.SITE = SITE;
+  window.__saveSite = function () { return lsSet(NS + 'site', JSON.stringify(SITE)); };
+  window.__resetSite = function () { lsDel(NS + 'site'); };
+
+  var TRIP = null, GUIDE = null, PACKING = null, TODOS = null, PLACES = null;
+  var ART = window.ART;
+  var tripId = null;
+
   window.__ORIG = {};
-  DATA_KEYS.forEach(function (k) { if (window[k]) window.__ORIG[k] = deepCopy(window[k]); });
-  try {
-    var __ov = JSON.parse(localStorage.getItem(DATA_KEY) || 'null');
-    if (__ov && typeof __ov === 'object') {
-      DATA_KEYS.forEach(function (k) { if (__ov[k] && window[k]) replaceInPlace(window[k], __ov[k]); });
+  function bindTrip(id) {
+    tripId = id;
+    window.__ORIG = {};
+    TRIP_KEYS.forEach(function (k) { if (window[k]) window.__ORIG[k] = deepCopy(window[k]); });
+    /* 草稿蓋回線上資料；剛開的新行程線上還沒有檔案，就整份用草稿的 */
+    var ov = jGet(NS + id + ':data');
+    if (ov && typeof ov === 'object') {
+      TRIP_KEYS.forEach(function (k) {
+        if (!ov[k]) return;
+        if (window[k]) replaceInPlace(window[k], ov[k]); else window[k] = deepCopy(ov[k]);
+      });
     }
-  } catch (e) { /* 讀不到就用原始資料 */ }
+    if (!window.TRIP) throw new Error('這趟行程還沒有資料');
+    TRIP = window.TRIP;
+    GUIDE = window.GUIDE || { regions: [], practical: [], phrases: [] };
+    PACKING = window.PACKING || [];
+    TODOS = window.TODOS || [];
+    PLACES = window.PLACES || { updated: '', regions: {}, unassigned: [] };
+    window.GUIDE = GUIDE; window.PACKING = PACKING; window.TODOS = TODOS; window.PLACES = PLACES;
+    if (!TRIP.regions) TRIP.regions = [];
+    if (!TRIP.days) TRIP.days = [];
+    loadState();
+    injectPalette();
+    lsSet(NS + 'lastTrip', id);
+  }
+  window.__tripId = function () { return tripId; };
 
   window.__saveData = function () {
+    if (!tripId) return false;
     var out = { savedAt: new Date().toISOString() };
-    DATA_KEYS.forEach(function (k) { if (window[k]) out[k] = window[k]; });
-    try { localStorage.setItem(DATA_KEY, JSON.stringify(out)); return true; } catch (e) { return false; }
+    TRIP_KEYS.forEach(function (k) { if (window[k]) out[k] = window[k]; });
+    return lsSet(NS + tripId + ':data', JSON.stringify(out));
   };
-  window.__hasDraft = function () { try { return !!localStorage.getItem(DATA_KEY); } catch (e) { return false; } };
+  window.__hasDraft = function () { return !!(tripId && lsGet(NS + tripId + ':data')); };
+  /* 後台「新增行程」用：線上還沒有檔案，先把骨架寫成該趟的草稿 */
+  window.__seedTrip = function (id, data) { return lsSet(NS + id + ':data', JSON.stringify(data)); };
   window.__resetData = function () {
-    try { localStorage.removeItem(DATA_KEY); } catch (e) {}
-    DATA_KEYS.forEach(function (k) {
+    if (tripId) lsDel(NS + tripId + ':data');
+    TRIP_KEYS.forEach(function (k) {
       if (window[k] && window.__ORIG[k]) replaceInPlace(window[k], deepCopy(window.__ORIG[k]));
     });
   };
 
-  var TRIP = window.TRIP, GUIDE = window.GUIDE, PACKING = window.PACKING, TODOS = window.TODOS, ART = window.ART;
-  var CONFIG = window.CONFIG || { gate: {}, repo: {} };
-  var PLACES = window.PLACES || { updated: '', regions: {}, unassigned: [] };
-
-  /* ---------- storage (never throw) ---------- */
-  var KEY = 'kyushu2026:v1';
-  var state = { theme: null, checks: {}, rate: 0.215, mine: [] };
-  try {
-    var raw = localStorage.getItem(KEY);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') {
-      state.theme = p.theme || null;
+  /* ---------- state（打包勾選／匯率：每趟一份；主題：全站一份） ---------- */
+  var theme = lsGet(NS + 'theme') || null;
+  var state = { checks: {}, rate: 0.215, mine: [] };
+  function loadState() {
+    state = { checks: {}, rate: 0.215, mine: [] };
+    var p = jGet(NS + tripId + ':state');
+    if (p && typeof p === 'object') {
       state.checks = p.checks || {};
       if (typeof p.rate === 'number' && p.rate > 0) state.rate = p.rate;
       if (Array.isArray(p.mine)) state.mine = p.mine.filter(function (x) { return x && x.id && x.t; });
-    } }
-  } catch (e) { /* 無痕模式／封鎖儲存時照常運作 */ }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+    }
+  }
+  function save() { if (tripId) lsSet(NS + tripId + ':state', JSON.stringify(state)); }
 
   /* ---------- utils ---------- */
   function esc(s) {
@@ -87,22 +140,50 @@
   function dayDiff(a, b) { return Math.round((b - a) / 86400000); }
   function fmtMD(s) { var a = s.split('-'); return (+a[1]) + '/' + (+a[2]); }
   function I(name) { return ART.icons[name] || ''; }
-  function scene(reg) { return ART.svg(reg); }
-  function regOf(n) { return TRIP.dayRegion[n] || 'journey'; }
+  function regOf(n) { return (TRIP.dayRegion && TRIP.dayRegion[n]) || defaultReg(); }
+
+  /* ---------- 地區：色盤與插畫都從 TRIP.regions 來 ----------
+     以前同一組地區 id 散在 app.css、art.js、admin.js 各一份，改成只有這裡一份。 */
+  function regionOf(id) {
+    var rs = (TRIP && TRIP.regions) || [];
+    for (var i = 0; i < rs.length; i++) if (rs[i].id === id) return rs[i];
+    return null;
+  }
+  function defaultReg() {
+    var rs = (TRIP && TRIP.regions) || [];
+    return regionOf('journey') ? 'journey' : (rs[0] ? rs[0].id : 'journey');
+  }
+  function artKey(id) { var r = regionOf(id); return (r && r.art) || ART.fallback; }
+  function scene(reg) { return ART.svg(artKey(reg)); }
+  function stamp(reg) {
+    return '<span class="stamp" data-reg="' + esc(reg) + '">'
+      + ART.svg(artKey(reg), 'scene', 'xMidYMid slice') + '</span>';
+  }
+  var PAL_KEYS = ['rb', 'sky', 'far', 'mid', 'near', 'pop', 'pale'];
+  function injectPalette() {
+    var el = document.getElementById('hz-palette');
+    if (!el) { el = document.createElement('style'); el.id = 'hz-palette'; document.head.appendChild(el); }
+    el.textContent = ((TRIP && TRIP.regions) || []).map(function (r) {
+      var p = r.palette || {};
+      return '[data-reg="' + r.id + '"]{' + PAL_KEYS.map(function (k) {
+        return (k === 'rb' ? '--rb:' : '--c-' + k + ':') + (p[k] || '#8a8a8a');
+      }).join(';') + '}';
+    }).join('\n');
+  }
 
   var PART = { am: ['上午', 'sun'], pm: ['下午', 'cloud'], night: ['晚上', 'moon'] };
 
   /* ---------- theme ---------- */
   function applyTheme() {
-    if (state.theme) document.documentElement.setAttribute('data-theme', state.theme);
+    if (theme) document.documentElement.setAttribute('data-theme', theme);
     else document.documentElement.removeAttribute('data-theme');
   }
   applyTheme();
   document.getElementById('theme-btn').addEventListener('click', function () {
     var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches;
-    if (!state.theme) state.theme = sysDark ? 'light' : 'dark';
-    else state.theme = state.theme === 'dark' ? 'light' : 'dark';
-    applyTheme(); save();
+    if (!theme) theme = sysDark ? 'light' : 'dark';
+    else theme = theme === 'dark' ? 'light' : 'dark';
+    applyTheme(); lsSet(NS + 'theme', theme);
   });
 
   /* ---------- 現在進行到哪 ----------
@@ -371,7 +452,7 @@
     var t = today(), s = dateObj(TRIP.start);
     var isNow = allowNow !== false && dayDiff(s, t) === d.n - 1 && t >= s && t <= dateObj(TRIP.end);
     var hotel = hotelOf(d.hotel), reg = regOf(d.n);
-    return '<a class="daycard' + (isNow ? ' now' : '') + '" data-reg="' + esc(reg) + '" href="#/day/' + d.n + '">'
+    return '<a class="daycard' + (isNow ? ' now' : '') + '" data-reg="' + esc(reg) + '" href="' + hashFor('plan', d.n) + '">'
       + '<div class="dc-art">' + scene(reg)
       + '<div class="dc-badge">' + d.n + '</div>'
       + (isNow ? '<div class="dc-flag">今天</div>' : '') + '</div>'
@@ -420,9 +501,9 @@
     } else if (t > e) {
       h += '<div class="hero" data-reg="journey"><div class="hero-art">' + scene('journey') + '</div>'
         + '<div class="hero-body"><div class="eyebrow">旅程已結束</div>'
-        + '<div class="big">9<small>天</small></div>'
+        + '<div class="big">' + TRIP.days.length + '<small>天</small></div>'
         + '<h2>' + esc(TRIP.title) + '</h2>'
-        + '<div class="meta">2026/09/27 – 10/05 · 歡迎回家</div></div></div>'
+        + '<div class="meta">' + esc(fmtRange(TRIP.start, TRIP.end)) + ' · 歡迎回家</div></div></div>'
         + '<div class="sec-title">全部行程</div><div class="stack">'
         + TRIP.days.map(function (d) { return dayCard(d, false); }).join('') + '</div>';
 
@@ -447,7 +528,7 @@
       h += hotel ? hotelCard(hotel, '今晚住宿')
                  : '<div class="sec-title">住宿</div><div class="card card-p"><div class="muted">當晚搭機返台，無住宿。</div></div>';
       h += regionEatHtml(day.n);
-      h += '<div class="day-nav" data-reg="' + esc(reg) + '"><a class="wide" href="#/day/' + day.n + '">看今天完整行程 →</a></div>';
+      h += '<div class="day-nav" data-reg="' + esc(reg) + '"><a class="wide" href="' + hashFor('plan', day.n) + '">看今天完整行程 →</a></div>';
     }
     return h;
   }
@@ -455,8 +536,18 @@
   function viewPlan() {
     return '<div class="sec-title">9 天行程</div><div class="stack">'
       + TRIP.days.map(function (d) { return dayCard(d); }).join('') + '</div>'
-      + '<div class="card card-p" style="margin-top:18px"><div class="muted">'
-      + '行程內容擷取自《2026九州行程0927~1005.xls》，未經改寫。營業時間與價格請以現場公告為準。</div></div>';
+      + (TRIP.planNote ? '<div class="card card-p" style="margin-top:18px"><div class="muted">'
+        + esc(TRIP.planNote) + '</div></div>' : '');
+  }
+
+  /* 住宿概況：筆數由 hotels 算，晚數從 nights 字串裡的「N 晚」加總 */
+  function hotelSummary() {
+    var hs = TRIP.hotels || [];
+    var nights = hs.reduce(function (sum, h) {
+      var m = /(\d+)\s*晚/.exec(h.nights || '');
+      return sum + (m ? Number(m[1]) : 0);
+    }, 0);
+    return hs.length + ' 筆訂房' + (nights ? '・' + nights + ' 晚' : '');
   }
 
   function viewDay(n) {
@@ -465,7 +556,7 @@
     if (!d) return '<p>找不到這一天。</p>';
     var hotel = hotelOf(d.hotel), reg = regOf(d.n);
 
-    var h = '<a class="back" href="#/plan">‹ 全部行程</a>'
+    var h = '<a class="back" href="' + hashFor('plan') + '">‹ 全部行程</a>'
       + '<div class="hero" data-reg="' + esc(reg) + '"><div class="hero-art">' + scene(reg) + '</div>'
       + '<div class="hero-body"><div class="eyebrow">Day ' + d.n + ' · ' + esc(d.date.replace(/-/g, '/')) + ' ' + esc(d.dow) + '</div>'
       + '<h2 style="font-size:21px;margin-top:6px">' + esc(d.title) + '</h2>'
@@ -476,11 +567,12 @@
     if (d.drive) h += '<div class="drive" style="margin-top:12px">' + I('car') + '<span>' + esc(d.drive) + '</span></div>';
     h += blocksHtml(d) + '</div>';
 
-    h += hotel ? hotelCard(hotel, d.n === 9 ? '住宿' : '今晚住宿')
+    h += hotel ? hotelCard(hotel, d.n === TRIP.days.length ? '住宿' : '今晚住宿')
                : '<div class="sec-title">住宿</div><div class="card card-p"><div class="muted">當晚搭機返台，無住宿。</div></div>';
     h += regionEatHtml(d.n);
 
-    var prev = d.n > 1 ? '#/day/' + (d.n - 1) : null, next = d.n < 9 ? '#/day/' + (d.n + 1) : null;
+    var prev = d.n > 1 ? hashFor('plan', d.n - 1) : null,
+        next = d.n < TRIP.days.length ? hashFor('plan', d.n + 1) : null;
     h += '<div class="day-nav">'
       + '<a class="' + (prev ? '' : 'dis') + '" href="' + (prev || '#') + '">‹ Day ' + (d.n - 1) + '</a>'
       + '<a class="' + (next ? '' : 'dis') + '" href="' + (next || '#') + '">Day ' + (d.n + 1) + ' ›</a></div>';
@@ -529,35 +621,36 @@
   var PRACT_IC = { drive: 'car', onsen: 'onsen', money: 'yen', weather: 'sun', emergency: 'alert' };
 
   function viewGuide() {
-    var h = '<div class="sec-title">各區美食與景點</div><div class="stack">';
-    h += GUIDE.regions.map(function (r) {
+    var gr = (GUIDE && GUIDE.regions) || [], gp = (GUIDE && GUIDE.practical) || [], gf = (GUIDE && GUIDE.phrases) || [];
+    var h = gr.length ? '<div class="sec-title">各區美食與景點</div><div class="stack">' : '';
+    h += gr.map(function (r) {
       return '<details class="acc" data-reg="' + esc(r.id) + '"><summary>'
-        + ART.stamp(r.id)
+        + stamp(r.id)
         + '<span class="acc-t"><b>' + esc(r.name) + '</b><span>' + esc(r.days) + '</span></span>'
         + '<span class="caret">⌄</span></summary><div class="acc-body">'
         + '<div class="sub-h">吃什麼</div><ul class="ilist">'
-        + r.eat.map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
+        + (r.eat || []).map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
         + '</ul><div class="sub-h">看什麼</div><ul class="ilist">'
-        + r.see.map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
+        + (r.see || []).map(function (x) { return '<li><div class="n">' + esc(x.n) + '</div><div class="d">' + esc(x.d) + '</div></li>'; }).join('')
         + '</ul>'
         + myPlacesHtml(r.id)
         + (r.tips && r.tips.length ? '<div class="sub-h">小提醒</div><ul class="ilist">'
             + r.tips.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '')
         + '</div></details>';
-    }).join('') + '</div>';
+    }).join('') + (gr.length ? '</div>' : '');
 
     /* 匯入時判斷不出區域的收藏，獨立列出，避免資料靜靜消失 */
     if (PLACES.unassigned && PLACES.unassigned.length) {
       h += '<div class="sec-title">我的收藏・未分區</div><div class="card card-p">'
         + placeListHtml(PLACES.unassigned)
-        + '<div class="muted" style="margin-top:10px">這些地點離九州各區錨點較遠或缺座標，沒有自動歸區。</div></div>';
+        + '<div class="muted" style="margin-top:10px">這些地點離各區錨點較遠或缺座標，沒有自動歸區。</div></div>';
     }
     if (PLACES.updated) {
       h += '<div class="muted" style="margin-top:10px">收藏地點匯入日期：' + esc(PLACES.updated) + '</div>';
     }
 
-    h += '<div class="sec-title">實用資訊</div><div class="stack">';
-    h += GUIDE.practical.map(function (pr) {
+    if (gp.length) h += '<div class="sec-title">實用資訊</div><div class="stack">';
+    h += gp.map(function (pr) {
       return '<details class="acc"><summary>'
         + '<span class="acc-ic">' + I(PRACT_IC[pr.id] || 'info') + '</span>'
         + '<span class="acc-t"><b>' + esc(pr.title) + '</b></span>'
@@ -565,20 +658,24 @@
         + '<div class="acc-body"><ul class="ilist">'
         + pr.items.map(function (x) { return '<li>' + md(x) + '</li>'; }).join('')
         + '</ul></div></details>';
-    }).join('') + '</div>';
+    }).join('') + (gp.length ? '</div>' : '');
 
-    h += '<div class="sec-title">常用日文</div><div class="stack">';
-    h += GUIDE.phrases.map(function (g) {
+    if (gf.length) h += '<div class="sec-title">' + esc(GUIDE.phrasesTitle || '常用會話') + '</div><div class="stack">';
+    h += gf.map(function (g) {
       return '<details class="acc"><summary>'
         + '<span class="acc-ic">' + I('guide') + '</span>'
         + '<span class="acc-t"><b>' + esc(g.g) + '</b></span>'
         + '<span class="caret">⌄</span></summary><div class="acc-body">'
         + g.list.map(function (x) {
-            return '<div class="ph"><div class="jp">' + esc(x.jp) + '</div>'
+            return '<div class="ph"><div class="jp">' + esc(x.local != null ? x.local : x.jp) + '</div>'
               + '<div class="tw">' + esc(x.tw) + '</div><div class="rm">' + esc(x.rm) + '</div></div>';
           }).join('')
         + '</div></details>';
-    }).join('') + '</div>';
+    }).join('') + (gf.length ? '</div>' : '');
+
+    if (!gr.length && !gp.length && !gf.length) {
+      h += '<div class="card card-p"><div class="muted">這趟還沒有指南內容。到後台的「指南」分頁加吧。</div></div>';
+    }
 
     h += '<div class="card card-p" style="margin-top:18px"><div class="muted">'
       + '本頁的景點與美食為一般旅遊建議，不是已排定的行程；營業時間、價格與活動舉辦與否請以官方即時公告為準。</div></div>';
@@ -586,8 +683,9 @@
   }
 
   function viewInfo() {
-    var h = '<div class="sec-title">航班</div><div class="card card-p">';
-    h += TRIP.flights.map(function (f) {
+    var h = '', flights = TRIP.flights || [], hotels = TRIP.hotels || [];
+    if (flights.length) h += '<div class="sec-title">航班</div><div class="card card-p">';
+    h += flights.map(function (f) {
       return '<div class="fl"><div class="fl-code"><b>' + esc(f.code) + '</b><span>' + esc(f.air) + '</span></div>'
         + '<div style="flex:1;min-width:0">'
         + '<div class="fl-rt"><div><div class="t">' + esc(f.dep) + '</div><div class="a">' + esc(f.from) + '</div></div>'
@@ -595,30 +693,37 @@
         + '<div style="text-align:right"><div class="t">' + esc(f.arr) + '</div><div class="a">' + esc(f.to) + '</div></div></div>'
         + '<div class="fl-when">' + esc(f.date.replace(/-/g, '/')) + '<span class="whopill">' + esc(f.who) + '</span></div>'
         + '</div></div>';
-    }).join('') + '</div>';
+    }).join('') + (flights.length ? '</div>' : '');
 
-    h += '<div style="margin-top:11px">' + alertsHtml([{ level: 'danger',
-      text: '**最後一天要分開行動。**兩團班機差 2 小時：小阿姨團（4 人）IT721 17:10 起飛，建議 15:10 前抵達機場報到，比行程表寫的「16:30 出發前往機場」早很多。澤右（2 人）BR101 19:20 起飛才符合原表格時間。' }]) + '</div>';
+    /* 這段提醒以前寫死在程式碼裡，改成資料，後台就能改 */
+    if (TRIP.infoAlerts && TRIP.infoAlerts.length) {
+      h += '<div style="margin-top:11px">' + alertsHtml(TRIP.infoAlerts) + '</div>';
+    }
 
-    h += '<div class="sec-title">租車</div><div class="card card-p" data-reg="fukuoka"><dl>'
+    if (TRIP.car && TRIP.car.pickup) h += '<div class="sec-title">租車</div><div class="card card-p" data-reg="' + esc(regOf(1)) + '"><dl>'
       + '<div class="kv"><dt>取車</dt><dd>' + esc(TRIP.car.pickup.date.replace(/-/g, '/')) + ' ' + esc(TRIP.car.pickup.time) + '<br>' + esc(TRIP.car.pickup.place) + '</dd></div>'
       + '<div class="kv"><dt>還車</dt><dd>' + esc(TRIP.car.dropoff.date.replace(/-/g, '/')) + ' ' + esc(TRIP.car.dropoff.time) + '<br>' + esc(TRIP.car.dropoff.place) + '</dd></div>'
       + '</dl><ul class="ilist" style="margin-top:10px">'
       + TRIP.car.notes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>'
       + navBtn(TRIP.car.pickup.map, '取車地點') + navBtn(TRIP.car.dropoff.map, '還車地點') + '</div>';
 
-    h += '<div class="sec-title">住宿　6 筆訂房・8 晚</div><div class="stack">'
-      + TRIP.hotels.map(function (ht) { return hotelCard(ht, null); }).join('') + '</div>';
+    if (hotels.length) {
+      h += '<div class="sec-title">住宿　' + hotelSummary() + '</div><div class="stack">'
+        + hotels.map(function (ht) { return hotelCard(ht, null); }).join('') + '</div>';
+    }
 
+    var budget = TRIP.budget || {};
+    if (hotels.length || budget.jpyTotal) {
     h += '<div class="sec-title">費用</div><div class="card card-p">';
-    h += TRIP.hotels.map(function (ht) {
+    h += hotels.map(function (ht) {
       return '<div class="total-row"><span>' + esc(ht.name) + '</span><span class="money">' + yen(ht.price) + '</span></div>';
     }).join('');
-    h += '<div class="total-row grand"><span>住宿合計（日幣）</span><span class="money">' + yen(TRIP.budget.jpyTotal) + '</span></div>';
-    h += '<div style="margin-top:14px">' + TRIP.budget.extra.map(function (x) {
+    h += '<div class="total-row grand"><span>住宿合計（日幣）</span><span class="money">' + yen(budget.jpyTotal || 0) + '</span></div>';
+    h += '<div style="margin-top:14px">' + (budget.extra || []).map(function (x) {
       return '<div class="total-row"><span>' + esc(x.label) + '</span><span class="money">' + esc(x.amount) + '</span></div>';
     }).join('') + '</div>';
-    h += '<div class="muted" style="margin-top:12px">' + esc(TRIP.budget.note) + '</div></div>';
+    h += '<div class="muted" style="margin-top:12px">' + esc(budget.note || '') + '</div></div>';
+    }
 
     h += '<div class="sec-title">日幣換算</div><div class="card card-p">'
       + '<div class="conv"><input id="jpy-in" type="number" inputmode="decimal" value="10000" aria-label="日圓金額">'
@@ -626,14 +731,14 @@
       + '<div class="rate-row"><span>匯率　1 JPY =</span><input id="rate-in" type="number" inputmode="decimal" step="0.001" value="' + state.rate + '" aria-label="匯率"><span>TWD</span></div>'
       + '<div class="muted" style="margin-top:10px">匯率是離線手動設定值，出發前請自行更新為當日匯率。</div></div>';
 
-    h += '<div class="sec-title">同行成員</div><div class="card card-p"><div style="font-size:13.5px">' + esc(TRIP.party) + '</div></div>';
+    if (TRIP.party) h += '<div class="sec-title">同行成員</div><div class="card card-p"><div style="font-size:13.5px">' + esc(TRIP.party) + '</div></div>';
 
-    h += '<div class="card card-p" style="margin-top:18px"><div class="muted">'
-      + '資料來源：《2026九州行程0927~1005.xls》。飯店地址與電話為網路查證結果，出發前建議再和訂房確認信核對一次。</div></div>';
+    if (TRIP.source) h += '<div class="card card-p" style="margin-top:18px"><div class="muted">' + esc(TRIP.source) + '</div></div>';
 
     var who = gateSession();
     h += '<div class="owner-row">'
       + (who && who.name ? '<span>' + esc(who.name) + '，行程有變動請在後台改。</span>' : '<span></span>')
+      + ((SITE.trips || []).length > 1 ? '<a href="#/trips">切換行程</a>' : '')
       + '<a href="#/admin">後台管理</a></div>';
     return h;
   }
@@ -641,7 +746,7 @@
   /* ---------- 密碼門檻 ----------
      說明：這是「擋一下」用的，不是資安機制。資料本身是明文，
      會看網頁原始碼的人可以繞過。詳見 README。 */
-  var GATE_KEY = 'kyushu2026:gate';
+  var GATE_KEY = NS + 'gate';
   function hashPw(pw, salt) {
     var text = (salt || '') + ' ' + pw;
     if (window.crypto && crypto.subtle && crypto.subtle.digest) {
@@ -663,7 +768,7 @@
 
   function gateSession() { try { return JSON.parse(localStorage.getItem(GATE_KEY) || 'null'); } catch (e) { return null; } }
   function gateNeeded() {
-    var g = CONFIG.gate || {};
+    var g = SITE.gate || {};
     if (!g.enabled || !g.entry) return false;
     var s = gateSession();
     return !(s && s.entry === g.entry);
@@ -671,14 +776,15 @@
   window.__gateSession = gateSession;
 
   function showGate() {
-    var g = CONFIG.gate || {};
+    var g = SITE.gate || {};
+    var n = (SITE.trips || []).length;
     var wrap = document.createElement('div');
     wrap.id = 'gate';
     wrap.innerHTML =
       '<div class="gate-card">'
       + '<div class="gate-mark">' + I('today') + '</div>'
-      + '<h2>九州旅遊助手</h2>'
-      + '<p class="gate-sub">2026/09/27 – 10/05　六人自駕團</p>'
+      + '<h2>旅遊助手</h2>'
+      + '<p class="gate-sub">' + (n > 1 ? n + ' 趟行程' : '家人朋友的行程小抄') + '</p>'
       + '<label>你的名字<input id="gate-name" type="text" autocomplete="nickname" placeholder="例：澤右"></label>'
       + '<label>密碼<input id="gate-pw" type="password" autocomplete="current-password"></label>'
       + '<button id="gate-go" class="btn-primary" type="button">進入</button>'
@@ -696,7 +802,7 @@
         if (h !== g.entry) { msg.textContent = '密碼不對'; pwEl.select(); return; }
         try { localStorage.setItem(GATE_KEY, JSON.stringify({ name: nm, entry: h, at: Date.now() })); } catch (e) {}
         wrap.remove();
-        render();
+        go();
       });
     }
     wrap.querySelector('#gate-go').addEventListener('click', tryEnter);
@@ -704,51 +810,213 @@
     setTimeout(function () { nameEl.focus(); }, 50);
   }
 
-  /* ---------- router ---------- */
-  var TITLES = {
-    today: ['今天', '2026/09/27 – 10/05'], plan: ['行程總覽', '九州自駕 9 天'],
-    pack: ['行李打包', '出發前逐項確認'], guide: ['旅遊指南', '離線可用'],
-    info: ['旅遊資訊', '航班・租車・住宿・費用']
-  };
+  /* ---------- 行程載入 ----------
+     引擎只認 SITE.trips 的索引，內容在 trips/<id>/ 底下，進到那趟才載入。 */
+  function tripMeta(id) {
+    var ts = SITE.trips || [];
+    for (var i = 0; i < ts.length; i++) if (ts[i].id === id) return ts[i];
+    return null;
+  }
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var el = document.createElement('script');
+      el.src = src; el.async = false;
+      el.onload = function () { res(); };
+      el.onerror = function () { rej(new Error(src + ' 載入失敗')); };
+      document.head.appendChild(el);
+    });
+  }
+  var artLoaded = {}, activeTrip = null;
+  function ensureTrip(id) {
+    if (activeTrip === id) return Promise.resolve();
+    var meta = tripMeta(id);
+    if (!meta) return Promise.reject(new Error('找不到這趟行程'));
+    /* 單檔版（tools/build-single.js）已經把資料 inline 進來了，不用再抓 */
+    if (window.__BUNDLED_TRIP === id) { bindTrip(id); activeTrip = id; return Promise.resolve(); }
+    var base = 'trips/' + id + '/', chain = Promise.resolve();
+    /* 先清空，免得某支載不到時還留著上一趟的資料 */
+    TRIP_KEYS.forEach(function (k) { window[k] = null; });
+    /* 每支都是選配：線上還沒發布的新行程靠本機草稿也要能開 */
+    ['trip.js', 'guide.js', 'packing.js', 'places.js'].forEach(function (f) {
+      chain = chain.then(function () { return loadScript(base + f).catch(function () {}); });
+    });
+    (meta.artPacks || []).forEach(function (pk) {
+      if (artLoaded[pk]) return;
+      chain = chain.then(function () {
+        return loadScript('data/art/' + pk + '.js').then(function () { artLoaded[pk] = 1; }, function () {});
+      });
+    });
+    return chain.then(function () { bindTrip(id); activeTrip = id; });
+  }
 
-  function render() {
-    var hash = location.hash || '#/today';
-    var m = hash.match(/^#\/day\/(\d+)/), tab, html, i;
-    if (hash.indexOf('#/admin') === 0) {
-      if (!window.KYUSHU_ADMIN) { location.replace('#/today'); return; }
-      document.getElementById('tb-title').textContent = '後台管理';
-      document.getElementById('tb-sub').textContent = '編輯行程與發布';
-      var av = document.getElementById('view');
-      av.innerHTML = window.KYUSHU_ADMIN.view();
-      window.scrollTo(0, 0);
-      var alinks = document.querySelectorAll('#tabbar a');
-      for (var ai = 0; ai < alinks.length; ai++) alinks[ai].classList.remove('on');
-      window.KYUSHU_ADMIN.wire();
+  /* 沒指定要看哪趟時：優先進行中的，其次最近要出發的，再其次最近結束的 */
+  function pickTrip() {
+    var ts = (SITE.trips || []).slice();
+    if (!ts.length) return null;
+    var t = today(), live = null, next = null, past = null;
+    ts.forEach(function (x) {
+      var s0 = x.start ? dateObj(x.start) : null, e0 = x.end ? dateObj(x.end) : null;
+      if (s0 && e0 && t >= s0 && t <= e0) live = live || x;
+      else if (s0 && t < s0) { if (!next || dateObj(x.start) < dateObj(next.start)) next = x; }
+      else if (e0) { if (!past || dateObj(x.end) > dateObj(past.end)) past = x; }
+    });
+    return (live || next || past || ts[0]).id;
+  }
+  function currentTripId() {
+    var last = lsGet(NS + 'lastTrip');
+    return (last && tripMeta(last)) ? last : pickTrip();
+  }
+
+  /* ---------- router ----------
+     行程網址：#/<tripId>/today、#/<tripId>/day/3
+     舊書籤 #/today、#/day/3 會自動導到上次看的那趟。 */
+  var TAB_T = { today: '今天', plan: '行程總覽', pack: '行李打包', guide: '旅遊指南', info: '旅遊資訊' };
+  function tabSub(tab) {
+    if (tab === 'today') return fmtRange(TRIP.start, TRIP.end);
+    if (tab === 'plan') return TRIP.days.length + ' 天行程';
+    if (tab === 'pack') return '出發前逐項確認';
+    if (tab === 'guide') return '離線可用';
+    return '航班・住宿・費用';
+  }
+  function fmtRange(a, b) {
+    if (!a || !b) return '';
+    return a.replace(/-/g, '/') + ' – ' + b.slice(5).replace(/-/g, '/');
+  }
+  function parseHash() {
+    var h = (location.hash || '').replace(/^#\/?/, '');
+    var seg = h ? h.split('/') : [];
+    if (!seg.length || !seg[0]) return { kind: 'home' };
+    if (seg[0] === 'trips') return { kind: 'picker' };
+    if (seg[0] === 'admin') return { kind: 'admin' };
+    if (tripMeta(seg[0])) {
+      var rest = seg.slice(1);
+      if (rest[0] === 'admin') return { kind: 'admin', id: seg[0] };
+      if (rest[0] === 'day') return { kind: 'trip', id: seg[0], tab: 'plan', day: +rest[1] };
+      return { kind: 'trip', id: seg[0], tab: TAB_T[rest[0]] ? rest[0] : 'today' };
+    }
+    return { kind: 'legacy', tab: TAB_T[seg[0]] ? seg[0] : 'today', day: seg[0] === 'day' ? +seg[1] : null };
+  }
+  function hashFor(tab, day) {
+    return '#/' + tripId + '/' + (day ? 'day/' + day : tab);
+  }
+  window.__hashFor = hashFor;
+
+  function setBar(title, sub) {
+    document.getElementById('tb-title').textContent = title;
+    var el = document.getElementById('tb-sub');
+    var multi = (SITE.trips || []).length > 1;
+    if (multi && TRIP) {
+      el.innerHTML = '<a class="tripsw" href="#/trips">' + esc(TRIP.title) + ' ▾</a>'
+        + (sub ? '<span class="tb-dot">·</span>' + esc(sub) : '');
+    } else {
+      el.textContent = sub || '';
+    }
+  }
+  function markTab(tab) {
+    var links = document.querySelectorAll('#tabbar a');
+    for (var i = 0; i < links.length; i++) {
+      var t = links[i].dataset.tab;
+      links[i].classList.toggle('on', t === tab);
+      if (tripId) links[i].setAttribute('href', hashFor(t));
+    }
+  }
+  function paint(html) {
+    document.getElementById('view').innerHTML = html;
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- 行程選單 ---------- */
+  function tripStatus(x) {
+    var t = today();
+    if (!x.start || !x.end) return { cls: '', txt: '' };
+    var s0 = dateObj(x.start), e0 = dateObj(x.end), d = dayDiff(t, s0);
+    if (t > e0) return { cls: 'past', txt: '已結束' };
+    if (t >= s0) return { cls: 'live', txt: '進行中・Day ' + (dayDiff(s0, t) + 1) };
+    return { cls: 'soon', txt: d === 1 ? '明天出發' : '還有 ' + d + ' 天' };
+  }
+  function renderPicker() {
+    var ts = (SITE.trips || []).slice().sort(function (a, b) {
+      return String(b.start || '').localeCompare(String(a.start || ''));
+    });
+    document.getElementById('tb-title').textContent = '我的行程';
+    document.getElementById('tb-sub').textContent = ts.length + ' 趟';
+    var h = ts.length ? '<div class="stack triplist">' + ts.map(function (x) {
+      var st = tripStatus(x);
+      return '<a class="tripcard ' + st.cls + '" href="#/' + esc(x.id) + '/today"'
+        + ' style="--rb:' + esc(x.color || '#cf4229') + '">'
+        + '<div class="tc-bar"></div><div class="tc-b">'
+        + (st.txt ? '<div class="tc-k">' + esc(st.txt) + '</div>' : '')
+        + '<h3>' + esc(x.title || x.id) + '</h3>'
+        + '<div class="meta">' + esc(fmtRange(x.start, x.end)) + '</div>'
+        + '</div></a>';
+    }).join('') + '</div>'
+      : '<div class="card card-p"><div class="muted">還沒有任何行程。到後台新增一趟吧。</div></div>';
+    h += '<div class="owner-row"><span></span><a href="#/admin">後台管理</a></div>';
+    paint(h);
+    markTab(null);
+  }
+
+  function showError(msg) {
+    document.getElementById('tb-title').textContent = '載不到行程';
+    document.getElementById('tb-sub').textContent = '';
+    paint('<div class="card card-p"><div class="alert warn">' + I('alert')
+      + '<div><b>提醒</b>' + esc(msg) + '</div></div>'
+      + '<p class="muted" style="margin-top:10px">離線時只看得到之前開過的行程。</p>'
+      + '<a class="btn" href="#/trips">回行程選單</a></div>');
+    markTab(null);
+  }
+
+  function renderAdmin() {
+    if (!window.KYUSHU_ADMIN) { location.replace(tripId ? hashFor('today') : '#/trips'); return; }
+    document.getElementById('tb-title').textContent = '後台管理';
+    document.getElementById('tb-sub').textContent = TRIP ? TRIP.title : '編輯行程與發布';
+    document.getElementById('view').innerHTML = window.KYUSHU_ADMIN.view();
+    window.scrollTo(0, 0);
+    markTab(null);
+    window.KYUSHU_ADMIN.wire();
+  }
+
+  function render(r) {
+    r = r || parseHash();
+    if (r.kind !== 'trip') { go(); return; }
+    if (r.day) {
+      var dd = null;
+      for (var i = 0; i < TRIP.days.length; i++) if (TRIP.days[i].n === r.day) dd = TRIP.days[i];
+      paint(viewDay(r.day));
+      setBar('Day ' + r.day, dd ? dd.date.replace(/-/g, '/') + '　' + dd.dow : '');
+      markTab('plan');
       return;
     }
-    if (m) {
-      tab = 'plan'; html = viewDay(+m[1]);
-      var dd = null;
-      for (i = 0; i < TRIP.days.length; i++) if (TRIP.days[i].n === +m[1]) dd = TRIP.days[i];
-      document.getElementById('tb-title').textContent = 'Day ' + m[1];
-      document.getElementById('tb-sub').textContent = dd ? dd.date.replace(/-/g, '/') + '　' + dd.dow : '';
-    } else {
-      tab = hash.replace('#/', '') || 'today';
-      if (!TITLES[tab]) tab = 'today';
-      html = tab === 'today' ? viewToday() : tab === 'plan' ? viewPlan()
-        : tab === 'pack' ? viewPack() : tab === 'guide' ? viewGuide() : viewInfo();
-      document.getElementById('tb-title').textContent = TITLES[tab][0];
-      document.getElementById('tb-sub').textContent = TITLES[tab][1];
-    }
-
-    var v = document.getElementById('view');
-    v.innerHTML = html;
-    window.scrollTo(0, 0);
-
-    var links = document.querySelectorAll('#tabbar a');
-    for (i = 0; i < links.length; i++) links[i].classList.toggle('on', links[i].dataset.tab === tab);
-
+    var tab = r.tab || 'today';
+    paint(tab === 'today' ? viewToday() : tab === 'plan' ? viewPlan()
+      : tab === 'pack' ? viewPack() : tab === 'guide' ? viewGuide() : viewInfo());
+    setBar(TAB_T[tab], tabSub(tab));
+    markTab(tab);
     if (tab === 'info') wireConverter();
+  }
+
+  function go() {
+    if (gateNeeded()) return;
+    var r = parseHash(), id;
+    if (r.kind === 'picker') { renderPicker(); return; }
+    if (r.kind === 'home') {
+      id = currentTripId();
+      location.replace(id ? '#/' + id + '/today' : '#/trips');
+      return;
+    }
+    if (r.kind === 'legacy') {
+      id = currentTripId();
+      if (!id) { location.replace('#/trips'); return; }
+      location.replace('#/' + id + '/' + (r.day ? 'day/' + r.day : r.tab));
+      return;
+    }
+    if (r.kind === 'admin') {
+      id = r.id || currentTripId();
+      if (!id) { location.replace('#/trips'); return; }
+      ensureTrip(id).then(renderAdmin, function (e) { showError(e.message); });
+      return;
+    }
+    ensureTrip(r.id).then(function () { render(r); }, function (e) { showError(e.message); });
   }
 
   function wireConverter() {
@@ -781,7 +1049,8 @@
   /* 今天頁跟著時間走：每分鐘、以及從背景切回來時重畫一次（正在打字時不打擾） */
   function refreshNow() {
     if (document.visibilityState === 'hidden' || gateNeeded()) return;
-    if (!/^#\/(today|day\/)/.test(location.hash || '#/today')) return;
+    var rr = parseHash();
+    if (rr.kind !== 'trip' || (rr.tab !== 'today' && !rr.day)) return;
     var a = document.activeElement;
     if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) return;
     var y = window.pageYOffset;
@@ -830,12 +1099,12 @@
 
   ART.mount();
 
-  window.addEventListener('hashchange', function () { if (!gateNeeded()) render(); });
-  if (!location.hash) location.replace('#/today');
-  if (gateNeeded()) showGate(); else render();
-  window.__render = render;
+  window.addEventListener('hashchange', function () { if (!gateNeeded()) go(); });
+  if (gateNeeded()) showGate(); else go();
+  window.__render = function () { go(); };
 
-  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+  /* 開發時網址加 ?nosw=1 可以不裝 Service Worker，免得改檔案還被舊快取蓋住 */
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0 && !/[?&]nosw=/.test(location.search)) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
   }
 })();

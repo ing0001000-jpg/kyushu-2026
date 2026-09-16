@@ -15,6 +15,178 @@ window.TRIP = {
     "8": "beppu",
     "9": "fukuoka"
   },
+  "regions": [
+    {
+      "id": "fukuoka",
+      "name": "福岡",
+      "art": "jp-kyushu/fukuoka",
+      "anchor": "33.5902,130.4017",
+      "keywords": [
+        "博多",
+        "天神",
+        "中洲",
+        "福岡"
+      ],
+      "palette": {
+        "rb": "#d9482f",
+        "sky": "#f7e3c7",
+        "far": "#f0b078",
+        "mid": "#2f5c7a",
+        "near": "#22333f",
+        "pop": "#d9482f",
+        "pale": "#fff2dd"
+      }
+    },
+    {
+      "id": "dazaifu",
+      "name": "太宰府",
+      "art": "jp-kyushu/dazaifu",
+      "anchor": "33.5215,130.5348",
+      "keywords": [
+        "太宰府",
+        "大宰府"
+      ],
+      "palette": {
+        "rb": "#c2593f",
+        "sky": "#f6eee0",
+        "far": "#8fae7e",
+        "mid": "#3f6b52",
+        "near": "#2f4436",
+        "pop": "#d24a3d",
+        "pale": "#f4c3ce"
+      }
+    },
+    {
+      "id": "nagasaki",
+      "name": "長崎",
+      "art": "jp-kyushu/nagasaki",
+      "anchor": "32.7503,129.8779",
+      "keywords": [
+        "長崎",
+        "佐世保",
+        "豪斯登堡"
+      ],
+      "palette": {
+        "rb": "#2b6ca8",
+        "sky": "#e9f1f3",
+        "far": "#a7c6d0",
+        "mid": "#2f6ea8",
+        "near": "#1e3a52",
+        "pop": "#e6b23c",
+        "pale": "#fdfaf2"
+      }
+    },
+    {
+      "id": "kumamoto",
+      "name": "熊本",
+      "art": "jp-kyushu/kumamoto",
+      "anchor": "32.8032,130.7079",
+      "keywords": [
+        "熊本",
+        "阿蘇熊本"
+      ],
+      "palette": {
+        "rb": "#37725a",
+        "sky": "#f4eede",
+        "far": "#a7c19c",
+        "mid": "#98968a",
+        "near": "#22303a",
+        "pop": "#dfa41c",
+        "pale": "#fdf7ea"
+      }
+    },
+    {
+      "id": "aso",
+      "name": "阿蘇",
+      "art": "jp-kyushu/aso",
+      "anchor": "32.8846,131.1042",
+      "keywords": [
+        "阿蘇",
+        "高千穗",
+        "南阿蘇"
+      ],
+      "palette": {
+        "rb": "#cf6b1e",
+        "sky": "#d9edf1",
+        "far": "#9ecfc4",
+        "mid": "#7ba85c",
+        "near": "#43604a",
+        "pop": "#e07a2e",
+        "pale": "#fbf7ea"
+      }
+    },
+    {
+      "id": "kurokawa",
+      "name": "黑川",
+      "art": "jp-kyushu/kurokawa",
+      "anchor": "33.0806,131.1447",
+      "keywords": [
+        "黑川",
+        "黒川"
+      ],
+      "palette": {
+        "rb": "#6e5b8f",
+        "sky": "#d9d2e8",
+        "far": "#6f6289",
+        "mid": "#443e5c",
+        "near": "#292541",
+        "pop": "#e8a13f",
+        "pale": "#f6efe0"
+      }
+    },
+    {
+      "id": "yufuin",
+      "name": "由布院",
+      "art": "jp-kyushu/yufuin",
+      "anchor": "33.2647,131.3556",
+      "keywords": [
+        "由布院",
+        "湯布院"
+      ],
+      "palette": {
+        "rb": "#17827f",
+        "sky": "#e7f0ec",
+        "far": "#a8cfc6",
+        "mid": "#2f7d7b",
+        "near": "#274a48",
+        "pop": "#dfa63c",
+        "pale": "#fbf8ec"
+      }
+    },
+    {
+      "id": "beppu",
+      "name": "別府",
+      "art": "jp-kyushu/beppu",
+      "anchor": "33.2846,131.4914",
+      "keywords": [
+        "別府",
+        "鐵輪"
+      ],
+      "palette": {
+        "rb": "#c94360",
+        "sky": "#f4eae1",
+        "far": "#7fa8bf",
+        "mid": "#56646f",
+        "near": "#2c3740",
+        "pop": "#cf4457",
+        "pale": "#fff7ee"
+      }
+    },
+    {
+      "id": "journey",
+      "name": "移動中",
+      "art": "core/journey",
+      "palette": {
+        "rb": "#cf4229",
+        "sky": "#f6e7d2",
+        "far": "#f0b878",
+        "mid": "#2e6d8e",
+        "near": "#24333d",
+        "pop": "#d9482f",
+        "pale": "#fff6e8"
+      }
+    }
+  ],
   "flights": [
     {
       "code": "BR106",
@@ -828,5 +1000,13 @@ window.TRIP = {
         }
       ]
     }
-  ]
+  ],
+  "infoAlerts": [
+    {
+      "level": "danger",
+      "text": "**最後一天要分開行動。**兩團班機差 2 小時：小阿姨團（4 人）IT721 17:10 起飛，建議 15:10 前抵達機場報到，比行程表寫的「16:30 出發前往機場」早很多。澤右（2 人）BR101 19:20 起飛才符合原表格時間。"
+    }
+  ],
+  "source": "資料來源：《2026九州行程0927~1005.xls》。飯店地址與電話為網路查證結果，出發前建議再和訂房確認信核對一次。",
+  "planNote": "行程內容擷取自《2026九州行程0927~1005.xls》，未經改寫。營業時間與價格請以現場公告為準。"
 };

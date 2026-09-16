@@ -1,10 +1,17 @@
 #!/usr/bin/env node
-/* 把 Google 地圖匯出的收藏地點轉成 data/places.js。
+/* 把 Google 地圖匯出的收藏地點轉成 trips/<行程>/places.js。
    支援：已儲存清單匯出的 CSV、Takeout 的 GeoJSON/JSON、我的地圖的 KML。
-   用法：node tools/import-places.js <檔案...> [--resolve]
-        --resolve 會連網把 maps.app.goo.gl 短網址展開成座標（沒帶就跳過，不連網）。 */
+   用法：node tools/import-places.js <檔案...> [--trip=<行程代號>] [--resolve]
+        --trip    預設 kyushu-2026
+        --resolve 會連網把 maps.app.goo.gl 短網址展開成座標（沒帶就跳過，不連網）。
+
+   分區錨點與關鍵字優先從 trips/<行程>/trip.js 的 regions[] 讀
+   （anchor: "緯度,經度"、keywords: [...]），讀不到才用下面九州的內建值。 */
 var fs = require('fs'), path = require('path'), https = require('https');
 var root = path.join(__dirname, '..');
+
+var TRIP_ID = (process.argv.filter(function (a) { return a.indexOf('--trip=') === 0; })[0] || '').slice(7) || 'kyushu-2026';
+var OUT = 'trips/' + TRIP_ID + '/places.js';
 
 /* 各區錨點（可多個）。座標只用來判斷「這個點屬於哪一區」，不寫進資料。 */
 var ANCHORS = [
@@ -30,6 +37,24 @@ var KEYWORDS = {
   yufuin:   ['湯布院', '由布院', '由布', '金鱗湖'],
   beppu:    ['別府', '地獄', '鉄輪', '鐵輪', '明礬', '九重', 'くじゅう']
 };
+
+/* 有 regions[] 的行程，就用行程自己的錨點與關鍵字覆蓋上面的預設值 */
+(function () {
+  var f = path.join(root, 'trips', TRIP_ID, 'trip.js');
+  if (!fs.existsSync(f)) return;
+  var src = fs.readFileSync(f, 'utf8');
+  var trip;
+  try { trip = JSON.parse(src.slice(src.indexOf('{'), src.lastIndexOf('}') + 1)); } catch (e) { return; }
+  var rs = (trip.regions || []).filter(function (r) { return r.anchor || (r.keywords && r.keywords.length); });
+  if (!rs.length) return;
+  ANCHORS = rs.filter(function (r) { return r.anchor; }).map(function (r) {
+    var a = String(r.anchor).split(',');
+    return { id: r.id, pts: [[Number(a[0]), Number(a[1])]] };
+  });
+  KEYWORDS = {};
+  rs.forEach(function (r) { if (r.keywords && r.keywords.length) KEYWORDS[r.id] = r.keywords; });
+  console.log('用 ' + TRIP_ID + ' 的 regions 分區（' + ANCHORS.length + ' 區）');
+})();
 
 /* ---------- 小工具 ---------- */
 function km(a, b) {
@@ -228,8 +253,8 @@ items = items.filter(function (it) {
     + unassigned.map(function (x) { return '    ' + J(x); }).join(',\n')
     + (unassigned.length ? '\n' : '') + '  ]\n};\n';
 
-  fs.writeFileSync(path.join(root, 'data/places.js'), out);
-  console.log('寫入 data/places.js');
+  fs.writeFileSync(path.join(root, OUT), out);
+  console.log('寫入 ' + OUT);
   ANCHORS.forEach(function (a) {
     if (byRegion[a.id].length) console.log('  ' + a.id + '：' + byRegion[a.id].length + ' 筆');
   });

@@ -49,42 +49,8 @@
    --c-pop 點綴（整張畫唯一的高彩度）　--c-pale 亮部（光／霧／白牆）
    --rb 是這個地區在 UI 上的主色。
    ------------------------------------------------------------ */
-[data-reg="fukuoka"]{ /* 中洲屋台的夜：暖橘燈光 × 河水藍 */
-  --rb:#d9482f;
-  --c-sky:#f7e3c7; --c-far:#f0b078; --c-mid:#2f5c7a;
-  --c-near:#22333f; --c-pop:#d9482f; --c-pale:#fff2dd }
-[data-reg="nagasaki"]{ /* 坡道之城：海霧藍 × 電車黃 */
-  --rb:#2b6ca8;
-  --c-sky:#e9f1f3; --c-far:#a7c6d0; --c-mid:#2f6ea8;
-  --c-near:#1e3a52; --c-pop:#e6b23c; --c-pale:#fdfaf2 }
-[data-reg="kumamoto"]{ /* 黑天守與銀杏：墨黑 × 漆喰白 × 銀杏金 */
-  --rb:#37725a;
-  --c-sky:#f4eede; --c-far:#a7c19c; --c-mid:#98968a;
-  --c-near:#22303a; --c-pop:#dfa41c; --c-pale:#fdf7ea }
-[data-reg="aso"]{ /* 高原：草綠 × 火山灰白 × 赤牛橘 */
-  --rb:#cf6b1e;
-  --c-sky:#d9edf1; --c-far:#9ecfc4; --c-mid:#7ba85c;
-  --c-near:#43604a; --c-pop:#e07a2e; --c-pale:#fbf7ea }
-[data-reg="kurokawa"]{ /* 杉林的暮色：紫灰 × 湯與燈的琥珀 */
-  --rb:#6e5b8f;
-  --c-sky:#d9d2e8; --c-far:#6f6289; --c-mid:#443e5c;
-  --c-near:#292541; --c-pop:#e8a13f; --c-pale:#f6efe0 }
-[data-reg="yufuin"]{ /* 清晨盆地：薄荷灰藍 × 稻穗金 */
-  --rb:#17827f;
-  --c-sky:#e7f0ec; --c-far:#a8cfc6; --c-mid:#2f7d7b;
-  --c-near:#274a48; --c-pop:#dfa63c; --c-pale:#fbf8ec }
-[data-reg="beppu"]{ /* 湯煙之町：蒸氣白 × 瓦灰藍 × 地獄朱 */
-  --rb:#c94360;
-  --c-sky:#f4eae1; --c-far:#7fa8bf; --c-mid:#56646f;
-  --c-near:#2c3740; --c-pop:#cf4457; --c-pale:#fff7ee }
-[data-reg="dazaifu"]{ /* 太鼓橋與飛梅：朱紅 × 池水綠 × 梅粉 */
-  --rb:#c2593f;
-  --c-sky:#f6eee0; --c-far:#8fae7e; --c-mid:#3f6b52;
-  --c-near:#2f4436; --c-pop:#d24a3d; --c-pale:#f4c3ce }
-[data-reg="journey"]{ /* 出發：暮色米 × 海藍 × 鳥居朱 */
-  --rb:#cf4229;
-  --c-sky:#f6e7d2; --c-far:#f0b878; --c-mid:#2e6d8e;
-  --c-near:#24333d; --c-pop:#d9482f; --c-pale:#fff6e8 }
+/* 實際的色盤值由 app.js 依 TRIP.regions[].palette 注入 <style id="hz-palette">，
+   所以換一趟旅行不必動這支 CSS。下面這段推導規則是所有行程共用的。 */
 
 [data-reg]{
   --sky:var(--c-sky); --far:var(--c-far); --mid:var(--c-mid);
@@ -609,3 +575,27 @@ dl{margin:0}
 }
 .owner-row a{color:var(--ink3);text-decoration:none;border:1px solid var(--line);
   border-radius:999px;padding:5px 12px;background:var(--card)}
+
+/* ---------- 行程選單 ---------- */
+.triplist{ gap:12px }
+.tripcard{ display:flex; overflow:hidden; border-radius:var(--r2); background:var(--card);
+  box-shadow:var(--sh-2); text-decoration:none; color:inherit }
+.tripcard .tc-bar{ width:8px; flex:0 0 8px; background:var(--rb) }
+.tripcard .tc-b{ padding:14px 16px }
+.tripcard h3{ margin:2px 0 4px; font-size:17px; letter-spacing:-.01em }
+.tripcard .meta{ font-size:13px; color:var(--muted) }
+.tripcard .tc-k{ font-size:11px; font-weight:700; letter-spacing:.08em; color:var(--rb) }
+.tripcard.past{ opacity:.62 }
+.tripcard.past .tc-k{ color:var(--muted) }
+.tripcard.live .tc-k::before{ content:''; display:inline-block; width:6px; height:6px; margin-right:5px;
+  border-radius:50%; background:var(--rb); vertical-align:middle }
+
+/* 標題列的行程切換 */
+#tb-sub .tripsw{ color:inherit; text-decoration:none; font-weight:600 }
+#tb-sub .tb-dot{ margin:0 6px; opacity:.5 }
+
+/* 後台：行程切換列與雙欄欄位 */
+.a-trips{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px }
+.a-trips .a-chip{ text-decoration:none }
+.a-2col{ display:grid; grid-template-columns:1fr 1fr; gap:10px }
+@media (max-width:380px){ .a-2col{ grid-template-columns:1fr } }
