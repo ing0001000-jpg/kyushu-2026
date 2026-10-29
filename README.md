@@ -4,7 +4,7 @@
 
 手機用 Safari／Chrome 開上面的網址 →「加入主畫面」，桌面會出現⛩️圖示，點開是全螢幕、沒有網址列，離線也能用。
 
-家人朋友出國用的手機 App。純 HTML／CSS／JS，**沒有任何外部依賴**（不載入 CDN、不載入網路字型），所以在國外沒訊號時也能用。
+家人朋友出國用的手機 App。純 HTML／CSS／JS，**沒有 CDN 或套件依賴**，唯一的外部資源是 Archivo Black 網路字型（載不到時自動退回系統字型），所以在國外沒訊號時也能用。
 
 ## 一個 App，多趟旅行
 
@@ -61,16 +61,16 @@ cd "/Users/shelby/AI開發專案/旅遊助手APP" && node tools/dev-server.js
 
 然後瀏覽器開 `http://localhost:4173`。這支伺服器一律送 `Cache-Control: no-store`，改完檔案重整就看得到新版；用 `python3 -m http.server` 的話瀏覽器會死抓舊的 JS 不放。
 
-手機要連同一個 Wi-Fi 的話，把 `localhost` 換成電腦的區網 IP。
+手機要連同一個 Wi-Fi 的話，把 `localhost` 換成電腦的區網 IP。注意：`http://192.168.…` 不是安全來源，瀏覽器不提供 SHA-256，**入口與後台密碼都會一律判定錯誤**（後台草稿只存在各自裝置，也沒辦法從電腦幫手機關掉）。手機上要測請用線上的 https 網址，本機開發就在電腦上用 `localhost`。
 
 ## 兩種版本
 
 **1. 專案版（`index.html`）** — 完整 PWA。用 http/https 開啟時會註冊 Service Worker，把全部檔案 precache 起來，之後真正離線也能開。放到任何靜態主機（Netlify、Vercel、GitHub Pages）都可以直接用。
 
-**2. 單檔版（`dist/kyushu.html`）** — 所有 CSS／JS／資料／圖示 inline 成一個檔案。
+**2. 單檔版（`dist/<行程>.html`，例如 `dist/kyushu-2026.html`）** — 一趟行程的所有 CSS／JS／資料／圖示 inline 成一個檔案。
 
 ```bash
-node tools/build-single.js
+node tools/build-single.js [行程代號]   # 預設 kyushu-2026
 ```
 
 單檔版沒有 Service Worker（Artifact 平台的外層 `<head>` 由平台產生，無法註冊 SW），是「載入後靠瀏覽器快取」的準離線。功能與「加入主畫面」都正常。
