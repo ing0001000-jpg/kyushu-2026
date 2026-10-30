@@ -1,5 +1,5 @@
 /* 離線快取。改版時把 CACHE 的版本號 +1，舊快取會自動清掉。 */
-var CACHE = 'hz-v10';
+var CACHE = 'hz-v11';
 /* 只預先快取「引擎殼」。各趟行程的 trips/<id>/*.js（network-first）與插畫包（cache-first）
    第一次瀏覽時自動收進來，所以新增行程不必改這份清單。 */
 var ASSETS = [

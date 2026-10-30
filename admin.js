@@ -352,7 +352,9 @@
           : '<label class="af"><span>後台密碼</span><input type="password" id="lock-pw" autocomplete="current-password"></label>'
             + '<button type="button" class="btn-primary" data-act="unlock">進入</button>')
       + '<div id="lock-msg" class="gate-msg"></div>'
-      + '<p class="a-note">忘記密碼的話，把瀏覽器這個網站的資料清掉，或直接改 <code>data/site.js</code>。</p>'
+      + (first ? '' : '<button type="button" class="a-linkbtn" data-act="forgotpw">忘記密碼？</button>')
+      + '<p class="a-note">忘記密碼：先在電腦上把 <code>data/site.js</code> 的 <code>gate.admin</code> 清空並 push，'
+      + '再按上面的「忘記密碼？」讓這台裝置改讀線上版，就會變成「第一次進後台」可以重設。</p>'
       + '</div>';
   }
 
@@ -460,6 +462,7 @@
 
       if (act === 'setadmin') return doSetAdmin(b);
       if (act === 'unlock') return doUnlock(b);
+      if (act === 'forgotpw') return doForgotPw();
       if (act === 'savepw') return doSavePw();
       if (act === 'savetoken') return doSaveToken();
       if (act === 'cleartoken') return doClearToken();
@@ -503,6 +506,14 @@
       try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) {}
       rerender();
     });
+  }
+
+  /* 只丟掉這台裝置的站台草稿（密碼、行程清單），改讀線上版；權杖與行程草稿不動。
+     線上的後台密碼沒清空的話，讀回來還是同一組，所以這顆按鈕繞不過任何東西。 */
+  function doForgotPw() {
+    if (!window.confirm('這台裝置會丟掉還沒發布的站台設定（密碼、封存、行程清單），改用線上版。\n\nGitHub 權杖和各趟行程的草稿都會保留。要繼續嗎？')) return;
+    window.__resetSite();
+    location.reload();
   }
 
   function doSavePw() {
