@@ -5,7 +5,8 @@
   'use strict';
 
   var TOKEN_KEY = 'hz:ghtoken';
-  var SESSION_KEY = 'hz:adminok';
+  var SESSION_KEY = 'hz:adminok';   /* 存「解鎖當下的後台密碼雜湊」，密碼一換就自動失效 */
+  var UNPUB_KEY = 'hz:unpub';       /* 還沒發布的範圍：行程代號，或 'site'（密碼、封存、行程清單） */
   var API = 'https://api.github.com';
 
   var tab = 'trip';      /* trip | book | places | pack | guide | setup */
@@ -13,6 +14,7 @@
   var unlocked = false;
   var busy = false;
   var flash = '';
+  var pubLog = [], pubState = '', pubMsg = '';   /* 發布列的狀態：'' | 'ok' | 'fail' */
 
   /* ---------- 小工具 ---------- */
   function esc(s) {
@@ -28,8 +30,40 @@
     for (var i = 0; i < ts.length; i++) if (ts[i].id === id) return ts[i];
     return null;
   }
-  function saveDraft() { window.__saveData(); }
-  function saveSite() { window.__saveSite(); }
+  function saveDraft() { window.__saveData(); markDirty(tripId()); }
+  function saveSite() { window.__saveSite(); markDirty('site'); }
+
+  /* ---------- 未發布追蹤 ----------
+     草稿發布後還會留著（下次開 App 直接套用），所以不能用「有沒有草稿」判斷有沒有發布，另外記一份 */
+  function unpub() {
+    try { var a = JSON.parse(localStorage.getItem(UNPUB_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function setUnpub(a) { try { localStorage.setItem(UNPUB_KEY, JSON.stringify(a)); } catch (e) {} }
+  function markDirty(scope) {
+    if (!scope) return;
+    var a = unpub();
+    if (a.indexOf(scope) < 0) { a.push(scope); setUnpub(a); }
+    /* 又改了東西，上一次發布的成功／失敗訊息就不再準了 */
+    if (!busy) pubState = '';
+  }
+  function clearDirty(scopes) { setUnpub(unpub().filter(function (x) { return scopes.indexOf(x) < 0; })); }
+  function isDirty() { var a = unpub(); return a.indexOf(tripId()) >= 0 || a.indexOf('site') >= 0; }
+
+  /* ---------- 記住後台密碼 ---------- */
+  function rememberedOk() {
+    var g = cfg().gate || {};
+    if (!g.admin) return false;
+    var v = null;
+    try { v = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY); } catch (e) {}
+    return v === g.admin;
+  }
+  function remember(hash, keep) {
+    try {
+      localStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(SESSION_KEY);
+      (keep ? localStorage : sessionStorage).setItem(SESSION_KEY, hash);
+    } catch (e) {}
+  }
+  function rememberedForever() { try { return !!localStorage.getItem(SESSION_KEY); } catch (e) { return false; } }
   function rerender() { window.__render(); }
   function say(msg) { flash = msg; }
 
@@ -309,7 +343,7 @@
       + '</div></div>';
 
     h += '<div class="a-sec"><h3>發布到 GitHub</h3><div class="a-card">'
-      + '<p class="a-note">草稿只存在這台裝置。按下面的「發布」，大約 1–2 分鐘內，團員開著的 App 就會自動換成新版並跳出「行程已更新」，不用重開。</p>'
+      + '<p class="a-note">改了會自動存成這台裝置的草稿。按每一頁最下面的「儲存並發布」，大約 1–2 分鐘內，團員開著的 App 就會自動換成新版並跳出「行程已更新」，不用重開。</p>'
       + field('帳號', 'SITE.repo.owner') + field('儲存庫', 'SITE.repo.name') + field('分支', 'SITE.repo.branch')
       + '<label class="af"><span>GitHub 存取權杖（Token）</span><input type="password" id="gh-token" autocomplete="off" placeholder="' + (hasToken ? '已存在這台裝置，留空＝不改' : 'ghp_… 或 github_pat_…') + '"></label>'
       + '<div class="a-btnrow">'
@@ -317,14 +351,10 @@
       + (hasToken ? '<button type="button" class="danger" data-act="cleartoken">刪除權杖</button>' : '')
       + '</div>'
       + '<p class="a-note">建議用 <b>Fine-grained token</b>，只授權這一個 repo、權限只給 <b>Contents: Read and write</b>，並設一個到期日。權杖存在這台瀏覽器裡，等於這個 repo 的鑰匙 — 手機借人或遺失時記得到 GitHub 撤銷。</p>'
-      + '<div class="a-btnrow">'
-      + '<button type="button" class="btn-primary" data-act="publish"' + (busy ? ' disabled' : '') + '>發布到 GitHub</button>'
-      + '</div>'
-      + '<div id="pub-log" class="a-log"></div>'
       + '</div></div>';
 
     h += '<div class="a-sec"><h3>草稿</h3><div class="a-card">'
-      + '<p class="a-note">' + (window.__hasDraft() ? '這台裝置有未發布的草稿。' : '目前沒有草稿，畫面顯示的是線上版內容。') + '</p>'
+      + '<p class="a-note">' + (isDirty() ? '這台裝置有還沒發布的修改。' : '目前的內容都已經發布了。') + '</p>'
       + '<div class="a-btnrow">'
       + '<button type="button" data-act="export">匯出草稿 JSON</button>'
       + '<button type="button" class="danger" data-act="discard">丟棄草稿，還原線上版</button>'
@@ -351,6 +381,7 @@
             + '<button type="button" class="btn-primary" data-act="setadmin">設定並進入</button>'
           : '<label class="af"><span>後台密碼</span><input type="password" id="lock-pw" autocomplete="current-password"></label>'
             + '<button type="button" class="btn-primary" data-act="unlock">進入</button>')
+      + '<label class="af a-check"><input type="checkbox" id="lock-remember" checked><span>在這個瀏覽器記住我（共用的電腦請不要勾）</span></label>'
       + '<div id="lock-msg" class="gate-msg"></div>'
       + (first ? '' : '<button type="button" class="a-linkbtn" data-act="forgotpw">忘記密碼？</button>')
       + '<p class="a-note">忘記密碼：先在電腦上把 <code>data/site.js</code> 的 <code>gate.admin</code> 清空並 push，'
@@ -359,7 +390,7 @@
   }
 
   function view() {
-    try { unlocked = unlocked || sessionStorage.getItem(SESSION_KEY) === '1'; } catch (e) {}
+    unlocked = unlocked || rememberedOk();
     if (!unlocked) return lockScreen();
 
     var h = '';
@@ -379,8 +410,28 @@
         : tab === 'pack' ? tabPack() : tab === 'guide' ? tabGuide() : tabSetup())
       + '</div>';
     h += '<div class="a-foot"><a href="' + esc(window.__hashFor('today')) + '">← 回 App</a>'
-      + '<span>' + (window.__hasDraft() ? '有未發布的草稿' : '與線上版一致') + '</span></div>';
+      + '<button type="button" class="a-linkbtn" data-act="logout">登出後台</button></div>';
+    h += '<div class="a-pubbar" id="a-pubbar">' + barInner() + '</div>';
     return h;
+  }
+
+  /* 每一頁底部固定的「儲存並發布」列。修改本來就即時存成草稿，這顆按鈕負責推上 GitHub */
+  function barInner() {
+    var st, cls = '';
+    if (busy) st = '發布中…';
+    else if (pubState === 'ok') { st = '✓ ' + pubMsg; cls = ' ok'; }
+    else if (pubState === 'fail') { st = '✗ ' + pubMsg; cls = ' fail'; }
+    else if (isDirty()) { st = '● 已存成草稿，還沒發布'; cls = ' dirty'; }
+    else st = '與線上版一致';
+    return '<div class="a-pubrow"><span class="a-pubst' + cls + '">' + esc(st) + '</span>'
+      + '<button type="button" class="btn-primary" data-act="publish"' + (busy ? ' disabled' : '') + '>'
+      + (busy ? '發布中…' : '儲存並發布') + '</button></div>'
+      + (pubLog.length ? '<details class="a-publog"' + (pubState === 'fail' ? ' open' : '') + '><summary>發布紀錄</summary>'
+        + '<div class="a-log">' + pubLog.map(esc).join('<br>') + '</div></details>' : '');
+  }
+  function updateBar() {
+    var el = document.getElementById('a-pubbar');
+    if (el) el.innerHTML = barInner();
   }
 
   /* ---------- 新增項目的樣板 ---------- */
@@ -415,6 +466,7 @@
       if (el.type === 'number') v = v === '' ? 0 : Number(v);
       setPath(el.dataset.p, v);
       if (el.dataset.p.indexOf('SITE.') === 0) saveSite(); else saveDraft();
+      updateBar();
     });
 
     root.addEventListener('change', function (e) {
@@ -463,6 +515,7 @@
       if (act === 'setadmin') return doSetAdmin(b);
       if (act === 'unlock') return doUnlock(b);
       if (act === 'forgotpw') return doForgotPw();
+      if (act === 'logout') return doLogout();
       if (act === 'savepw') return doSavePw();
       if (act === 'savetoken') return doSaveToken();
       if (act === 'cleartoken') return doClearToken();
@@ -488,7 +541,7 @@
       g.admin = h;
       saveSite();
       unlocked = true;
-      try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) {}
+      remember(h, document.getElementById('lock-remember').checked);
       tab = 'setup';
       say('後台密碼已設定。記得到「設定與發布」按發布，其他裝置才會生效。');
       rerender();
@@ -503,9 +556,15 @@
     window.__hashPw(pw, g.salt).then(function (h) {
       if (h !== g.admin) { msg.textContent = '密碼不對'; return; }
       unlocked = true;
-      try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) {}
+      remember(h, document.getElementById('lock-remember').checked);
       rerender();
     });
+  }
+
+  function doLogout() {
+    try { localStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+    unlocked = false;
+    rerender();
   }
 
   /* 只丟掉這台裝置的站台草稿（密碼、行程清單），改讀線上版；權杖與行程草稿不動。
@@ -513,6 +572,7 @@
   function doForgotPw() {
     if (!window.confirm('這台裝置會丟掉還沒發布的站台設定（密碼、封存、行程清單），改用線上版。\n\nGitHub 權杖和各趟行程的草稿都會保留。要繼續嗎？')) return;
     window.__resetSite();
+    clearDirty(['site']);
     location.reload();
   }
 
@@ -524,7 +584,8 @@
     if (!g.salt) g.salt = Math.random().toString(36).slice(2) + Date.now().toString(36);
     var jobs = [];
     if (e1) jobs.push(window.__hashPw(e1, g.salt).then(function (h) { g.entry = h; }));
-    if (a1) jobs.push(window.__hashPw(a1, g.salt).then(function (h) { g.admin = h; }));
+    /* 換了後台密碼，記住的登入也跟著換，不然自己會馬上被登出 */
+    if (a1) jobs.push(window.__hashPw(a1, g.salt).then(function (h) { var keep = rememberedForever(); g.admin = h; remember(h, keep); }));
     Promise.all(jobs).then(function () {
       if (on && !g.entry) { say('要開啟進入密碼，得先設一組進入密碼。'); rerender(); return; }
       g.enabled = on;
@@ -562,6 +623,7 @@
   function doDiscard() {
     if (!window.confirm('丟棄這台裝置上所有未發布的修改，還原成線上版？')) return;
     window.__resetData();
+    clearDirty([tripId()]);
     unlocked = true;
     say('已還原成線上版。');
     rerender();
@@ -617,6 +679,7 @@
       PLACES: { updated: '', regions: {}, unassigned: [] }
     };
     window.__seedTrip(id, skeleton);
+    markDirty(id);
     site().trips = (site().trips || []).concat([
       { id: id, title: title, start: start, end: end, color: color, artPacks: [] }
     ]);
@@ -667,6 +730,7 @@
     }
     data.savedAt = new Date().toISOString();
     window.__seedTrip(id, data);
+    markDirty(id);
 
     var src = tripMeta() || {};
     site().trips = (site().trips || []).concat([{
@@ -703,7 +767,8 @@
     site().trips = before.filter(function (x) { return x.id !== id; });
     commitFiles([['data/site.js', siteFile()]], 'trips/' + id + '/', '後台刪除行程 ' + id, function () {})
       .then(function (n) {
-        saveSite();
+        window.__saveSite();
+        clearDirty(['site', id]);
         window.__forgetTrip(id);
         say('已刪除「' + (m.title || id) + '」（' + n.removed + ' 個檔案）。');
         busy = false;
@@ -789,17 +854,19 @@
 
   function doPublish() {
     if (busy) return;
-    var logEl = document.getElementById('pub-log');
-    function log(s) { logEl.innerHTML += esc(s) + '<br>'; }
-    logEl.innerHTML = '';
+    pubLog = [];
+    function log(s) { pubLog.push(s); updateBar(); }
+    function fail(m) { pubState = 'fail'; pubMsg = m; updateBar(); }
 
-    if (!getToken()) { log('✗ 還沒設定 GitHub 權杖'); return; }
+    if (!getToken()) { fail('還沒設定 GitHub 權杖，到「設定與發布」填一組'); return; }
     var r = cfg().repo;
-    if (!r.owner || !r.name) { log('✗ 帳號或儲存庫沒填'); return; }
+    if (!r.owner || !r.name) { fail('GitHub 帳號或儲存庫沒填'); return; }
 
-    busy = true;
-    var btn = document.querySelector('[data-act="publish"]');
-    if (btn) { btn.disabled = true; btn.textContent = '發布中…'; }
+    busy = true; pubState = '';
+    /* 正在輸入的欄位先存一次（手機上按按鈕時鍵盤收起，有時 input 事件還沒送到） */
+    var ae = document.activeElement;
+    if (ae && ae.dataset && ae.dataset.p) ae.blur();
+    updateBar();
 
     /* 每次發布把快取版本 +1，團員手機才會拿到新內容 */
     var ver = (Number(cfg().cacheVersion) || 1) + 1;
@@ -846,18 +913,25 @@
       .then(function () {
         log('');
         log('發布完成。GitHub Pages 約 1 分鐘部署好，團員開著的 App 會在之後 30 秒內自動更新。');
-        saveDraft(); saveSite();
+        window.__saveData(); window.__saveSite();
+        clearDirty([id, 'site']);
+        var t = new Date();
+        pubState = 'ok';
+        pubMsg = '已發布（' + ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2) + '），團員 1–2 分鐘內自動更新';
       })
       .catch(function (e) {
-        log('✗ 失敗：' + e.message);
-        if (String(e.message).indexOf('401') === 0) log('  權杖無效或已過期，到設定重存一次。');
-        if (String(e.message).indexOf('403') === 0) log('  權杖權限不足，需要 Contents: Read and write。');
-        if (/^(409|422)/.test(String(e.message))) log('  版本衝突，可能有人同時發布了，重新整理後再試。');
+        var m = String(e.message), hint = '';
+        if (m.indexOf('401') === 0) hint = '權杖無效或已過期，到「設定與發布」重存一次';
+        else if (m.indexOf('403') === 0) hint = '權杖權限不足，需要 Contents: Read and write';
+        else if (/^(409|422)/.test(m)) hint = '版本衝突，可能有人同時發布了，重新整理後再試';
+        else if (/fetch|network/i.test(m)) hint = '連不上 GitHub，確認網路後再試';
+        log('✗ 失敗：' + m);
+        pubState = 'fail';
+        pubMsg = '發布失敗' + (hint ? '：' + hint : '，展開紀錄看原因');
       })
       .then(function () {
         busy = false;
-        var b2 = document.querySelector('[data-act="publish"]');
-        if (b2) { b2.disabled = false; b2.textContent = '發布到 GitHub'; }
+        updateBar();
       });
   }
 

@@ -627,3 +627,20 @@ dl{margin:0}
 }
 #toast.on{ opacity:1; transform:translate(-50%, 0) }
 .a-linkbtn{ font:inherit; font-size:13px; color:var(--brand); background:none; border:0; padding:6px 0; margin:0 0 8px; cursor:pointer }
+
+/* 後台：每一頁底部固定的「儲存並發布」列（貼在分頁列上方） */
+.a-pubbar{
+  position:sticky; bottom:calc(62px + env(safe-area-inset-bottom)); z-index:20;
+  margin:16px -4px 0; padding:10px 12px; border-radius:14px;
+  background:color-mix(in srgb, var(--card) 94%, transparent);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--line2); box-shadow:var(--sh-2)
+}
+.a-pubrow{ display:flex; align-items:center; gap:10px }
+.a-pubst{ flex:1; min-width:0; font-size:12.5px; line-height:1.4; color:var(--ink3) }
+.a-pubst.dirty{ color:var(--ink) }
+.a-pubst.ok{ color:var(--ok) }
+.a-pubst.fail{ color:var(--dgr) }
+.a-pubrow .btn-primary{ width:auto; margin:0; flex:0 0 auto; padding:10px 16px }
+.a-publog summary{ cursor:pointer; font-size:12px; color:var(--ink3); margin-top:8px }
+.a-publog .a-log{ margin-top:6px; max-height:30vh; overflow:auto; background:var(--sunk); border-radius:10px; padding:8px 10px }

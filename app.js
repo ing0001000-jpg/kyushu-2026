@@ -1,4 +1,4 @@
-/* 旅遊助手 — vanilla JS，無外部依賴（Google Fonts 失效時自動退回系統字型）。
+/* 有點旅譜 — vanilla JS，無外部依賴（Google Fonts 失效時自動退回系統字型）。
    引擎與行程資料分離：這支只認 data/site.js 的行程索引，內容在 trips/<id>/ 底下。 */
 (function () {
   'use strict';
@@ -783,7 +783,7 @@
     wrap.innerHTML =
       '<div class="gate-card">'
       + '<div class="gate-mark">' + I('today') + '</div>'
-      + '<h2>旅遊助手</h2>'
+      + '<h2>有點旅譜</h2>'
       + '<p class="gate-sub">' + (n > 1 ? n + ' 趟行程' : '家人朋友的行程小抄') + '</p>'
       + '<label>你的名字<input id="gate-name" type="text" autocomplete="nickname" placeholder="例：澤右"></label>'
       + '<label>密碼<input id="gate-pw" type="password" autocomplete="current-password"></label>'

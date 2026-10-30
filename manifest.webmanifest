@@ -1,6 +1,6 @@
 {
-  "name": "旅遊助手",
-  "short_name": "旅遊助手",
+  "name": "有點旅譜",
+  "short_name": "有點旅譜",
   "description": "行程、打包清單與離線旅遊指南。一個 App 放所有旅行。",
   "start_url": "./index.html",
   "scope": "./",
