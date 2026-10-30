@@ -12,7 +12,7 @@ window.SITE = {
     "name": "kyushu-2026",
     "branch": "main"
   },
-  "cacheVersion": 9,
+  "cacheVersion": 10,
   "trips": [
     {
       "id": "kyushu-2026",

@@ -126,6 +126,15 @@
   }
 
   function tabBook() {
+    /* 後台新開的行程骨架沒有租車，補一份空的才不會整頁畫不出來 */
+    var T = window.TRIP;
+    if (!T.car) T.car = { pickup: {}, dropoff: {}, notes: [] };
+    if (!T.car.pickup) T.car.pickup = {};
+    if (!T.car.dropoff) T.car.dropoff = {};
+    if (!T.car.notes) T.car.notes = [];
+    if (!T.flights) T.flights = [];
+    if (!T.hotels) T.hotels = [];
+    if (!T.budget) T.budget = { jpyTotal: 0, extra: [], note: '' };
     var h = '<div class="a-sec"><h3>航班</h3>';
     h += window.TRIP.flights.map(function (f, i) {
       var p = 'TRIP.flights.' + i;
@@ -258,9 +267,37 @@
       + '、後台密碼 ' + (g.admin ? '已設定' : '未設定') + '。</p>'
       + '</div></div>';
 
-    h += '<div class="a-sec"><h3>行程</h3><div class="a-card">'
-      + '<p class="a-note">目前編輯的是 <b>' + esc((window.TRIP && window.TRIP.title) || tripId()) + '</b>。'
-      + '下面可以開一趟新的 —— 開完會先存成這台裝置的草稿，按「發布到 GitHub」才會上線。</p>'
+    var ts = site().trips || [];
+    h += '<div class="a-sec"><h3>行程管理</h3>'
+      + ts.map(function (x) {
+          var cur = x.id === tripId();
+          return '<div class="a-row a-trip' + (x.archived ? ' is-arch' : '') + '">'
+            + '<div class="a-trip-h"><b>' + esc(x.title || x.id) + '</b>'
+            + (cur ? '<span class="a-badge">編輯中</span>' : '')
+            + (x.archived ? '<span class="a-badge">已封存</span>' : '')
+            + '<div class="a-note">' + esc(x.id) + '・' + esc(x.start || '') + ' – ' + esc(x.end || '') + '</div></div>'
+            + '<div class="a-btnrow">'
+            + (cur ? '' : '<a class="a-btnlink" href="#/' + esc(x.id) + '/admin">編輯</a>')
+            + '<button type="button" data-act="archive" data-id="' + esc(x.id) + '">' + (x.archived ? '取消封存' : '封存') + '</button>'
+            + '<button type="button" class="danger" data-act="deltrip" data-id="' + esc(x.id) + '"' + (ts.length < 2 ? ' disabled' : '') + '>刪除</button>'
+            + '</div></div>';
+        }).join('')
+      + '<p class="a-note">封存只是把行程收到選單最下面，資料都還在。封存／取消封存跟其他修改一樣，按「發布」之後團員才看得到。'
+      + '刪除會<b>立刻</b>從 GitHub 拿掉那趟的所有檔案，沒辦法從 App 裡復原。</p>'
+      + '</div>';
+
+    h += '<div class="a-sec"><h3>複製這趟當範本</h3><div class="a-card">'
+      + '<p class="a-note">把 <b>' + esc((window.TRIP && window.TRIP.title) || tripId()) + '</b> 的每日行程、指南、打包清單、收藏地點整份複製成新的一趟，'
+      + '天數不變，日期從你選的出發日重排。適合「同一條路線再去一次」或「拿上次的打包清單來改」。</p>'
+      + '<label class="af"><span>網址代號（英文小寫）</span><input type="text" id="cp-id" placeholder="kyushu-2027" autocapitalize="off" autocorrect="off"></label>'
+      + '<label class="af"><span>行程名稱</span><input type="text" id="cp-title" placeholder="2027 九州自駕"></label>'
+      + '<label class="af"><span>出發日</span><input type="date" id="cp-start"></label>'
+      + '<label class="af a-check"><input type="checkbox" id="cp-keep"><span>保留航班、租車、住宿與費用（不勾就清空，只留行程內容）</span></label>'
+      + '<button type="button" class="btn-primary" data-act="copytrip">複製成新行程</button>'
+      + '</div></div>';
+
+    h += '<div class="a-sec"><h3>新增空白行程</h3><div class="a-card">'
+      + '<p class="a-note">開完會先存成這台裝置的草稿，按「發布到 GitHub」才會上線。</p>'
       + '<label class="af"><span>網址代號（英文小寫，例如 kyoto-2027）</span><input type="text" id="nt-id" placeholder="kyoto-2027" autocapitalize="off" autocorrect="off"></label>'
       + '<label class="af"><span>行程名稱</span><input type="text" id="nt-title" placeholder="2027 京都賞楓 6 日"></label>'
       + '<div class="a-2col">'
@@ -272,7 +309,7 @@
       + '</div></div>';
 
     h += '<div class="a-sec"><h3>發布到 GitHub</h3><div class="a-card">'
-      + '<p class="a-note">草稿只存在這台裝置。要讓其他 5 個人看到，按下面的「發布」。</p>'
+      + '<p class="a-note">草稿只存在這台裝置。按下面的「發布」，大約 1–2 分鐘內，團員開著的 App 就會自動換成新版並跳出「行程已更新」，不用重開。</p>'
       + field('帳號', 'SITE.repo.owner') + field('儲存庫', 'SITE.repo.name') + field('分支', 'SITE.repo.branch')
       + '<label class="af"><span>GitHub 存取權杖（Token）</span><input type="password" id="gh-token" autocomplete="off" placeholder="' + (hasToken ? '已存在這台裝置，留空＝不改' : 'ghp_… 或 github_pat_…') + '"></label>'
       + '<div class="a-btnrow">'
@@ -427,6 +464,9 @@
       if (act === 'savetoken') return doSaveToken();
       if (act === 'cleartoken') return doClearToken();
       if (act === 'newtrip') return doNewTrip();
+      if (act === 'copytrip') return doCopyTrip();
+      if (act === 'archive') return doArchive(b.dataset.id);
+      if (act === 'deltrip') return doDeleteTrip(b.dataset.id);
       if (act === 'publish') return doPublish();
       if (act === 'export') return doExport();
       if (act === 'discard') return doDiscard();
@@ -443,7 +483,7 @@
     if (!g.salt) g.salt = Math.random().toString(36).slice(2) + Date.now().toString(36);
     window.__hashPw(pw, g.salt).then(function (h) {
       g.admin = h;
-      saveDraft();
+      saveSite();
       unlocked = true;
       try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) {}
       tab = 'setup';
@@ -477,7 +517,7 @@
     Promise.all(jobs).then(function () {
       if (on && !g.entry) { say('要開啟進入密碼，得先設一組進入密碼。'); rerender(); return; }
       g.enabled = on;
-      saveDraft();
+      saveSite();
       say('密碼已存成草稿。按「發布到 GitHub」之後，其他人才會被擋。');
       rerender();
     });
@@ -518,12 +558,16 @@
 
   /* ---------- 新增行程 ----------
      產生一份最小可用的骨架存成草稿，馬上就能編輯；發布時才會寫進 repo。 */
+  var DOW = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+  /* 用本地日期，不能用 toISOString：台灣是 UTC+8，午夜轉成 UTC 會變前一天 */
+  function ymd(d) {
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
   function daysBetween(a, b) {
     var out = [], d = new Date(a + 'T00:00:00'), end = new Date(b + 'T00:00:00'), n = 1;
-    var DOW = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
     while (d <= end && n < 100) {
       out.push({
-        n: n, date: d.toISOString().slice(0, 10), dow: DOW[d.getDay()],
+        n: n, date: ymd(d), dow: DOW[d.getDay()],
         region: '', title: '第 ' + n + ' 天', hotel: '',
         blocks: [{ part: 'am', where: '', items: [] }, { part: 'pm', where: '', items: [] }, { part: 'night', where: '', items: [] }]
       });
@@ -570,12 +614,99 @@
     location.hash = '#/' + id + '/admin';
   }
 
-  /* ---------- 發布 ---------- */
-  function b64(str) {
-    var bytes = new TextEncoder().encode(str), bin = '';
-    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-    return btoa(bin);
+  /* ---------- 行程管理：複製／封存／刪除 ---------- */
+  function badNewId(id) {
+    if (!/^[a-z0-9][a-z0-9-]{1,40}$/.test(id)) return '網址代號只能用英文小寫、數字和減號。';
+    if ((site().trips || []).some(function (x) { return x.id === id; })) return '這個代號已經有人用了。';
+    return '';
   }
+  function findTrip(id) {
+    var ts = site().trips || [];
+    for (var i = 0; i < ts.length; i++) if (ts[i].id === id) return ts[i];
+    return null;
+  }
+
+  function doCopyTrip() {
+    var id = (document.getElementById('cp-id').value || '').trim().toLowerCase();
+    var title = (document.getElementById('cp-title').value || '').trim();
+    var start = document.getElementById('cp-start').value;
+    var keep = document.getElementById('cp-keep').checked;
+    var bad = badNewId(id);
+    if (bad) { say(bad); rerender(); return; }
+    if (!title) { say('先幫新的這趟取個名字。'); rerender(); return; }
+    if (!start) { say('選一個出發日。'); rerender(); return; }
+
+    var data = {};
+    ['TRIP', 'GUIDE', 'PLACES', 'PACKING', 'TODOS'].forEach(function (k) {
+      if (window[k]) data[k] = JSON.parse(JSON.stringify(window[k]));
+    });
+    var T = data.TRIP, d = new Date(start + 'T00:00:00');
+    (T.days || []).forEach(function (day) {
+      day.date = ymd(d); day.dow = DOW[d.getDay()];
+      d.setDate(d.getDate() + 1);
+    });
+    T.title = title;
+    T.start = start;
+    T.end = T.days && T.days.length ? T.days[T.days.length - 1].date : start;
+    if (!keep) {
+      T.flights = []; T.hotels = [];
+      T.car = { pickup: {}, dropoff: {}, notes: [] };
+      T.budget = { jpyTotal: 0, extra: [], note: '' };
+      (T.days || []).forEach(function (day) { day.hotel = ''; });
+    }
+    data.savedAt = new Date().toISOString();
+    window.__seedTrip(id, data);
+
+    var src = tripMeta() || {};
+    site().trips = (site().trips || []).concat([{
+      id: id, title: title, start: T.start, end: T.end,
+      color: src.color || '#2b6ca8', artPacks: (src.artPacks || []).slice()
+    }]);
+    saveSite();
+    say('已複製成「' + title + '」（' + (T.days || []).length + ' 天，' + T.start + ' – ' + T.end + '）。現在編輯的是新的這趟，好了再按發布。');
+    location.hash = '#/' + id + '/admin';
+  }
+
+  function doArchive(id) {
+    var m = findTrip(id);
+    if (!m) return;
+    if (m.archived) delete m.archived; else m.archived = true;
+    saveSite();
+    say('「' + (m.title || id) + '」' + (m.archived ? '已封存' : '已取消封存') + '。按「發布到 GitHub」之後團員的選單才會跟著變。');
+    rerender();
+  }
+
+  function doDeleteTrip(id) {
+    var m = findTrip(id);
+    if (!m || busy) return;
+    if ((site().trips || []).length < 2) { say('至少要留一趟行程。'); rerender(); return; }
+    if (!getToken()) { say('刪除行程會直接改 GitHub，要先在下面設定權杖。'); rerender(); return; }
+    var typed = window.prompt('刪除「' + (m.title || id) + '」會從 GitHub 拿掉這趟的所有檔案，團員也看不到了。\n\n確定要刪的話，輸入它的網址代號：' + id);
+    if (typed == null) return;
+    if (typed.trim() !== id) { say('代號不符，沒有刪除。'); rerender(); return; }
+
+    busy = true;
+    say('刪除中…');
+    rerender();
+    var before = site().trips.slice();
+    site().trips = before.filter(function (x) { return x.id !== id; });
+    commitFiles([['data/site.js', siteFile()]], 'trips/' + id + '/', '後台刪除行程 ' + id, function () {})
+      .then(function (n) {
+        saveSite();
+        window.__forgetTrip(id);
+        say('已刪除「' + (m.title || id) + '」（' + n.removed + ' 個檔案）。');
+        busy = false;
+        if (tripId() === id || !tripId()) location.hash = '#/' + site().trips[0].id + '/admin';
+        else rerender();
+      }, function (e) {
+        site().trips = before;
+        busy = false;
+        say('刪除失敗：' + e.message);
+        rerender();
+      });
+  }
+
+  /* ---------- 發布 ---------- */
   function jsFile(header, pairs) {
     return header + '\n' + pairs.map(function (p) {
       return 'window.' + p[0] + ' = ' + JSON.stringify(p[1], null, 2) + ';';
@@ -603,28 +734,46 @@
     });
   }
 
-  function putFile(path, content, log) {
-    var r = cfg().repo;
-    return gh('/contents/' + path + '?ref=' + encodeURIComponent(r.branch))
-      .then(function (j) { return j && j.sha; })
-      .catch(function (e) {
-        if (String(e.message).indexOf('404') === 0) return null;   /* 新檔 */
-        throw e;
-      })
-      .then(function (sha) {
-        var body = {
-          message: '後台更新 ' + path + '（' + new Date().toISOString().slice(0, 16).replace('T', ' ') + '）',
-          content: b64(content),
-          branch: r.branch
-        };
-        if (sha) body.sha = sha;
-        return gh('/contents/' + path, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+  function siteFile() {
+    return jsFile('/* 站台設定與行程索引 — 由後台發布。存的是密碼雜湊，不是密碼本身。 */', [['SITE', site()]]);
+  }
+
+  /* 所有檔案包成「一個」commit（Git Data API）：GitHub Pages 只部署一次，
+     團員也不會抓到一半新一半舊的資料。delPrefix 有給的話，順便刪掉那個資料夾底下的檔案。 */
+  function commitFiles(files, delPrefix, message, log) {
+    var ref = '/git/refs/heads/' + encodeURI(cfg().repo.branch);
+    var json = { 'Content-Type': 'application/json' };
+    var head, baseTree, removed = [];
+    return gh(ref)
+      .then(function (j) { head = j.object.sha; return gh('/git/commits/' + head); })
+      .then(function (c) {
+        baseTree = c.tree.sha;
+        if (!delPrefix) return;
+        return gh('/git/trees/' + baseTree + '?recursive=1').then(function (t) {
+          removed = (t.tree || []).filter(function (x) {
+            return x.type === 'blob' && x.path.indexOf(delPrefix) === 0;
+          }).map(function (x) { return x.path; });
         });
       })
-      .then(function () { log('✓ ' + path); });
+      .then(function () {
+        var entries = files.map(function (f) {
+          return { path: f[0], mode: '100644', type: 'blob', content: f[1] };
+        }).concat(removed.map(function (p) {
+          return { path: p, mode: '100644', type: 'blob', sha: null };
+        }));
+        return gh('/git/trees', { method: 'POST', headers: json, body: JSON.stringify({ base_tree: baseTree, tree: entries }) });
+      })
+      .then(function (t) {
+        return gh('/git/commits', { method: 'POST', headers: json, body: JSON.stringify({ message: message, tree: t.sha, parents: [head] }) });
+      })
+      .then(function (c) {
+        return gh(ref, { method: 'PATCH', headers: json, body: JSON.stringify({ sha: c.sha }) });
+      })
+      .then(function () {
+        files.forEach(function (f) { log('✓ ' + f[0]); });
+        removed.forEach(function (p) { log('✗ 已刪除 ' + p); });
+        return { removed: removed.length };
+      });
   }
 
   function doPublish() {
@@ -651,13 +800,15 @@
       meta.title = window.TRIP.title;
       meta.start = window.TRIP.start;
       meta.end = window.TRIP.end;
+      /* 團員的 App 每 30 秒比一次這個值，變了就自動重抓這趟 */
+      meta.rev = new Date().toISOString();
     }
 
     var files = [
       [base + 'trip.js', jsFile('/* 行程資料 — 由後台發布，手改會被下次發布覆蓋。 */', [['TRIP', window.TRIP]])],
       [base + 'guide.js', jsFile('/* 離線指南 — 由後台發布。景點／美食屬一般旅遊建議，非既定行程。 */', [['GUIDE', window.GUIDE]])],
       [base + 'packing.js', jsFile('/* 打包清單與待辦 — 由後台發布。改 id 會弄丟已勾選狀態。 */', [['PACKING', window.PACKING], ['TODOS', window.TODOS]])],
-      ['data/site.js', jsFile('/* 站台設定與行程索引 — 由後台發布。存的是密碼雜湊，不是密碼本身。 */', [['SITE', site()]])],
+      ['data/site.js', siteFile()],
       ['sw.js', null]   /* 稍後用讀回來的內容改版本號 */
     ];
     if (window.PLACES) {
@@ -678,20 +829,19 @@
         files[files.length - 1][1] = cur.replace(re, 'hz-v' + ver);
       })
       .then(function () {
-        return files.reduce(function (chain, f) {
-          return chain.then(function () { return f[1] == null ? null : putFile(f[0], f[1], log); });
-        }, Promise.resolve());
+        var stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
+        return commitFiles(files, null, '後台發布 ' + id + '（' + stamp + '）', log);
       })
       .then(function () {
         log('');
-        log('發布完成。GitHub Pages 約 1 分鐘後生效，團員重開 App 就會更新。');
+        log('發布完成。GitHub Pages 約 1 分鐘部署好，團員開著的 App 會在之後 30 秒內自動更新。');
         saveDraft(); saveSite();
       })
       .catch(function (e) {
         log('✗ 失敗：' + e.message);
         if (String(e.message).indexOf('401') === 0) log('  權杖無效或已過期，到設定重存一次。');
         if (String(e.message).indexOf('403') === 0) log('  權杖權限不足，需要 Contents: Read and write。');
-        if (String(e.message).indexOf('409') === 0) log('  版本衝突，可能有人同時改了，重新整理後再試。');
+        if (/^(409|422)/.test(String(e.message))) log('  版本衝突，可能有人同時發布了，重新整理後再試。');
       })
       .then(function () {
         busy = false;

@@ -599,3 +599,30 @@ dl{margin:0}
 .a-trips .a-chip{ text-decoration:none }
 .a-2col{ display:grid; grid-template-columns:1fr 1fr; gap:10px }
 @media (max-width:380px){ .a-2col{ grid-template-columns:1fr } }
+
+/* 行程選單：封存區 */
+.tc-archive{ margin-top:18px }
+.tc-archive summary{ cursor:pointer; font-size:13px; color:var(--ink3); padding:6px 2px; list-style-position:inside }
+.tc-archive .triplist{ margin-top:10px }
+.tc-archive .tripcard{ opacity:.55 }
+
+/* 後台：行程管理列 */
+.a-trip{ padding-top:14px }
+.a-trip-h b{ font-size:15px }
+.a-trip-h .a-note{ margin:2px 0 8px }
+.a-trip.is-arch .a-trip-h b{ color:var(--ink3) }
+.a-badge{ display:inline-block; margin-left:6px; font-size:11px; color:var(--ink2);
+  background:var(--sunk); border-radius:999px; padding:1px 8px; vertical-align:2px }
+.a-btnrow .a-btnlink{ font-size:14px; color:var(--ink); text-decoration:none; background:var(--card);
+  border:1px solid var(--line2); border-radius:10px; padding:10px 16px }
+.a-btnrow button:disabled{ opacity:.4; cursor:default }
+
+/* 自動更新提示：浮在分頁列上方 */
+#toast{
+  position:fixed; left:50%; bottom:calc(76px + env(safe-area-inset-bottom)); z-index:60;
+  transform:translate(-50%, 12px); opacity:0; pointer-events:none;
+  max-width:calc(100% - 32px); background:var(--ink); color:var(--card);
+  font-size:13px; padding:9px 16px; border-radius:999px; box-shadow:var(--sh-2);
+  transition:opacity .25s, transform .25s
+}
+#toast.on{ opacity:1; transform:translate(-50%, 0) }

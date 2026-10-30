@@ -826,7 +826,7 @@
       document.head.appendChild(el);
     });
   }
-  var artLoaded = {}, activeTrip = null;
+  var artLoaded = {}, activeTrip = null, loadedRev = null;
   function ensureTrip(id) {
     if (activeTrip === id) return Promise.resolve();
     var meta = tripMeta(id);
@@ -834,11 +834,13 @@
     /* 單檔版（tools/build-single.js）已經把資料 inline 進來了，不用再抓 */
     if (window.__BUNDLED_TRIP === id) { bindTrip(id); activeTrip = id; return Promise.resolve(); }
     var base = 'trips/' + id + '/', chain = Promise.resolve();
+    /* ?v=<發布時間>：每次發布網址都不同，GitHub Pages 的 CDN 才不會回舊檔 */
+    var rev = meta.rev || '', q = rev ? '?v=' + encodeURIComponent(rev) : '';
     /* 先清空，免得某支載不到時還留著上一趟的資料 */
     TRIP_KEYS.forEach(function (k) { window[k] = null; });
     /* 每支都是選配：線上還沒發布的新行程靠本機草稿也要能開 */
     ['trip.js', 'guide.js', 'packing.js', 'places.js'].forEach(function (f) {
-      chain = chain.then(function () { return loadScript(base + f).catch(function () {}); });
+      chain = chain.then(function () { return loadScript(base + f + q).catch(function () {}); });
     });
     (meta.artPacks || []).forEach(function (pk) {
       if (artLoaded[pk]) return;
@@ -846,12 +848,81 @@
         return loadScript('data/art/' + pk + '.js').then(function () { artLoaded[pk] = 1; }, function () {});
       });
     });
-    return chain.then(function () { bindTrip(id); activeTrip = id; });
+    return chain.then(function () { bindTrip(id); activeTrip = id; loadedRev = rev; });
+  }
+  /* 後台刪掉行程後，把這台裝置上跟它有關的東西一起清掉 */
+  window.__forgetTrip = function (id) {
+    lsDel(NS + id + ':data'); lsDel(NS + id + ':state');
+    if (lsGet(NS + 'lastTrip') === id) lsDel(NS + 'lastTrip');
+    if (activeTrip === id) { activeTrip = null; tripId = null; TRIP = null; }
+  };
+
+  /* ---------- 自動更新 ----------
+     App 開著時每 30 秒抓一次 data/site.js（很小），看目前這趟的 rev 有沒有變。
+     有變就重抓這趟的資料、原地重畫，跳一個「行程已更新」。
+     發布到團員看到 ≈ GitHub Pages 部署（約 1 分鐘）＋ 最多 30 秒。 */
+  var checking = false;
+  function parseSiteJs(txt) {
+    var i = txt.indexOf('{'), j = txt.lastIndexOf('}');
+    return JSON.parse(txt.slice(i, j + 1));
+  }
+  function checkUpdate() {
+    if (checking || window.__BUNDLED_TRIP || document.visibilityState === 'hidden') return;
+    if (!window.fetch || navigator.onLine === false) return;
+    /* 在後台編輯時不換資料，免得蓋掉正在改的東西；回到 App 頁面再說 */
+    var r = parseHash();
+    if (r.kind === 'admin') return;
+    checking = true;
+    fetch('data/site.js?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (res) { if (!res.ok) throw new Error(res.status); return res.text(); })
+      .then(function (txt) {
+        var remote = parseSiteJs(txt);
+        /* 有站台草稿的是編輯者自己的手機，以草稿為準 */
+        if (!lsGet(NS + 'site')) {
+          replaceInPlace(SITE, remote);
+          if (parseHash().kind === 'picker') renderPicker();
+        }
+        if (!activeTrip) return;
+        var rt = null;
+        (remote.trips || []).forEach(function (x) { if (x.id === activeTrip) rt = x; });
+        if (!rt || !rt.rev || rt.rev === loadedRev) return;
+        var m = tripMeta(activeTrip);
+        if (m) m.rev = rt.rev;
+        var id = activeTrip, y = window.pageYOffset;
+        activeTrip = null;
+        return ensureTrip(id).then(function () {
+          var now = parseHash();
+          if (now.kind !== 'trip' || now.id !== id) return;
+          var a = document.activeElement;
+          if (!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA'))) { render(now); window.scrollTo(0, y); }
+          toast('行程已更新（' + fmtClock(new Date(rt.rev)) + ' 發布）');
+        });
+      })
+      .catch(function () {})
+      .then(function () { checking = false; });
+  }
+  function fmtClock(d) {
+    if (isNaN(d)) return '剛剛';
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+  }
+  function toast(msg) {
+    var el = document.getElementById('toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'toast'; el.setAttribute('role', 'status');
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add('on');
+    clearTimeout(toast.t);
+    toast.t = setTimeout(function () { el.classList.remove('on'); }, 4000);
   }
 
-  /* 沒指定要看哪趟時：優先進行中的，其次最近要出發的，再其次最近結束的 */
+  /* 沒指定要看哪趟時：優先進行中的，其次最近要出發的，再其次最近結束的。封存的不挑，除非全都封存了 */
   function pickTrip() {
-    var ts = (SITE.trips || []).slice();
+    var all = SITE.trips || [];
+    var ts = all.filter(function (x) { return !x.archived; });
+    if (!ts.length) ts = all.slice();
     if (!ts.length) return null;
     var t = today(), live = null, next = null, past = null;
     ts.forEach(function (x) {
@@ -940,7 +1011,7 @@
     });
     document.getElementById('tb-title').textContent = '我的行程';
     document.getElementById('tb-sub').textContent = ts.length + ' 趟';
-    var h = ts.length ? '<div class="stack triplist">' + ts.map(function (x) {
+    function card(x) {
       var st = tripStatus(x);
       return '<a class="tripcard ' + st.cls + '" href="#/' + esc(x.id) + '/today"'
         + ' style="--rb:' + esc(x.color || '#cf4229') + '">'
@@ -949,8 +1020,15 @@
         + '<h3>' + esc(x.title || x.id) + '</h3>'
         + '<div class="meta">' + esc(fmtRange(x.start, x.end)) + '</div>'
         + '</div></a>';
-    }).join('') + '</div>'
-      : '<div class="card card-p"><div class="muted">還沒有任何行程。到後台新增一趟吧。</div></div>';
+    }
+    var shown = ts.filter(function (x) { return !x.archived; });
+    var kept = ts.filter(function (x) { return x.archived; });
+    var h = shown.length ? '<div class="stack triplist">' + shown.map(card).join('') + '</div>'
+      : '<div class="card card-p"><div class="muted">' + (kept.length ? '行程都封存了，展開下面就看得到。' : '還沒有任何行程。到後台新增一趟吧。') + '</div></div>';
+    if (kept.length) {
+      h += '<details class="tc-archive"><summary>已封存（' + kept.length + '）</summary>'
+        + '<div class="stack triplist">' + kept.map(card).join('') + '</div></details>';
+    }
     h += '<div class="owner-row"><span></span><a href="#/admin">後台管理</a></div>';
     paint(h);
     markTab(null);
@@ -1059,6 +1137,9 @@
   }
   setInterval(refreshNow, 60000);
   document.addEventListener('visibilitychange', refreshNow);
+  setInterval(checkUpdate, 30000);
+  document.addEventListener('visibilitychange', checkUpdate);
+  window.addEventListener('online', checkUpdate);
 
   /* 自己要帶的項目：新增／刪除 */
   document.getElementById('view').addEventListener('submit', function (e) {
@@ -1102,6 +1183,8 @@
   window.addEventListener('hashchange', function () { if (!gateNeeded()) go(); });
   if (gateNeeded()) showGate(); else go();
   window.__render = function () { go(); };
+  /* 第一次開的 data/site.js 可能被 CDN 快取了幾分鐘，開完馬上對一次最新版 */
+  setTimeout(checkUpdate, 1500);
 
   /* 開發時網址加 ?nosw=1 可以不裝 Service Worker，免得改檔案還被舊快取蓋住 */
   if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0 && !/[?&]nosw=/.test(location.search)) {
